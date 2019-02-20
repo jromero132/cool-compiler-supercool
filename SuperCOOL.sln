@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCOOL", "SuperCOOL\SuperCOOL.csproj", "{441EADF2-0D8F-48DA-9DC6-988C88EF5631}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCOOL", "src\SuperCOOL\SuperCOOL.csproj", "{441EADF2-0D8F-48DA-9DC6-988C88EF5631}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
