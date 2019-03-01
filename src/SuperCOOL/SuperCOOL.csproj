@@ -2,8 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Antlr4 Remove="ANTLR\COOL.g4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ANTLR\danicool.g" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4" Version="4.6.6">
@@ -11,6 +19,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Update="ANTLR\SuperCOOL.g4">
+      <Listener>false</Listener>
+    </Antlr4>
   </ItemGroup>
 
 </Project>
