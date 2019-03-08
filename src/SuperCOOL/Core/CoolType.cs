@@ -21,6 +21,11 @@
             return coolType.Name == Name;
         }
 
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
         public bool IsIt(CoolType Tatara)
         {
             var type = this;
