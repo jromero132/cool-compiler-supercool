@@ -1,25 +1,3 @@
-/*
-The MIT License (MIT)
-Copyright (c) 2017 Linonetwo
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-COOL grammar derived from:
-http://sist.shanghaitech.edu.cn/faculty/songfu/course/spring2017/cs131/COOL/COOLAid.pdf
-*/
-
 grammar SuperCOOL;
 
 program
@@ -33,14 +11,23 @@ programBlocks
    ;
 
 classDefine
-   : CLASS TYPEID (INHERITS TYPEID)? '{' (feature ';')* '}'
+   : CLASS TYPEID (INHERITS TYPEID)? '{' (listFeature)? '}'
    ;
 
+listFeature 	
+  : feature ';' listFeature #multipleListFeature
+  | feature ';' #singleListFeature
+  ;
+
 feature
-   : OBJECTID '(' (formal (',' formal)*)* ')' ':' TYPEID '{' expression '}' # method
+   : OBJECTID '(' listFormal ')' ':' TYPEID '{' expression '}' # method
    | OBJECTID ':' TYPEID (ASSIGNMENT expression)? # property
    ;
 
+listFormal 	
+  : formal ',' listFormal #multipleListFormal
+  | formal #singleListFormal
+  ;
 formal
    : OBJECTID ':' TYPEID
    ;
