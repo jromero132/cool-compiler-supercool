@@ -115,9 +115,12 @@ namespace SuperCOOL.SemanticCheck
             throw new NotImplementedException();
         }
 
-        public SemanticCheckResult VisitInt([NotNull] SuperCOOLParser.IntContext context)
+        public override SemanticCheckResult VisitInt([NotNull] SuperCOOLParser.IntContext context)
         {
-            throw new NotImplementedException();
+            var semanticCheckResult = new SemanticCheckResult();
+            semanticCheckResult.Correct = true;
+            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("int");
+            return semanticCheckResult;
         }
 
         public SemanticCheckResult VisitIsvoid([NotNull] SuperCOOLParser.IsvoidContext context)
@@ -243,11 +246,6 @@ namespace SuperCOOL.SemanticCheck
             semanticCheckResult.Correct = true;
             semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("string");
             return semanticCheckResult;
-        }
-
-        public SemanticCheckResult VisitTerminal([NotNull] ITerminalNode node)
-        {
-            throw new NotImplementedException();
         }
 
         public override SemanticCheckResult VisitTrue([NotNull] SuperCOOLParser.TrueContext context)
