@@ -237,9 +237,12 @@ namespace SuperCOOL.SemanticCheck
             return semanticCheckResult;
         }
 
-        public SemanticCheckResult VisitString([NotNull] SuperCOOLParser.StringContext context)
+        public override SemanticCheckResult VisitString([NotNull] SuperCOOLParser.StringContext context)
         {
-            throw new NotImplementedException();
+            var semanticCheckResult = new SemanticCheckResult();
+            semanticCheckResult.Correct = true;
+            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("string");
+            return semanticCheckResult;
         }
 
         public SemanticCheckResult VisitTerminal([NotNull] ITerminalNode node)
