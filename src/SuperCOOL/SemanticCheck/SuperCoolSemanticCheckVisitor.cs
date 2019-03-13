@@ -1,121 +1,149 @@
 ﻿using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-using SuperCOOL.ANTLR;
 using SuperCOOL.Core;
+using SuperCOOL.SemanticCheck.AST;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SuperCOOL.SemanticCheck
 {
-    public class SuperCoolSemanticCheckVisitor : SuperCOOLBaseVisitor<SemanticCheckResult>
+    public class SuperCoolSemanticCheckVisitor : ISuperCoolASTVisitor<SemanticCheckResult>
     {
         public CompilationUnit CompilationUnit { get; }
-        public SuperCoolSemanticCheckVisitor(CompilationUnit compilationUnit)
+
+        public SemanticCheckResult VisitAdd(ASTAddNode Add)
         {
-            this.CompilationUnit = compilationUnit;
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Type = CompilationUnit.GetTypeIfDef("Int");
+
+            var left = Add.Left.Accept(this);
+            var right = Add.Right.Accept(this);
+
+            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
+            return result;
         }
 
-        public SemanticCheckResult VisitAdd([NotNull] SuperCOOLParser.AddContext context)
+        public SemanticCheckResult VisitAssignment(ASTAssingmentNode Assingment)
         {
-            throw new NotImplementedException();
+            SemanticCheckResult result = new SemanticCheckResult();
+            var expresult = Assingment.Expresion.Accept(this);
+            var idResult = Assingment.Id.Accept(this);
+
+            result.Correct = expresult.Correct && idResult.Correct && expresult.Type.IsIt(idResult.Type);
+            result.Type = expresult.Type;
+            return result;
         }
 
-        public SemanticCheckResult VisitAssignment([NotNull] SuperCOOLParser.AssignmentContext context)
+        public SemanticCheckResult VisitBlock(ASTBlockNode Block)
         {
-            throw new NotImplementedException();
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Correct = true;
+
+            foreach (var item in Block.Expresions)
+            {
+                var sem = item.Accept(this);
+                result.Type =sem.Type;
+                result.Correct &= sem.Correct;
+            }
+            return result;
         }
 
-        public SemanticCheckResult VisitBlock([NotNull] SuperCOOLParser.BlockContext context)
+        public SemanticCheckResult VisitBoolNot(ASTBoolNotNode BoolNode)
         {
-            throw new NotImplementedException();
+            SemanticCheckResult result = new SemanticCheckResult();
+            var exp = BoolNode.Accept(this);
+            var boolType= CompilationUnit.GetTypeIfDef("Bool");
+            result.Correct = exp.Type == boolType;
+            result.Type = boolType;
+            return result;
         }
 
-        public SemanticCheckResult VisitBoolNot([NotNull] SuperCOOLParser.BoolNotContext context)
+        public SemanticCheckResult VisitCase(ASTCaseNode Case)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+
+            var expresionCaseResult = Case.ExpressionCase.Accept(this);
+            result.Correct = expresionCaseResult.Correct;
+
+            var branchresults = new SemanticCheckResult[Case.Cases.Length];
+            for (int i = 0; i < Case.Cases.Length; i++)
+            {
+                branchresults[i] = Case.Cases[i].Branch.Accept(this);
+                result.Correct &= branchresults[i].Correct && branchresults[i].Type.IsIt(CompilationUnit.GetTypeIfDef(Case.Cases[i].Type));
+            }
+
+            result.Type = branchresults[0].Type;
+            for (int i = 1; i < Case.Cases.Length; i++)
+                result.Type = CompilationUnit.GetTypeLCA(result.Type,branchresults[i].Type);
+
+            return result;
         }
 
-        public SemanticCheckResult VisitCase([NotNull] SuperCOOLParser.CaseContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitClassDefine([NotNull] SuperCOOLParser.ClassDefineContext context)
+        public SemanticCheckResult VisitClass(ASTClassNode Class)
         {
             SemanticCheckResult semanticCheckResult = new SemanticCheckResult();
             semanticCheckResult.Correct = true;
+            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef(Class.TypeName);
 
-            string inherit=context.TYPEID(1).Symbol.Text;
+            string inherit= Class.ParentTypeName;
             semanticCheckResult.Correct &= CompilationUnit.IsTypeDef(inherit);
 
-            var listFeaturesResult = context.listFeature().Accept(this);
-            semanticCheckResult.Correct &= listFeaturesResult.Correct;
+            foreach (var item in Class.Methods)
+            {
+                semanticCheckResult.Correct &= item.Accept(this).Correct;
+            }
+            foreach (var item in Class.Atributes)
+            {
+                semanticCheckResult.Correct &= item.Accept(this).Correct;
+            }
             return semanticCheckResult;
         }
 
-        public override  SemanticCheckResult VisitClasses([NotNull] SuperCOOLParser.ClassesContext context)
+        public SemanticCheckResult VisitDivision(ASTDivideNode Divide)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            var clasesResult = context.classDefine().Accept(this);
-            semanticCheckResult.Correct = clasesResult.Correct;
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Type = CompilationUnit.GetTypeIfDef("Int");
 
-            var programBlocksResult = context.programBlocks().Accept(this);
-            semanticCheckResult.Correct &= programBlocksResult.Correct;
+            var left = Divide.Left.Accept(this);
+            var right = Divide.Right.Accept(this);
 
-            return semanticCheckResult;
+            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
+            return result;
         }
 
-        public override SemanticCheckResult VisitMultipleListFeature([NotNull] SuperCOOLParser.MultipleListFeatureContext context)
+        public SemanticCheckResult VisitEqual(ASTEqualNode Equal)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            var featureResult = context.feature().Accept(this);
-            semanticCheckResult.Correct = featureResult.Correct;
-
-            var programBlocksResult = context.listFeature().Accept(this);
-            semanticCheckResult.Correct &= programBlocksResult.Correct;
-
-            return semanticCheckResult;
+            var left = Equal.Left.Accept(this);
+            var right = Equal.Right.Accept(this);
+            if (left.Type.Name=="Bool" || left.Type.Name == "Int" || left.Type.Name == "String" || right.Type.Name == "Bool" || right.Type.Name == "Int" || right.Type.Name == "String")
+            {
+                return new SemanticCheckResult() {Correct=left.Type==right.Type,Type=CompilationUnit.GetTypeIfDef("Bool") };
+            }
+            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.GetTypeIfDef("Bool") };
         }
 
-        public override SemanticCheckResult VisitSingleListFeature([NotNull] SuperCOOLParser.SingleListFeatureContext context)
+        public SemanticCheckResult VisitBoolConstant(ASTBoolConstantNode BoolConstant)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            var featureResult = context.feature().Accept(this);
-            semanticCheckResult.Correct = featureResult.Correct;
-            return semanticCheckResult;
+            return new SemanticCheckResult
+            {
+                Correct = true,
+                Type = CompilationUnit.GetTypeIfDef("Bool")
+            };
         }
 
-        public SemanticCheckResult VisitDivision([NotNull] SuperCOOLParser.DivisionContext context)
+        public SemanticCheckResult VisitIf(ASTIfNode If)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+
+            var conditionResult = If.Condition.Accept(this);
+            var thenResult = If.Then.Accept(this);
+            var elseResult = If.Else.Accept(this);
+
+            result.Correct = conditionResult.Type == CompilationUnit.GetTypeIfDef("Bool") && thenResult.Correct && elseResult.Correct;
+            result.Type = CompilationUnit.GetTypeLCA(thenResult.Type, elseResult.Type);
+
+            return result;
         }
 
-        public SemanticCheckResult VisitEqual([NotNull] SuperCOOLParser.EqualContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitErrorNode([NotNull] IErrorNode node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitFalse([NotNull] SuperCOOLParser.FalseContext context)
-        {
-            var semanticCheckResult = new SemanticCheckResult();
-            semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("bool");
-            return semanticCheckResult;
-        }
-
-        public SemanticCheckResult VisitIf([NotNull] SuperCOOLParser.IfContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitInt([NotNull] SuperCOOLParser.IntContext context)
+        public SemanticCheckResult VisitIntConstant(ASTIntConstantNode IntConstant)
         {
             var semanticCheckResult = new SemanticCheckResult();
             semanticCheckResult.Correct = true;
@@ -123,124 +151,133 @@ namespace SuperCOOL.SemanticCheck
             return semanticCheckResult;
         }
 
-        public SemanticCheckResult VisitIsvoid([NotNull] SuperCOOLParser.IsvoidContext context)
+        public SemanticCheckResult VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            throw new NotImplementedException();
+            var res = IsVoid.Expression.Accept(this);
+            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.GetTypeIfDef("Bool") };
         }
 
-        public SemanticCheckResult VisitLessEqual([NotNull] SuperCOOLParser.LessEqualContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitLessThan([NotNull] SuperCOOLParser.LessThanContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitLetIn([NotNull] SuperCOOLParser.LetInContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitSingleListFormal([NotNull] SuperCOOLParser.SingleListFormalContext context)
-        {
-            return context.formal().Accept(this);
-        }
-
-        public override SemanticCheckResult VisitFormal([NotNull] SuperCOOLParser.FormalContext context)
-        {
-            var result = new SemanticCheckResult();
-            result.Correct= CompilationUnit.IsTypeDef(context.TYPEID().Symbol.Text);
-            return result;
-        }
-
-        public override SemanticCheckResult VisitMultipleListFormal([NotNull] SuperCOOLParser.MultipleListFormalContext context)
-        {
-            var result = new SemanticCheckResult();
-            var formalResult= context.formal().Accept(this);
-            result.Correct = formalResult.Correct;
-
-            var listResult = context.listFormal().Accept(this);
-            result.Correct &= listResult.Correct;
-
-            return result;
-        }
-
-        public override SemanticCheckResult VisitMethod([NotNull] SuperCOOLParser.MethodContext context)
+        public SemanticCheckResult VisitLessEqual(ASTLessEqualNode LessEqual)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            var formalListResult = context.listFormal().Accept(this);
-            result.Correct = formalListResult.Correct;
+            result.Type = CompilationUnit.GetTypeIfDef("Bool");
 
-            var exprResult = context.expression().Accept(this);
-            string returnTypeName = context.TYPEID().Symbol.Text;
-            if (!CompilationUnit.IsTypeDef(returnTypeName))
+            var integer = CompilationUnit.GetTypeIfDef("Int");
+
+            var left = LessEqual.Left.Accept(this);
+            var right = LessEqual.Right.Accept(this);
+
+            result.Correct = left.Correct && right.Correct && left.Type == integer && right.Type == integer;
+            return result;
+        }
+
+        public SemanticCheckResult VisitLessThan(ASTLessThanNode LessThan)
+        {
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Type = CompilationUnit.GetTypeIfDef("Bool");
+
+            var integer = CompilationUnit.GetTypeIfDef("Int");
+
+            var left = LessThan.Left.Accept(this);
+            var right = LessThan.Right.Accept(this);
+
+            result.Correct = left.Correct && right.Correct && left.Type == integer && right.Type == integer;
+            return result;
+        }
+
+        public SemanticCheckResult VisitLetIn(ASTLetInNode LetIn)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitFormal(ASTFormalNode Formal)
+        {
+            var result = new SemanticCheckResult();
+            result.Correct= CompilationUnit.IsTypeDef(Formal.Type);
+            if (result.Correct)
+                result.Type = CompilationUnit.GetTypeIfDef(Formal.Type);
+            return result;
+        }
+
+        public SemanticCheckResult VisitMethod(ASTMethodNode Method)
+        {
+            SemanticCheckResult result = new SemanticCheckResult();
+            foreach (var item in Method.Formals)
+                result.Correct = item.Accept(this).Correct;
+
+            var exprResult = Method.Body.Accept(this);
+            if (!CompilationUnit.IsTypeDef(Method.ReturnType))
             {
                 result.Correct = false;
                 return result;
             }
-            var returnType = CompilationUnit.GetTypeIfDef(returnTypeName);
+            var returnType = CompilationUnit.GetTypeIfDef(Method.ReturnType);
             result.Correct &= exprResult.Type.IsIt(returnType);
 
             return result; 
         }
 
-        public SemanticCheckResult VisitMethodCall([NotNull] SuperCOOLParser.MethodCallContext context)
+        public SemanticCheckResult VisitMethodCall(ASTMethodCallNode MethodCall)
         {
             throw new NotImplementedException();
         }
 
-        public SemanticCheckResult VisitMinus([NotNull] SuperCOOLParser.MinusContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitMultiply([NotNull] SuperCOOLParser.MultiplyContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitNegative([NotNull] SuperCOOLParser.NegativeContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitNew([NotNull] SuperCOOLParser.NewContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitOwnMethodCall([NotNull] SuperCOOLParser.OwnMethodCallContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SemanticCheckResult VisitParentheses([NotNull] SuperCOOLParser.ParenthesesContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override SemanticCheckResult VisitProgram([NotNull] SuperCOOLParser.ProgramContext context)
+        public SemanticCheckResult VisitMinus(ASTMinusNode Minus)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            var programBlockResult = context.programBlocks().Accept(this);
-            result.Correct = programBlockResult.Correct && CompilationUnit.NotCyclicalInheritance() && CompilationUnit.HasEntryPoint();
+            result.Type = CompilationUnit.GetTypeIfDef("Int");
+
+            var left = Minus.Left.Accept(this);
+            var right = Minus.Right.Accept(this);
+
+            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
             return result;
         }
 
-        public override SemanticCheckResult VisitProperty([NotNull] SuperCOOLParser.PropertyContext context)
+        public SemanticCheckResult VisitMultiply(ASTMultiplyNode Multiply)
         {
-            SemanticCheckResult semanticCheckResult = new SemanticCheckResult();
-            var result=context.expression().Accept(this);
-            string type = context.TYPEID().Symbol.Text;
-            result.Correct &= CompilationUnit.IsTypeDef(type);
-            if (result.Type == CompilationUnit.GetTypeIfDef(type))
-                semanticCheckResult.Correct = true;
-            return semanticCheckResult;
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Type = CompilationUnit.GetTypeIfDef("Int");
+
+            var left = Multiply.Left.Accept(this);
+            var right = Multiply.Right.Accept(this);
+
+            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
+            return result;
         }
 
-        public override SemanticCheckResult VisitString([NotNull] SuperCOOLParser.StringContext context)
+        public SemanticCheckResult VisitNegative(ASTNegativeNode Negatve)
+        {
+            SemanticCheckResult result = new SemanticCheckResult();
+            result.Type = CompilationUnit.GetTypeIfDef("Int");
+
+            var exp = Negatve.Expression.Accept(this);
+
+            result.Correct = exp.Correct  && exp.Type == result.Type ;
+            return result;
+        }
+
+        public SemanticCheckResult VisitNew(ASTNewNode New)
+        {
+            return new SemanticCheckResult() { Correct = CompilationUnit.IsTypeDef(New.Type), Type = CompilationUnit.GetTypeIfDef(New.Type) };
+        }
+
+        public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitProgram(ASTProgramNode Program)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitAtribute([NotNull] ASTAtributeNode Atribute)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitStringConstant(ASTStringConstantNode StringConstant)
         {
             var semanticCheckResult = new SemanticCheckResult();
             semanticCheckResult.Correct = true;
@@ -248,15 +285,22 @@ namespace SuperCOOL.SemanticCheck
             return semanticCheckResult;
         }
 
-        public override SemanticCheckResult VisitTrue([NotNull] SuperCOOLParser.TrueContext context)
+        public SemanticCheckResult VisitWhile(ASTWhileNode While)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("bool");
-            return semanticCheckResult;
+            throw new NotImplementedException();
         }
 
-        public SemanticCheckResult VisitWhile([NotNull] SuperCOOLParser.WhileContext context)
+        public SemanticCheckResult VisitId(ASTIdNode Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult Visit(ASTNode Node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitExpression(ASTExpressionNode Expression)
         {
             throw new NotImplementedException();
         }
