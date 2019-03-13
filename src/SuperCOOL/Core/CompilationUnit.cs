@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SuperCOOL.Core
 {
     public class CompilationUnit
     {
         HashSet<CoolType> Types { get; set; }
+
+        HashSet<CoolMethod> Method { get; set; }
 
         public bool IsTypeDef(string Name)
         {
@@ -26,14 +26,23 @@ namespace SuperCOOL.Core
             return ret;
         }
 
-        public bool NotCyclicalInheritance()
+        public bool IsOK()
+        {
+            return true;//TODO: Verify Types NotCyclicalInheritance and Entry Point not inheritance from bool int string ...all this semantics goes here
+        }
+        private bool NotCyclicalInheritance()
         {
             return true;//TODO: Verify if CoolType Tree is a DAG
         }
 
-        public bool HasEntryPoint()
+        private bool HasEntryPoint()
         {
             return true;//TODO: Verify if there is an entry Point;
+        }
+
+        internal CoolType GetTypeLCA(CoolType type1, CoolType type2)
+        {
+            throw new NotImplementedException();//TODO: MAKE LCA
         }
     }
 }

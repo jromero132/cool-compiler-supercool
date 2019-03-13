@@ -27,4 +27,9 @@
     </Antlr4>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CodeGeneration\CIL\AST\" />
+    <Folder Include="CodeGeneration\MIPS\AST\" />
+  </ItemGroup>
+
 </Project>
