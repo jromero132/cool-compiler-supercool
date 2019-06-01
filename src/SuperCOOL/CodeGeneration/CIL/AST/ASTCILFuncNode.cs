@@ -8,10 +8,13 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public string Name { get; }
         public IReadOnlyList<ASTCILFormalNode> Formals { get; }
         public IReadOnlyList<ASTCILExpressionNode> Body { get; }
+        public IReadOnlyList<ASTCILLocalNode> Locals { get; }
 
-        public ASTCILFuncNode(string name, IEnumerable<ASTCILFormalNode> formals, IEnumerable<ASTCILExpressionNode> body)
+        public ASTCILFuncNode(string name, IEnumerable<ASTCILFormalNode> formals,
+            IEnumerable<ASTCILExpressionNode> body, IEnumerable<ASTCILLocalNode> locals)
         {
             Name = name;
+            Locals = locals.ToList();
             Formals = formals.ToList();
             Body = body.ToList();
         }
