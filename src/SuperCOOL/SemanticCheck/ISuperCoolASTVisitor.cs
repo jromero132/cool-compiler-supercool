@@ -35,11 +35,9 @@ namespace SuperCOOL.SemanticCheck
         Result VisitLetIn(ASTLetInNode LetIn);
 
         Result VisitMethod(ASTMethodNode Method);
-
-        Result VisitMethodCall(ASTMethodCallNode MethodCall);
-
+        Result VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall);
+        Result VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall);
         Result VisitMinus(ASTMinusNode Minus);
-
         Result VisitMultiply(ASTMultiplyNode Multiply);
 
         Result VisitNegative(ASTNegativeNode Negative);

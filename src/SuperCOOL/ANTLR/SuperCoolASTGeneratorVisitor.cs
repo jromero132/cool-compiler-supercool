@@ -233,24 +233,43 @@ namespace SuperCOOL.ANTLR
 
         public override ASTNode VisitMethodCall([NotNull] SuperCOOLParser.MethodCallContext context)
         {
-            var result = new ASTMethodCallNode();
-            var expresions = context.expression();
-            var type = context.TYPEID().Symbol.Text;
-            var methodName = context.OBJECTID().Symbol.Text;
-            var invokeOnExpresion = (ASTExpressionNode)expresions[0].Accept(this);
-            invokeOnExpresion.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
-            var arguments = new ASTExpressionNode[expresions.Length-1];
-            for (int i = 1; i < expresions.Length; i++)
+            if (context.TYPEID() != null)
             {
-                arguments[i] = (ASTExpressionNode)expresions[i].Accept(this);
-                arguments[i].TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
-            }
-            result.MethodName = methodName;
-            result.Type = type;
-            result.InvokeOnExpresion = invokeOnExpresion;
-            result.Arguments = arguments;
+                var result = new ASTStaticMethodCallNode();
+                var expresions = context.expression();
+                var invokeOnExpresion = (ASTExpressionNode)expresions[0].Accept(this);
+                invokeOnExpresion.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                var methodName = context.OBJECTID().Symbol.Text;
+                var arguments = new ASTExpressionNode[expresions.Length - 1];
+                for (int i = 1; i < expresions.Length; i++)
+                {
+                    arguments[i] = (ASTExpressionNode)expresions[i].Accept(this);
+                    arguments[i].TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                }
+                var type = context.TYPEID().Symbol.Text;
+                result.MethodName = methodName;
+                result.Type = type;
+                result.InvokeOnExpresion = invokeOnExpresion;
+                result.Arguments = arguments;
 
-            return result;
+                return result;
+            }
+            var dresult = new ASTDynamicMethodCallNode();
+            var dexpresions = context.expression();
+            var dinvokeOnExpresion = (ASTExpressionNode)dexpresions[0].Accept(this);
+            dinvokeOnExpresion.TypeEnvironment.ParentEnvironment = dresult.TypeEnvironment;
+            var dmethodName = context.OBJECTID().Symbol.Text;
+            var darguments = new ASTExpressionNode[dexpresions.Length - 1];
+            for (int i = 1; i < dexpresions.Length; i++)
+            {
+                darguments[i] = (ASTExpressionNode)dexpresions[i].Accept(this);
+                darguments[i].TypeEnvironment.ParentEnvironment = dresult.TypeEnvironment;
+            }
+            dresult.MethodName = dmethodName;
+            dresult.InvokeOnExpresion = dinvokeOnExpresion;
+            dresult.Arguments = darguments;
+
+            return dresult;
         }
 
         public override ASTNode VisitMinus([NotNull] SuperCOOLParser.MinusContext context)
