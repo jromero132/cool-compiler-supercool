@@ -5,7 +5,6 @@ namespace SuperCOOL.SemanticCheck.AST
 {
     public class ASTProgramNode:ASTNode
     {
-        public CompilationUnit CompilationUnit { get; set; }
         public List<ASTClassNode> Clases { get; set; }
         public ASTProgramNode()
         {

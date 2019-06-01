@@ -7,6 +7,8 @@ namespace SuperCOOL.Core
     {
         private Dictionary<CoolType, List<CoolType>> lca_table;
         private Dictionary<CoolType, int> distance;
+        public HashSet<CoolType> Types { get; set; }
+        Dictionary<(string type,string method),CoolMethod> Method { get; set; }
 
         public CoolType ObjectType => GetTypeIfDef( "object" );
 
@@ -15,6 +17,10 @@ namespace SuperCOOL.Core
         HashSet<CoolMethod> Method { get; set; }
 
         public bool IsTypeDef( string Name ) => this.Types.Contains( new CoolType( Name ) );
+        public bool IsTypeDef(string Name)
+        {
+            return Types.Contains(new CoolType(Name));
+        }
 
         public bool InheritsFrom( CoolType A, CoolType B ) => A.IsIt( B );
 
@@ -24,10 +30,6 @@ namespace SuperCOOL.Core
             return ret;
         }
 
-        public bool IsOK()
-        {
-            return true;//TODO: Verify Types NotCyclicalInheritance and Entry Point not inheritance from bool int string ...all this semantics goes here
-        }
 
         public bool NotCyclicalInheritance()
         {
@@ -48,7 +50,7 @@ namespace SuperCOOL.Core
             return true;
         }
 
-        private bool HasEntryPoint()
+        public bool HasEntryPoint()
         {
             return true;//TODO: Verify if there is an entry Point;
         }
@@ -130,6 +132,18 @@ namespace SuperCOOL.Core
                     pair.Value.Add( next_parent );
                 }
             }
+        }
+
+        internal CoolMethod GetMethodIfDef(string coolType, string method)
+        {
+            CoolMethod ret;
+            Method.TryGetValue((coolType,method), out ret);
+            return ret;
+        }
+
+        internal bool IsMethodDef(string coolType, string method)
+        {
+            return Method.ContainsKey((coolType, method));
         }
     }
 }
