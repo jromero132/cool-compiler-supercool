@@ -6,7 +6,6 @@ namespace SuperCOOL.SemanticCheck
     public class SemanticCheckResult
     {
         public bool Correct { get; internal set; }
-        public bool HasEntryPoint { get; internal set; }
         public CoolType Type { get; internal set; }
         public List<string> Errors { get; internal set; }
         public SemanticCheckResult()
