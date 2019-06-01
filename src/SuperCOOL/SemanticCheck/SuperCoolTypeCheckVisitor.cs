@@ -331,22 +331,31 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitWhile(ASTWhileNode While)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            var cond = While.Condition.Accept(this);
+            result.Correct = cond.Correct;
+            var body = While.Body.Accept(this);
+            result.Correct &= body.Correct;
+            result.Type = CompilationUnit.GetTypeIfDef("object");
+            return result;
         }
 
         public SemanticCheckResult VisitId(ASTIdNode Id)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            result.Correct = Id.TypeEnvironment.IsDefO(Id.Name);
+            result.Type = CompilationUnit.GetTypeIfDef(Id.TypeEnvironment.GetTypeO(Id.Name));
+            return result;
         }
 
         public SemanticCheckResult Visit(ASTNode Node)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();//Abstract so its not intended to be dynamic type of any 
         }
 
         public SemanticCheckResult VisitExpression(ASTExpressionNode Expression)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();//Expresion is abstract so its not intended to be dynamic type of any 
         }
 
         public SemanticCheckResult VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
