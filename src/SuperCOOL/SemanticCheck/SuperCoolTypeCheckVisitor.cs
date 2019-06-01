@@ -5,7 +5,7 @@ using System;
 
 namespace SuperCOOL.SemanticCheck
 {
-    public class SuperCoolSemanticCheckVisitor : ISuperCoolASTVisitor<SemanticCheckResult>
+    public class SuperCoolTypeCheckVisitor : ISuperCoolASTVisitor<SemanticCheckResult>
     {
         public CompilationUnit CompilationUnit { get; }
 
@@ -217,9 +217,22 @@ namespace SuperCOOL.SemanticCheck
             return result; 
         }
 
-        public SemanticCheckResult VisitMethodCall(ASTMethodCallNode MethodCall)
+        public SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            CoolMethod m = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
+            if (m.Params.Count == MethodCall.Arguments.Length)
+                result.Correct = true;
+            else
+                result.Correct = false;
+            for (int i = 0; i < m.Params.Count; i++)
+            {
+                var r = MethodCall.Arguments[i].Accept(this);
+                result.Correct &= r.Correct;
+                result.Correct &= (r.Type.IsIt(m.Params[i]));
+            }
+            result.Type = m.ReturnType;
+            return result;
         }
 
         public SemanticCheckResult VisitMinus(ASTMinusNode Minus)
@@ -264,17 +277,44 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            CoolMethod m = CompilationUnit.GetMethodIfDef(OwnMethodCall.TypeEnvironment.CoolType,OwnMethodCall.Method);
+            if (m.Params.Count==OwnMethodCall.Arguments.Length)
+                result.Correct = true;
+            else
+                result.Correct = false;
+            for (int i = 0; i < m.Params.Count; i++)
+            {
+                var r=OwnMethodCall.Arguments[i].Accept(this);
+                result.Correct &= r.Correct;
+                result.Correct &= (r.Type==m.Params[i]);
+            }
+            result.Type = m.ReturnType;
+            return result;
         }
 
         public SemanticCheckResult VisitProgram(ASTProgramNode Program)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            result.Correct = true;
+            foreach (var item in Program.Clases)
+                result.Correct &= item.Accept(this).Correct;
+            return result;
         }
 
-        public SemanticCheckResult VisitAtribute([NotNull] ASTAtributeNode Atribute)
+        public SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            if (CompilationUnit.IsTypeDef(Atribute.Type))
+                result.Correct = true;
+            else
+                result.Correct = false;
+            var t = CompilationUnit.GetTypeIfDef(Atribute.Type);
+            var r = Atribute.Init.Accept(this);
+            result.Correct &=r.Correct;
+            result.Correct &= (r.Type.IsIt(t));
+            result.Type = t;
+            return result;
         }
 
         public SemanticCheckResult VisitStringConstant(ASTStringConstantNode StringConstant)
@@ -301,6 +341,11 @@ namespace SuperCOOL.SemanticCheck
         }
 
         public SemanticCheckResult VisitExpression(ASTExpressionNode Expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
             throw new NotImplementedException();
         }
