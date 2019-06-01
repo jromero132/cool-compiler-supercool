@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCOOL", "src\SuperCOOL\SuperCOOL.csproj", "{441EADF2-0D8F-48DA-9DC6-988C88EF5631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperCOOL", "src\SuperCOOL\SuperCOOL.csproj", "{441EADF2-0D8F-48DA-9DC6-988C88EF5631}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EDCA8D29-0E96-4C87-9C87-3DC29395B9BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCOOL.Tests", "tests\SuperCOOL.Tests\SuperCOOL.Tests.csproj", "{04A68000-2AD9-40FC-8846-BBB05C7B2E09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{441EADF2-0D8F-48DA-9DC6-988C88EF5631}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{441EADF2-0D8F-48DA-9DC6-988C88EF5631}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{441EADF2-0D8F-48DA-9DC6-988C88EF5631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04A68000-2AD9-40FC-8846-BBB05C7B2E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04A68000-2AD9-40FC-8846-BBB05C7B2E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04A68000-2AD9-40FC-8846-BBB05C7B2E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04A68000-2AD9-40FC-8846-BBB05C7B2E09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{04A68000-2AD9-40FC-8846-BBB05C7B2E09} = {EDCA8D29-0E96-4C87-9C87-3DC29395B9BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A9CB9604-15C4-4404-ACA8-1B02FF0C8D20}
