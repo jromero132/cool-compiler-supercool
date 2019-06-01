@@ -12,29 +12,42 @@ namespace SuperCOOL.Core
         public CoolType Bool => Types["Bool"];
         public CoolType Object => Types["Object"];
         public CoolType IO => Types["IO"];
+        public CoolType SelfType => Types["SelfType"]; 
 
         public CompilationUnit()
         {
-            //TODO: put basic type data for semantic check
+            AddType("SelfType");
+            AddType("Object");
+            AddMethod("Object", "abort", new List<CoolType>(), Object);
+            AddMethod("Object", "type_name", new List<CoolType>(), String);
+            AddMethod("Object", "copy", new List<CoolType>(), SelfType);
+            AddType("Int");
+            Int.Parent = Object;
+            AddType("String");
+            AddMethod("String", "length", new List<CoolType>(), Int);
+            AddMethod("String", "concat", new List<CoolType>() {String}, String);
+            AddMethod("String", "substr", new List<CoolType>() {Int,Int}, String);
+            String.Parent = Object;
+            AddType("Bool");
+            Bool.Parent = Object;
+            AddType("IO");
+            AddMethod("IO", "out_string", new List<CoolType>() {String}, SelfType);
+            AddMethod("IO", "out_int", new List<CoolType>() {Int}, SelfType);
+            AddMethod("IO", "in_string", new List<CoolType>(), String);
+            AddMethod("IO", "in_int", new List<CoolType>(), Int);
+            IO.Parent = Object;
         }
 
-        public CoolType ObjectType => GetTypeIfDef( "object" );
-
-        public HashSet<CoolType> Types;
-
-        HashSet<CoolMethod> Method { get; set; }
-
-        public bool IsTypeDef( string Name ) => this.Types.Contains( new CoolType( Name ) );
         public bool IsTypeDef(string Name)
         {
-            return Types.Contains(new CoolType(Name));
+            return Types.ContainsKey(Name);
         }
 
         public bool InheritsFrom( CoolType A, CoolType B ) => A.IsIt( B );
 
         public CoolType GetTypeIfDef( string Name )
         {
-            this.Types.TryGetValue( new CoolType( Name ), out var ret );
+            Types.TryGetValue(Name, out CoolType ret);
             return ret;
         }
 
@@ -44,7 +57,7 @@ namespace SuperCOOL.Core
             HashSet<CoolType> hs = new HashSet<CoolType>();
             Queue<CoolType> q = new Queue<CoolType>();
 
-            for( hs.Add( this.ObjectType ), q.Enqueue( this.ObjectType ) ; q.Count > 0 ; q.Dequeue() )
+            for( hs.Add( Object ), q.Enqueue( Object ) ; q.Count > 0 ; q.Dequeue() )
             {
                 var cur = q.Peek();
                 foreach( var child in cur.Childs )
@@ -152,6 +165,16 @@ namespace SuperCOOL.Core
         internal bool IsMethodDef(string coolType, string method)
         {
             return Method.ContainsKey((coolType, method));
+        }
+
+        internal void AddType(string coolTypeName)
+        {
+            Types.Add(coolTypeName,new CoolType(coolTypeName));
+        }
+
+        internal void AddMethod(string type, string method,List<CoolType> formals,CoolType returnType)
+        {
+            Method.Add((type, method), new CoolMethod(method,formals,returnType));
         }
     }
 }

@@ -66,7 +66,7 @@ namespace SuperCOOL.SemanticCheck
             }
 
             foreach (var item in Class.Methods)
-                CompilationUnit.Method.Add( new CoolMethod(item.Name, item.Formals.Select(x=>CompilationUnit.GetTypeIfDef(x.Type)).ToList(), CompilationUnit.GetTypeIfDef(item.ReturnType)));
+                CompilationUnit.AddMethod(Class.TypeName,item.Name, item.Formals.Select(x=>CompilationUnit.GetTypeIfDef(x.Type)).ToList(), CompilationUnit.GetTypeIfDef(item.ReturnType));
 
             return result;
         }
@@ -170,7 +170,7 @@ namespace SuperCOOL.SemanticCheck
             {
                 if (!CompilationUnit.IsTypeDef(item.TypeName))
                 {
-                    CompilationUnit.Types.Add(new CoolType(item.TypeName));
+                    CompilationUnit.AddType(item.TypeName);
                     result.Correct &= true;
                 }
                 else
@@ -196,6 +196,11 @@ namespace SuperCOOL.SemanticCheck
         }
 
         public SemanticCheckResult VisitWhile(ASTWhileNode While)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SemanticCheckResult VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
             throw new NotImplementedException();
         }
