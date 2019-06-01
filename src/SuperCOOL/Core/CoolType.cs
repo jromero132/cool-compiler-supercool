@@ -9,9 +9,10 @@ namespace SuperCOOL.Core
 
         public string Name { get; private set; }
 
-        public CoolType( string Name ) => this.Name = Name;
-
-        public CoolType( string Name, CoolType Parent ) : this( Name ) => this.Parent = Parent;
+        public CoolType(string Name) {
+            this.Name = Name;
+            Childs = new List<CoolType>(); 
+        }
 
         public override bool Equals( object obj )
         {
