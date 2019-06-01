@@ -29,9 +29,23 @@ namespace SuperCOOL.Core
             return true;//TODO: Verify Types NotCyclicalInheritance and Entry Point not inheritance from bool int string ...all this semantics goes here
         }
 
-        private bool NotCyclicalInheritance()
+        public bool NotCyclicalInheritance()
         {
-            return true;//TODO: Verify if CoolType Tree is a DAG
+            HashSet<CoolType> hs = new HashSet<CoolType>();
+            Queue<CoolType> q = new Queue<CoolType>();
+
+            for( hs.Add( this.ObjectType ), q.Enqueue( this.ObjectType ) ; q.Count > 0 ; q.Dequeue() )
+            {
+                var cur = q.Peek();
+                foreach( var child in cur.Childs )
+                {
+                    if( hs.Contains( child ) )
+                        return false;
+                    hs.Add( child );
+                    q.Enqueue( child );
+                }
+            }
+            return true;
         }
 
         private bool HasEntryPoint()
