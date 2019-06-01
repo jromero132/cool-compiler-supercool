@@ -19,9 +19,15 @@ namespace SuperCOOL.Core
             return MethodEnvironment.TryAdd(Method, types);
         }
 
-        internal string GetObjectType()
+        internal bool IsDefO(string name)
         {
-            throw new NotImplementedException();//TODO: Make Get Object Type....
+            return ObjectEnvironment.ContainsKey(name);
+        }
+
+        internal string GetTypeO(string name)
+        {
+            ObjectEnvironment.TryGetValue(name,out string result);
+            return result;
         }
     }
 }
