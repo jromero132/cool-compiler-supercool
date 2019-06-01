@@ -220,6 +220,10 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             var result = new SemanticCheckResult();
+            var onResult = MethodCall.InvokeOnExpresion.Accept(this);
+            result.Correct &= onResult.Correct;
+            result.Correct &= (onResult.Type.IsIt(CompilationUnit.GetTypeIfDef(MethodCall.Type)));
+
             CoolMethod m = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
             if (m.Params.Count == MethodCall.Arguments.Length)
                 result.Correct = true;
@@ -347,7 +351,22 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            var onResult = MethodCall.InvokeOnExpresion.Accept(this);
+            result.Correct &= onResult.Correct;
+            CoolMethod m = CompilationUnit.GetMethodIfDef(onResult.Type.Name, MethodCall.MethodName);
+            if (m.Params.Count == MethodCall.Arguments.Length)
+                result.Correct = true;
+            else
+                result.Correct = false;
+            for (int i = 0; i < m.Params.Count; i++)
+            {
+                var r = MethodCall.Arguments[i].Accept(this);
+                result.Correct &= r.Correct;
+                result.Correct &= (r.Type.IsIt(m.Params[i]));
+            }
+            result.Type = m.ReturnType;
+            return result;
         }
     }
 }
