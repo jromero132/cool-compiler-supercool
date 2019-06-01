@@ -17,7 +17,7 @@ namespace SuperCOOL.SemanticCheck
             var left = Add.Left.Accept(this);
             var right = Add.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
+            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type && left.Type==CompilationUnit.Int;
             return result;
         }
 
@@ -50,7 +50,7 @@ namespace SuperCOOL.SemanticCheck
         {
             SemanticCheckResult result = new SemanticCheckResult();
             var exp = BoolNode.Accept(this);
-            var boolType= CompilationUnit.GetTypeIfDef("Bool");
+            var boolType= CompilationUnit.Bool;
             result.Correct = exp.Type == boolType;
             result.Type = boolType;
             return result;
@@ -100,7 +100,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitDivision(ASTDivideNode Divide)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Int");
+            result.Type = CompilationUnit.Int;
 
             var left = Divide.Left.Accept(this);
             var right = Divide.Right.Accept(this);
@@ -113,11 +113,11 @@ namespace SuperCOOL.SemanticCheck
         {
             var left = Equal.Left.Accept(this);
             var right = Equal.Right.Accept(this);
-            if (left.Type.Name=="Bool" || left.Type.Name == "Int" || left.Type.Name == "String" || right.Type.Name == "Bool" || right.Type.Name == "Int" || right.Type.Name == "String")
+            if (left.Type==CompilationUnit.Bool || left.Type==CompilationUnit.Int || left.Type==CompilationUnit.String || right.Type == CompilationUnit.Bool || right.Type == CompilationUnit.Int || right.Type == CompilationUnit.String)
             {
-                return new SemanticCheckResult() {Correct=left.Type==right.Type,Type=CompilationUnit.GetTypeIfDef("Bool") };
+                return new SemanticCheckResult() {Correct=left.Type==right.Type,Type=CompilationUnit.Bool };
             }
-            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.GetTypeIfDef("Bool") };
+            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.Bool };
         }
 
         public SemanticCheckResult VisitBoolConstant(ASTBoolConstantNode BoolConstant)
@@ -125,7 +125,7 @@ namespace SuperCOOL.SemanticCheck
             return new SemanticCheckResult
             {
                 Correct = true,
-                Type = CompilationUnit.GetTypeIfDef("Bool")
+                Type = CompilationUnit.Bool
             };
         }
 
@@ -137,7 +137,7 @@ namespace SuperCOOL.SemanticCheck
             var thenResult = If.Then.Accept(this);
             var elseResult = If.Else.Accept(this);
 
-            result.Correct = conditionResult.Type == CompilationUnit.GetTypeIfDef("Bool") && thenResult.Correct && elseResult.Correct;
+            result.Correct = conditionResult.Type == CompilationUnit.Bool && thenResult.Correct && elseResult.Correct;
             result.Type = CompilationUnit.GetTypeLCA(thenResult.Type, elseResult.Type);
 
             return result;
@@ -147,22 +147,22 @@ namespace SuperCOOL.SemanticCheck
         {
             var semanticCheckResult = new SemanticCheckResult();
             semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("int");
+            semanticCheckResult.Type = CompilationUnit.Int;
             return semanticCheckResult;
         }
 
         public SemanticCheckResult VisitIsvoid(ASTIsVoidNode IsVoid)
         {
             var res = IsVoid.Expression.Accept(this);
-            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.GetTypeIfDef("Bool") };
+            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.Bool };
         }
 
         public SemanticCheckResult VisitLessEqual(ASTLessEqualNode LessEqual)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Bool");
+            result.Type = CompilationUnit.Bool;
 
-            var integer = CompilationUnit.GetTypeIfDef("Int");
+            var integer = CompilationUnit.Int;
 
             var left = LessEqual.Left.Accept(this);
             var right = LessEqual.Right.Accept(this);
@@ -174,9 +174,9 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitLessThan(ASTLessThanNode LessThan)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Bool");
+            result.Type = CompilationUnit.Bool;
 
-            var integer = CompilationUnit.GetTypeIfDef("Int");
+            var integer = CompilationUnit.Int;
 
             var left = LessThan.Left.Accept(this);
             var right = LessThan.Right.Accept(this);
@@ -222,7 +222,7 @@ namespace SuperCOOL.SemanticCheck
             var result = new SemanticCheckResult();
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
             result.Correct &= onResult.Correct;
-            result.Correct &= (onResult.Type.IsIt(CompilationUnit.GetTypeIfDef(MethodCall.Type)));
+            result.Correct &= onResult.Type.IsIt(CompilationUnit.GetTypeIfDef(MethodCall.Type));
 
             CoolMethod m = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
             if (m.Params.Count == MethodCall.Arguments.Length)
@@ -242,7 +242,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitMinus(ASTMinusNode Minus)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Int");
+            result.Type = CompilationUnit.Int;
 
             var left = Minus.Left.Accept(this);
             var right = Minus.Right.Accept(this);
@@ -254,7 +254,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitMultiply(ASTMultiplyNode Multiply)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Int");
+            result.Type = CompilationUnit.Int;
 
             var left = Multiply.Left.Accept(this);
             var right = Multiply.Right.Accept(this);
@@ -266,7 +266,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitNegative(ASTNegativeNode Negatve)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Int");
+            result.Type = CompilationUnit.Int;
 
             var exp = Negatve.Expression.Accept(this);
 
@@ -325,7 +325,7 @@ namespace SuperCOOL.SemanticCheck
         {
             var semanticCheckResult = new SemanticCheckResult();
             semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef("string");
+            semanticCheckResult.Type = CompilationUnit.String;
             return semanticCheckResult;
         }
 
@@ -336,7 +336,7 @@ namespace SuperCOOL.SemanticCheck
             result.Correct = cond.Correct;
             var body = While.Body.Accept(this);
             result.Correct &= body.Correct;
-            result.Type = CompilationUnit.GetTypeIfDef("object");
+            result.Type = CompilationUnit.Object;
             return result;
         }
 
