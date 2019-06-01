@@ -16,26 +16,28 @@ namespace SuperCOOL.Core
 
         public CompilationUnit()
         {
+            Types = new Dictionary<string, CoolType>();
+            Method = new Dictionary<(string type, string method), CoolMethod>();
             AddType("SelfType");
             AddType("Object");
+            AddType("Int");
+            AddInheritance("Int", "Object");
+            AddType("String");
+            AddInheritance("String", "Object");
+            AddType("Bool");
+            AddInheritance("Bool", "Object");
+            AddType("IO");
             AddMethod("Object", "abort", new List<CoolType>(), Object);
             AddMethod("Object", "type_name", new List<CoolType>(), String);
             AddMethod("Object", "copy", new List<CoolType>(), SelfType);
-            AddType("Int");
-            Int.Parent = Object;
-            AddType("String");
             AddMethod("String", "length", new List<CoolType>(), Int);
             AddMethod("String", "concat", new List<CoolType>() {String}, String);
             AddMethod("String", "substr", new List<CoolType>() {Int,Int}, String);
-            String.Parent = Object;
-            AddType("Bool");
-            Bool.Parent = Object;
-            AddType("IO");
             AddMethod("IO", "out_string", new List<CoolType>() {String}, SelfType);
             AddMethod("IO", "out_int", new List<CoolType>() {Int}, SelfType);
             AddMethod("IO", "in_string", new List<CoolType>(), String);
             AddMethod("IO", "in_int", new List<CoolType>(), Int);
-            IO.Parent = Object;
+            AddInheritance("IO", "Object");
         }
 
         public bool IsTypeDef(string Name)
@@ -50,7 +52,6 @@ namespace SuperCOOL.Core
             Types.TryGetValue(Name, out CoolType ret);
             return ret;
         }
-
 
         public bool NotCyclicalInheritance()
         {
@@ -117,6 +118,14 @@ namespace SuperCOOL.Core
             return this.lca_table[ type1 ][ 0 ];
         }
 
+        public void AddInheritance(string t1, string t2)
+        {
+            var type1 = GetTypeIfDef(t1);
+            var type2 = GetTypeIfDef(t2);
+            type1.Parent = type2;
+            type2.Childs.Add(type1);
+        }
+
         Dictionary<CoolType, List<CoolType>> lca_table;
         Dictionary<CoolType, int> distance;
         private void LCATable()
@@ -157,24 +166,24 @@ namespace SuperCOOL.Core
             }
         }
 
-        internal CoolMethod GetMethodIfDef(string coolType, string method)
+        public CoolMethod GetMethodIfDef(string coolType, string method)
         {
             CoolMethod ret;
             Method.TryGetValue((coolType,method), out ret);
             return ret;
         }
 
-        internal bool IsMethodDef(string coolType, string method)
+        public bool IsMethodDef(string coolType, string method)
         {
             return Method.ContainsKey((coolType, method));
         }
 
-        internal void AddType(string coolTypeName)
+        public void AddType(string coolTypeName)
         {
             Types.Add(coolTypeName,new CoolType(coolTypeName));
         }
 
-        internal void AddMethod(string type, string method,List<CoolType> formals,CoolType returnType)
+        public void AddMethod(string type, string method,List<CoolType> formals,CoolType returnType)
         {
             Method.Add((type, method), new CoolMethod(method,formals,returnType));
         }
