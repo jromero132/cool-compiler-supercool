@@ -11,21 +11,21 @@ namespace SuperCOOL.Tests.LCATests
         [Fact]
         public void LCATest()
         {
-            Assert.Equal( DataTypes.type1, DataTypes.cu.GetTypeLCA( DataTypes.type1, DataTypes.type1 ) );
-            Assert.Equal( DataTypes.type1, DataTypes.cu.GetTypeLCA( DataTypes.type2, DataTypes.type3 ) );
-            Assert.Equal( DataTypes.type1, DataTypes.cu.GetTypeLCA( DataTypes.type2, DataTypes.type13 ) );
-            Assert.Equal( DataTypes.type7, DataTypes.cu.GetTypeLCA( DataTypes.type7, DataTypes.type9 ) );
-            Assert.Equal( DataTypes.type3, DataTypes.cu.GetTypeLCA( DataTypes.type3, DataTypes.type13 ) );
-            Assert.Equal( DataTypes.type3, DataTypes.cu.GetTypeLCA( DataTypes.type3, DataTypes.type14 ) );
-            Assert.Equal( DataTypes.type3, DataTypes.cu.GetTypeLCA( DataTypes.type3, DataTypes.type17 ) );
-            Assert.Equal( DataTypes.type3, DataTypes.cu.GetTypeLCA( DataTypes.type3, DataTypes.type16 ) );
-            Assert.Equal( DataTypes.type14, DataTypes.cu.GetTypeLCA( DataTypes.type16, DataTypes.type17 ) );
-            Assert.Equal( DataTypes.type1, DataTypes.cu.GetTypeLCA( DataTypes.type6, DataTypes.type8 ) );
-            Assert.Equal( DataTypes.type2, DataTypes.cu.GetTypeLCA( DataTypes.type2, DataTypes.type10 ) );
-            Assert.Equal( DataTypes.type2, DataTypes.cu.GetTypeLCA( DataTypes.type2, DataTypes.type11 ) );
-            Assert.Equal( DataTypes.type2, DataTypes.cu.GetTypeLCA( DataTypes.type2, DataTypes.type8 ) );
-            Assert.Equal( DataTypes.type7, DataTypes.cu.GetTypeLCA( DataTypes.type7, DataTypes.type11 ) );
-            Assert.Equal( DataTypes.type1, DataTypes.cu.GetTypeLCA( DataTypes.type7, DataTypes.type16 ) );
+            Assert.Equal( DataTypes.cu.Object, DataTypes.cu.GetTypeLCA(DataTypes.cu.Object, DataTypes.cu.Object) );
+            Assert.Equal( DataTypes.cu.Object, DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeIfDef("c")));
+            Assert.Equal( DataTypes.cu.Object, DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeIfDef("m")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("g"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("g"), DataTypes.cu.GetTypeIfDef("i")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeIfDef("m")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeIfDef("n")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeIfDef("q")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("c"), DataTypes.cu.GetTypeIfDef("p")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("n"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("p"), DataTypes.cu.GetTypeIfDef("q")));
+            Assert.Equal( DataTypes.cu.Object, DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("f"), DataTypes.cu.GetTypeIfDef("h")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeIfDef("j")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeIfDef("k")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("b"), DataTypes.cu.GetTypeIfDef("h")));
+            Assert.Equal( DataTypes.cu.GetTypeIfDef("g"), DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("g"), DataTypes.cu.GetTypeIfDef("k")));
+            Assert.Equal( DataTypes.cu.Object, DataTypes.cu.GetTypeLCA(DataTypes.cu.GetTypeIfDef("g"), DataTypes.cu.GetTypeIfDef("p")));
         }
     }
 }
