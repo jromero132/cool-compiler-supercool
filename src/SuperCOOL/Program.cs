@@ -22,7 +22,8 @@ namespace SuperCOOL
             //Build AST
             ASTNode ast = parseTree.Accept(new SuperCoolASTGeneratorVisitor());
             //Semantic Check
-            ast.Accept(new SuperCoolSemanticCheckVisitor());
+            ast.Accept(new SuperCoolClassDefSemanticCheckVisitor());
+            ast.Accept(new SuperCoolTypeCheckVisitor());
             //...
         }
     }
