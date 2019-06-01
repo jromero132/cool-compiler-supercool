@@ -5,10 +5,18 @@ namespace SuperCOOL.Core
 {
     public class CompilationUnit
     {
-        private Dictionary<CoolType, List<CoolType>> lca_table;
-        private Dictionary<CoolType, int> distance;
-        public HashSet<CoolType> Types { get; set; }
+        Dictionary<string,CoolType> Types { get; set; }
         Dictionary<(string type,string method),CoolMethod> Method { get; set; }
+        public CoolType Int => Types["Int"];
+        public CoolType String => Types["String"];
+        public CoolType Bool => Types["Bool"];
+        public CoolType Object => Types["Object"];
+        public CoolType IO => Types["IO"];
+
+        public CompilationUnit()
+        {
+            //TODO: put basic type data for semantic check
+        }
 
         public CoolType ObjectType => GetTypeIfDef( "object" );
 
