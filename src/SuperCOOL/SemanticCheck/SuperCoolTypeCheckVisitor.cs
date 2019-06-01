@@ -187,7 +187,24 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitLetIn(ASTLetInNode LetIn)
         {
-            throw new NotImplementedException();
+            var result = new SemanticCheckResult();
+            var declarations = LetIn.Declarations;
+            foreach (var item in declarations)
+            {
+                if (CompilationUnit.IsTypeDef(item.Type))
+                {
+                    var type = CompilationUnit.GetTypeIfDef(item.Type);
+                    var resultExp = item.Expression.Accept(this);
+                    result.Correct &= (resultExp.Correct && resultExp.Type.IsIt(type));
+                }
+                else
+                    result.Correct = false;
+            }
+
+            var expr = LetIn.LetExp.Accept(this);
+            result.Correct &= expr.Correct;
+            result.Type = expr.Type;
+            return result;
         }
 
         public SemanticCheckResult VisitFormal(ASTFormalNode Formal)
