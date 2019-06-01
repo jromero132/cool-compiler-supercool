@@ -4,7 +4,7 @@ namespace SuperCOOL.Core
 {
     public class CoolType
     {
-        public CoolType Parent { get; private set; }
+        public CoolType Parent { get; set; }
         public List<CoolType> Childs { get; set; }
 
         public string Name { get; private set; }

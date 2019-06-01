@@ -117,19 +117,21 @@ namespace SuperCOOL.Core
             return this.lca_table[ type1 ][ 0 ];
         }
 
+        Dictionary<CoolType, List<CoolType>> lca_table;
+        Dictionary<CoolType, int> distance;
         private void LCATable()
         {
             this.lca_table = new Dictionary<CoolType, List<CoolType>>()
             {
-                [ this.ObjectType ] = new List<CoolType>() { null }
+                [ Object ] = new List<CoolType>() { null }
             };
             this.distance = new Dictionary<CoolType, int>()
             {
-                [ this.ObjectType ] = 1
+                [ Object] = 1
             };
 
             Queue<CoolType> q = new Queue<CoolType>();
-            for( q.Enqueue( this.ObjectType ) ; q.Count > 0 ; q.Dequeue() )
+            for( q.Enqueue(Object) ; q.Count > 0 ; q.Dequeue() )
             {
                 var now = q.Peek();
                 foreach( var child in now.Childs )
