@@ -102,7 +102,7 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
         {
             return new ASTCILIfNode(
-                new ASTCILBoolOrNode(
+                new ASTCILBoolOrTwoVariablesNode(
                     (ASTCILExpressionNode) VisitExpression(new ASTLessThanNode
                         { Left = LessEqual.Left, Right = LessEqual.Right }),
                     (ASTCILExpressionNode) VisitExpression(new ASTEqualNode
@@ -112,7 +112,16 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitLessThan(ASTLessThanNode LessThan)
         {
-            throw new NotImplementedException();
+            if (LessThan.Left is ASTIntConstantNode left && LessThan.Right is ASTIntConstantNode right)
+                return new ASTCILLessThanTwoConstantNode(left.Value, right.Value);
+            if (LessThan.Left is ASTIntConstantNode left2)
+                return new ASTCILLessThanConstantVariableNode(left2.Value,
+                    (ASTCILExpressionNode)VisitExpression(LessThan.Right));
+            if (LessThan.Right is ASTIntConstantNode right2)
+                return new ASTCILLessThanVariableConstantNode((ASTCILExpressionNode)VisitExpression(LessThan.Left),
+                    right2.Value);
+            return new ASTCILLessThanTwoVariablesNode((ASTCILExpressionNode)VisitExpression(LessThan.Left),
+                (ASTCILExpressionNode)VisitExpression(LessThan.Right));
         }
 
         public ASTCILNode VisitLetIn(ASTLetInNode LetIn)
