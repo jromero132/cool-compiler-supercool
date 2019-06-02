@@ -205,7 +205,7 @@ namespace SuperCOOL.ANTLR
             letExp.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
             for (int i = 0; i < expresions.Length - 1; i++)
             {
-                declarations[i] = (context.OBJECTID(i).Symbol.Text,context.TYPEID(i).Symbol.Text,(ASTExpressionNode)context.expression(i).Accept(this));
+                declarations[i] = (context.OBJECTID(i)?.Symbol.Text?? context.OBJECTID(i).Symbol.Text,context.TYPEID(i).Symbol.Text,(ASTExpressionNode)context.expression(i).Accept(this));
                 declarations[i].Item3.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
                 letExp.TypeEnvironment.AddObject(declarations[i].Item1, declarations[i].Item2);
             }
@@ -226,7 +226,7 @@ namespace SuperCOOL.ANTLR
 
             result.Name = context.OBJECTID().Symbol.Text;
             result.Body = body;
-            result.ReturnType = context.TYPEID().Symbol.Text;
+            result.ReturnType = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text;
             result.Formals = formals;
             return result;
         }
@@ -310,7 +310,7 @@ namespace SuperCOOL.ANTLR
 
         public override ASTNode VisitNew([NotNull] SuperCOOLParser.NewContext context)
         {
-            return new ASTNewNode() { Type = context.TYPEID().Symbol.Text };
+            return new ASTNewNode() { Type = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text };
         }
 
         public override ASTNode VisitOwnMethodCall([NotNull] SuperCOOLParser.OwnMethodCallContext context)
@@ -360,7 +360,7 @@ namespace SuperCOOL.ANTLR
             init.TypeEnvironment.ParentEnvironment = init.TypeEnvironment;
 
             result.Name = context.OBJECTID().Symbol.Text;
-            result.Type = context.TYPEID().Symbol.Text;
+            result.Type = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text;
 
             return result;
         }

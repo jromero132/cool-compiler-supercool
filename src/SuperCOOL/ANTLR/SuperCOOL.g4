@@ -23,12 +23,7 @@ http://sist.shanghaitech.edu.cn/faculty/songfu/course/spring2017/cs131/COOL/COOL
 grammar SuperCOOL;
 
 program
-   : programBlocks
-   ;
-
-
-programBlocks
-   : classDefine ';' programBlocks # classes
+   : classDefine (';' classDefine)* # classes
    | EOF # eof
    ;
 
@@ -37,8 +32,8 @@ classDefine
    ;
 
 feature
-   : OBJECTID '(' (formal (',' formal)*)* ')' ':' TYPEID '{' expression '}' # method
-   | OBJECTID ':' TYPEID (ASSIGNMENT expression)? # property
+   : OBJECTID '(' (formal (',' formal)*)* ')' ':' (SELF_TYPE|TYPEID) '{' expression '}' # method
+   | OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)? # property
    ;
 
 formal
@@ -52,9 +47,9 @@ expression
    | IF expression THEN expression ELSE expression FI # if
    | WHILE expression LOOP expression POOL # while
    | '{' (expression ';') + '}' # block
-   | LET OBJECTID ':' TYPEID (ASSIGNMENT expression)? (',' OBJECTID ':' TYPEID (ASSIGNMENT expression)?)* IN expression # letIn
+   | LET OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)? (',' OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)?)* IN expression # letIn
    | CASE expression OF (OBJECTID ':' TYPEID CASE_ARROW expression ';') + ESAC # case
-   | NEW TYPEID # new
+   | NEW (TYPEID|SELF_TYPE) # new
    | INTEGER_NEGATIVE expression # negative
    | ISVOID expression # isvoid
    | expression MULTIPLY expression # multiply
@@ -75,6 +70,9 @@ expression
    ;
 
 // key words
+SELF_TYPE
+   : S E L F '_' T Y P E
+   ;
 
 CLASS
    : C L A S S
@@ -264,6 +262,15 @@ fragment V
    ;
 fragment W
    : [wW]
+   ;
+fragment X
+   : [xX]
+   ;
+fragment Y
+   : [yY]
+   ;
+fragment Z
+   : [zZ]
    ;
 fragment ESC
    : '\\' (["\\/bfnrt] | UNICODE)
