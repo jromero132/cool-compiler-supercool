@@ -4,8 +4,8 @@ namespace SuperCOOL.SemanticCheck.AST
 {
     public class ASTWhileNode : ASTExpressionNode
     {
-        public ASTNode Condition { get; set; }
-        public ASTNode Body { get; set; }
+        public ASTExpressionNode Condition { get; set; }
+        public ASTExpressionNode Body { get; set; }
 
         public override Result Accept<Result>(ISuperCoolASTVisitor<Result> Visitor)
         {
