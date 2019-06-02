@@ -126,7 +126,11 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitLetIn(ASTLetInNode LetIn)
         {
-            throw new NotImplementedException();
+            return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => new ASTCILExpressionNode[]
+            {
+                new ASTCILLocalNode(x.Id, x.Type),
+                new ASTCILAssingmentNode(x.Id, (ASTCILExpressionNode) VisitExpression(x.Expression))
+            }).Concat(Enumerable.Repeat((ASTCILExpressionNode) VisitExpression(LetIn.LetExp), 1)));
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
