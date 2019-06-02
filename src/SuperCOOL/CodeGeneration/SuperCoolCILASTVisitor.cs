@@ -2,6 +2,7 @@
 using SuperCOOL.SemanticCheck;
 using SuperCOOL.SemanticCheck.AST;
 using System;
+using System.Linq;
 
 namespace SuperCOOL.CodeGeneration
 {
@@ -34,7 +35,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
         {
-            throw new NotImplementedException();
+            return new ASTCILBlockNode(Block.Expresions.Select(x => (ASTCILExpressionNode)VisitExpression(x)));
         }
 
         public ASTCILNode VisitBoolNot(ASTBoolNotNode BoolNot)
@@ -156,7 +157,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitNegative(ASTNegativeNode Negative)
         {
-            throw new NotImplementedException();
+            if (Negative.Expression is ASTIntConstantNode constant)
+                return new ASTCILMultiplyTwoConstantNode(constant.Value, -1);
+            return new ASTCILMultiplyVariableConstantNode((ASTCILExpressionNode)VisitExpression(Negative), -1);
         }
 
         public ASTCILNode VisitNew(ASTNewNode context)
