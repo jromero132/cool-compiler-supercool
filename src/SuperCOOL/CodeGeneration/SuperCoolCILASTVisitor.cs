@@ -206,7 +206,11 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitWhile(ASTWhileNode While)
         {
-            throw new NotImplementedException();
+            var ifLabel = labelIlGenerator.GenerateIf();
+            return new ASTCILIfNode((ASTCILExpressionNode) VisitExpression(While.Condition),
+                new ASTCILBlockNode(new[]
+                    { (ASTCILExpressionNode) VisitExpression(While.Body), new ASTCILGotoNode(ifLabel) }),
+                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), ifLabel);
         }
 
         public ASTCILNode VisitId(ASTIdNode Id)
