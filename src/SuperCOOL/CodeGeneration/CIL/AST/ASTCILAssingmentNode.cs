@@ -2,12 +2,12 @@
 {
     class ASTCILAssingmentNode : ASTCILExpressionNode
     {
-        public ASTCILIdNode Id { get; }
+        public string Identifier { get; }
         public ASTCILExpressionNode Expresion { get; }
 
-        public ASTCILAssingmentNode(ASTCILIdNode id, ASTCILExpressionNode expresion)
+        public ASTCILAssingmentNode(string identifier, ASTCILExpressionNode expresion)
         {
-            Id = id;
+            Identifier = identifier;
             Expresion = expresion;
         }
     }

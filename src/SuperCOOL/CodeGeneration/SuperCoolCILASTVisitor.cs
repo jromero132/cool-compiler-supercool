@@ -31,7 +31,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
-            return new ASTCILAssingmentNode(new ASTCILIdNode(Assigment.Id.Name),
+            return new ASTCILAssingmentNode(Assigment.Id.Name,
                 (ASTCILExpressionNode) VisitExpression(Assigment.Expresion));
         }
 
