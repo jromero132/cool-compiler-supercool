@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using SuperCOOL.ANTLR;
+using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace SuperCOOL.ANTLR
 {
     public class SuperCoolASTGeneratorVisitor : SuperCOOLBaseVisitor<ASTNode>
     {
+        CompilationUnit CompilationUnit { get; set; }
+
         public override ASTNode VisitAdd([NotNull] SuperCOOLParser.AddContext context)
         {
             var result=new ASTAddNode() { };
@@ -86,12 +89,12 @@ namespace SuperCOOL.ANTLR
                     case ASTMethodNode method :
                         method.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
                         methods.Add(method);
-                        result.TypeEnvironment.AddMethod(method.Name, method.Formals.ConvertAll((x) => x.Type));
+                        result.TypeEnvironment.AddMethod(method.Name,new CoolMethod(method.Name,method.Formals.ConvertAll((x) => CompilationUnit.GetTypeIfDef(x.Type)),CompilationUnit.GetTypeIfDef(method.ReturnType)));
                         break;
                     case ASTAtributeNode atribute:
                         atribute.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
                         atributes.Add(atribute);
-                        result.TypeEnvironment.AddObject(atribute.Name, atribute.Type);
+                        result.TypeEnvironment.AddObject(atribute.Name, CompilationUnit.GetTypeIfDef(atribute.Type));
                         break;
                 }
             result.TypeName = context.TYPEID(0).Symbol.Text;
@@ -207,7 +210,7 @@ namespace SuperCOOL.ANTLR
             {
                 declarations[i] = (context.OBJECTID(i)?.Symbol.Text?? context.OBJECTID(i).Symbol.Text,context.TYPEID(i).Symbol.Text,(ASTExpressionNode)context.expression(i).Accept(this));
                 declarations[i].Item3.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
-                letExp.TypeEnvironment.AddObject(declarations[i].Item1, declarations[i].Item2);
+                letExp.TypeEnvironment.AddObject(declarations[i].Item1,CompilationUnit.GetTypeIfDef(declarations[i].Item2));
             }
 
             result.Declarations = declarations;
@@ -335,16 +338,17 @@ namespace SuperCOOL.ANTLR
             return context.expression().Accept(this);
         }
 
-        public override ASTNode VisitProgram([NotNull] SuperCOOLParser.ProgramContext context)
-        {
-            return VisitProgramBlocks(context.programBlocks());
-        }
-
         public override ASTNode VisitClasses([NotNull] SuperCOOLParser.ClassesContext context)
         {
-            var program = (ASTProgramNode)context.programBlocks().Accept(this);
-            var classe = (ASTClassNode)context.classDefine().Accept(this);
-            program.Clases.Add(classe);
+            var program =new ASTProgramNode();
+            var clases = context.classDefine();
+            foreach (var item in clases)
+                CompilationUnit.AddType(item.CLASS().Symbol.Text);
+            foreach (var item in clases)
+            {
+                var classe = (ASTClassNode)item.Accept(this);
+                program.Clases.Add(classe);
+            }
             return program;
         }
 

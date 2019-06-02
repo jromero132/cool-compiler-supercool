@@ -5,18 +5,16 @@ namespace SuperCOOL.Core
 {
     public class CompilationUnit
     {
-        Dictionary<string,CoolType> Types { get; set; }
-        Dictionary<(string type,string method),CoolMethod> Method { get; set; }
-        public CoolType Int => Types["Int"];
-        public CoolType String => Types["String"];
-        public CoolType Bool => Types["Bool"];
-        public CoolType Object => Types["Object"];
-        public CoolType IO => Types["IO"];
+        Dictionary<string,TypeEnvironment> Types { get; set; }
+        public CoolType Int => Types["Int"].CoolType;
+        public CoolType String => Types["String"].CoolType;
+        public CoolType Bool => Types["Bool"].CoolType;
+        public CoolType Object => Types["Object"].CoolType;
+        public CoolType IO => Types["IO"].CoolType;
 
         public CompilationUnit()
         {
-            Types = new Dictionary<string, CoolType>();
-            Method = new Dictionary<(string type, string method), CoolMethod>();
+            Types = new Dictionary<string, TypeEnvironment>();
             AddType("SelfType");
             AddType("Object");
             AddType("Int");
@@ -50,8 +48,8 @@ namespace SuperCOOL.Core
 
         public CoolType GetTypeIfDef( string Name )
         {
-            Types.TryGetValue(Name, out CoolType ret);
-            return ret;
+            Types.TryGetValue(Name, out TypeEnvironment env);
+            return env?.CoolType;
         }
 
         public bool NotCyclicalInheritance()
@@ -178,24 +176,24 @@ namespace SuperCOOL.Core
 
         public CoolMethod GetMethodIfDef(string coolType, string method)
         {
-            CoolMethod ret;
-            Method.TryGetValue((coolType,method), out ret);
-            return ret;
+            Types.TryGetValue(coolType, out TypeEnvironment env);
+            return env.GetMethod(method);
         }
 
         public bool IsMethodDef(string coolType, string method)
         {
-            return Method.ContainsKey((coolType, method));
+            Types.TryGetValue(coolType, out TypeEnvironment env);
+            return env.IsDefMethod(method);
         }
 
         public void AddType(string coolTypeName)
         {
-            Types.Add(coolTypeName,new CoolType(coolTypeName));
+            Types.Add(coolTypeName,new TypeEnvironment(coolTypeName));
         }
 
         public void AddMethod(string type, string method,List<CoolType> formals,CoolType returnType)
         {
-            Method.Add((type, method), new CoolMethod(method,formals,returnType));
+            Types[type].AddMethod(method, new CoolMethod(method,formals,returnType));
         }
     }
 }
