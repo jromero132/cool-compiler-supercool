@@ -7,6 +7,11 @@ namespace SuperCOOL.CodeGeneration
 {
     class SuperCoolCILASTVisitor : ISuperCoolASTVisitor<ASTCILNode>
     {
+        private ILabelILGenerator labelIlGenerator { get; }
+        public SuperCoolCILASTVisitor(ILabelILGenerator labelIlGenerator)
+        {
+            this.labelIlGenerator = labelIlGenerator;
+        }
         public ASTCILNode VisitAdd(ASTAddNode Add)
         {
             if (Add.Left is ASTIntConstantNode left && Add.Right is ASTIntConstantNode right)
@@ -23,7 +28,8 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
-            throw new NotImplementedException();
+            return new ASTCILAssingmentNode(new ASTCILIdNode(Assigment.Id.Name),
+                (ASTCILExpressionNode) VisitExpression(Assigment.Expresion));
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
@@ -62,7 +68,10 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
         {
-            throw new NotImplementedException();
+            return new ASTCILIfNode(
+                (ASTCILExpressionNode) VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),
+                new ASTCILBoolConstantNode(true), new ASTCILBoolConstantNode(false),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitBoolConstant(ASTBoolConstantNode BoolConstant)
@@ -72,7 +81,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIf(ASTIfNode If)
         {
-            throw new NotImplementedException();
+            return new ASTCILIfNode((ASTCILExpressionNode) VisitExpression(If.Condition),
+                (ASTCILExpressionNode) VisitExpression(If.Then), (ASTCILExpressionNode) VisitExpression(If.Else),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitIntConstant(ASTIntConstantNode Int)
@@ -170,7 +181,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitStringConstant(ASTStringConstantNode StringConstant)
         {
-            throw new NotImplementedException();
+            return new ASTCILStringConstantNode(StringConstant.Value);
         }
 
         public ASTCILNode VisitWhile(ASTWhileNode While)
@@ -180,12 +191,12 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitId(ASTIdNode Id)
         {
-            throw new NotImplementedException();
+            return new ASTCILIdNode(Id.Name);
         }
 
         public ASTCILNode VisitFormal(ASTFormalNode Formal)
         {
-            throw new NotImplementedException();
+            return new ASTCILFormalNode(Formal.Name, Formal.Type);
         }
 
         public ASTCILNode Visit(ASTNode Node)
