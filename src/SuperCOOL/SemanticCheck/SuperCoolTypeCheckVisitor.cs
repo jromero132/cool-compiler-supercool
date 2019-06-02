@@ -11,102 +11,86 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitAdd(ASTAddNode Add)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.GetTypeIfDef("Int");
-
             var left = Add.Left.Accept(this);
             var right = Add.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type && left.Type==CompilationUnit.Int;
-            return result;
+            Add.SemanticCheckResult.Ensure(left,left.Type==CompilationUnit.Int,"Left Expresion must have type Int");
+            Add.SemanticCheckResult.Ensure(right,right.Type==CompilationUnit.Int,"Right Expresion must have type Int");
+            Add.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return Add.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitAssignment(ASTAssingmentNode Assingment)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
             var expresult = Assingment.Expresion.Accept(this);
             var idResult = Assingment.Id.Accept(this);
 
-            result.Correct = expresult.Correct && idResult.Correct && expresult.Type.IsIt(idResult.Type);
-            result.Type = expresult.Type;
-            return result;
+            Assingment.SemanticCheckResult.Ensure(idResult);
+            Assingment.SemanticCheckResult.Ensure(expresult,expresult.Type.IsIt(idResult.Type),$"Type {expresult.Type} is not subtype of {idResult.Type}.");
+            Assingment.SemanticCheckResult.EnsureReturnType(expresult.Type);
+            return Assingment.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitBlock(ASTBlockNode Block)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Correct = true;
-
             foreach (var item in Block.Expresions)
             {
                 var sem = item.Accept(this);
-                result.Type =sem.Type;
-                result.Correct &= sem.Correct;
+                Block.SemanticCheckResult.Ensure(sem);
+                Block.SemanticCheckResult.EnsureReturnType(sem.Type);
             }
-            return result;
+            return Block.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitBoolNot(ASTBoolNotNode BoolNode)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
             var exp = BoolNode.Accept(this);
-            var boolType= CompilationUnit.Bool;
-            result.Correct = exp.Type == boolType;
-            result.Type = boolType;
-            return result;
+            BoolNode.SemanticCheckResult.Ensure(exp,exp.Type == CompilationUnit.Bool,"Expresion must be of tipe Bool");
+            BoolNode.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            return BoolNode.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitCase(ASTCaseNode Case)
         {
-            var result = new SemanticCheckResult();
-
             var expresionCaseResult = Case.ExpressionCase.Accept(this);
-            result.Correct = expresionCaseResult.Correct;
+            Case.SemanticCheckResult.Ensure(expresionCaseResult);
 
             var branchresults = new SemanticCheckResult[Case.Cases.Length];
             for (int i = 0; i < Case.Cases.Length; i++)
             {
                 branchresults[i] = Case.Cases[i].Branch.Accept(this);
-                result.Correct &= branchresults[i].Correct && branchresults[i].Type.IsIt(CompilationUnit.GetTypeIfDef(Case.Cases[i].Type));
+                Case.SemanticCheckResult.Ensure(branchresults[i],branchresults[i].Type.IsIt(CompilationUnit.GetTypeIfDef(Case.Cases[i].Type)), $"Type {branchresults[i].Type} is not subtype of {Case.Cases[i].Type}.");
             }
 
-            result.Type = branchresults[0].Type;
+            Case.SemanticCheckResult.EnsureReturnType(branchresults[0].Type);
             for (int i = 1; i < Case.Cases.Length; i++)
-                result.Type = CompilationUnit.GetTypeLCA(result.Type,branchresults[i].Type);
+                Case.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeLCA(Case.SemanticCheckResult.Type,branchresults[i].Type));
 
-            return result;
+            return Case.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitClass(ASTClassNode Class)
         {
-            SemanticCheckResult semanticCheckResult = new SemanticCheckResult();
-            semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.GetTypeIfDef(Class.TypeName);
-
             string inherit= Class.ParentTypeName;
-            semanticCheckResult.Correct &= CompilationUnit.IsTypeDef(inherit);
+            Class.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(inherit),$"Type {inherit} is not defined.");
 
             foreach (var item in Class.Methods)
-            {
-                semanticCheckResult.Correct &= item.Accept(this).Correct;
-            }
+                Class.SemanticCheckResult.Ensure(item.Accept(this));
             foreach (var item in Class.Atributes)
-            {
-                semanticCheckResult.Correct &= item.Accept(this).Correct;
-            }
-            return semanticCheckResult;
+                Class.SemanticCheckResult.Ensure(item.Accept(this));
+            Class.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Class.TypeName));
+            return Class.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitDivision(ASTDivideNode Divide)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Int;
-
             var left = Divide.Left.Accept(this);
             var right = Divide.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
-            return result;
+            Divide.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
+            Divide.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
+            Divide.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return Divide.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitEqual(ASTEqualNode Equal)
@@ -115,254 +99,250 @@ namespace SuperCOOL.SemanticCheck
             var right = Equal.Right.Accept(this);
             if (left.Type==CompilationUnit.Bool || left.Type==CompilationUnit.Int || left.Type==CompilationUnit.String || right.Type == CompilationUnit.Bool || right.Type == CompilationUnit.Int || right.Type == CompilationUnit.String)
             {
-                return new SemanticCheckResult() {Correct=left.Type==right.Type,Type=CompilationUnit.Bool };
+                Equal.SemanticCheckResult.Ensure(left.Type == right.Type, $"{left.Type} and {right.Type} has different Types.");
             }
-            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.Bool };
+            Equal.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            return Equal.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitBoolConstant(ASTBoolConstantNode BoolConstant)
         {
-            return new SemanticCheckResult
-            {
-                Correct = true,
-                Type = CompilationUnit.Bool
-            };
+            BoolConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            return BoolConstant.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitIf(ASTIfNode If)
         {
-            var result = new SemanticCheckResult();
-
             var conditionResult = If.Condition.Accept(this);
             var thenResult = If.Then.Accept(this);
             var elseResult = If.Else.Accept(this);
 
-            result.Correct = conditionResult.Type == CompilationUnit.Bool && thenResult.Correct && elseResult.Correct;
-            result.Type = CompilationUnit.GetTypeLCA(thenResult.Type, elseResult.Type);
+            If.SemanticCheckResult.Ensure(thenResult);
+            If.SemanticCheckResult.Ensure(elseResult);
+            If.SemanticCheckResult.Ensure(conditionResult,conditionResult.Type == CompilationUnit.Bool,"Condition must be of Type Bool");
+            If.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeLCA(thenResult.Type, elseResult.Type));
 
-            return result;
+            return If.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitIntConstant(ASTIntConstantNode IntConstant)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.Int;
-            return semanticCheckResult;
+            IntConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return IntConstant.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitIsvoid(ASTIsVoidNode IsVoid)
         {
             var res = IsVoid.Expression.Accept(this);
-            return new SemanticCheckResult() { Correct = true, Type = CompilationUnit.Bool };
+            IsVoid.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            return IsVoid.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitLessEqual(ASTLessEqualNode LessEqual)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Bool;
-
-            var integer = CompilationUnit.Int;
-
             var left = LessEqual.Left.Accept(this);
             var right = LessEqual.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == integer && right.Type == integer;
-            return result;
+            LessEqual.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must be of tipe Int.");
+            LessEqual.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must be of tipe Int.");
+            LessEqual.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+
+            return LessEqual.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitLessThan(ASTLessThanNode LessThan)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Bool;
-
-            var integer = CompilationUnit.Int;
-
             var left = LessThan.Left.Accept(this);
             var right = LessThan.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == integer && right.Type == integer;
-            return result;
+            LessThan.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must be of tipe Int.");
+            LessThan.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must be of tipe Int.");
+            LessThan.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+
+            return LessThan.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitLetIn(ASTLetInNode LetIn)
         {
-            var result = new SemanticCheckResult();
             var declarations = LetIn.Declarations;
             foreach (var item in declarations)
             {
+                LetIn.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(item.Type),$"Missing declaration for type {item.Type}.");
                 if (CompilationUnit.IsTypeDef(item.Type))
                 {
                     var type = CompilationUnit.GetTypeIfDef(item.Type);
                     var resultExp = item.Expression.Accept(this);
-                    result.Correct &= (resultExp.Correct && resultExp.Type.IsIt(type));
+                    LetIn.SemanticCheckResult.Ensure(resultExp,resultExp.Type.IsIt(type),$"Type {resultExp} does not inherit from type {type}");
                 }
-                else
-                    result.Correct = false;
             }
 
             var expr = LetIn.LetExp.Accept(this);
-            result.Correct &= expr.Correct;
-            result.Type = expr.Type;
-            return result;
+            LetIn.SemanticCheckResult.Ensure(expr);
+            LetIn.SemanticCheckResult.EnsureReturnType(expr.Type);
+            return LetIn.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitFormal(ASTFormalNode Formal)
         {
-            var result = new SemanticCheckResult();
-            result.Correct= CompilationUnit.IsTypeDef(Formal.Type);
-            if (result.Correct)
-                result.Type = CompilationUnit.GetTypeIfDef(Formal.Type);
-            return result;
+            var def=CompilationUnit.IsTypeDef(Formal.Type);
+            Formal.SemanticCheckResult.Ensure(def, $"Mising declaration for type {Formal.Type}.");
+            if (def)
+                Formal.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Formal.Type));
+            return Formal.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitMethod(ASTMethodNode Method)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
             foreach (var item in Method.Formals)
-                result.Correct = item.Accept(this).Correct;
+                Method.SemanticCheckResult.Ensure(item.Accept(this));
 
             var exprResult = Method.Body.Accept(this);
-            if (!CompilationUnit.IsTypeDef(Method.ReturnType))
+            var isDefRet = CompilationUnit.IsTypeDef(Method.ReturnType);
+            Method.SemanticCheckResult.Ensure(isDefRet, $"Missing Declaration for type {Method.ReturnType}.");
+            Method.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Method.ReturnType));
+            if (isDefRet)
             {
-                result.Correct = false;
-                return result;
+                var ret = CompilationUnit.GetTypeIfDef(Method.ReturnType);
+                Method.SemanticCheckResult.Ensure(exprResult,exprResult.Type.IsIt(ret),$"Type {exprResult.Type} does not inherit from type {ret}.");
+                Method.SemanticCheckResult.EnsureReturnType(ret);
             }
-            var returnType = CompilationUnit.GetTypeIfDef(Method.ReturnType);
-            result.Correct &= exprResult.Type.IsIt(returnType);
 
-            return result; 
+            return Method.SemanticCheckResult; 
         }
 
         public SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
-            var result = new SemanticCheckResult();
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
-            result.Correct &= onResult.Correct;
-            result.Correct &= onResult.Type.IsIt(CompilationUnit.GetTypeIfDef(MethodCall.Type));
-
-            CoolMethod m = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
-            if (m.Params.Count == MethodCall.Arguments.Length)
-                result.Correct = true;
-            else
-                result.Correct = false;
-            for (int i = 0; i < m.Params.Count; i++)
+            var isStaticDef = CompilationUnit.IsTypeDef(MethodCall.Type);
+            MethodCall.SemanticCheckResult.Ensure(isStaticDef, $"Missing declaration for type {MethodCall.Type}.");
+            if (isStaticDef)
             {
-                var r = MethodCall.Arguments[i].Accept(this);
-                result.Correct &= r.Correct;
-                result.Correct &= (r.Type.IsIt(m.Params[i]));
+                var staticType = CompilationUnit.GetTypeIfDef(MethodCall.Type);
+                MethodCall.SemanticCheckResult.Ensure(onResult, onResult.Type.IsIt(staticType), $"Type {onResult.Type} does not inherot from type {staticType}.");
             }
-            result.Type = m.ReturnType;
-            return result;
+
+            var isMetDef = CompilationUnit.IsMethodDef(MethodCall.Type, MethodCall.MethodName);
+            MethodCall.SemanticCheckResult.Ensure(isMetDef, $"Missing declaration of method {MethodCall.MethodName} on type {MethodCall.Type}.");
+            if (isMetDef)
+            {
+                var method = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
+                MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}");
+
+                for (int i = 0; i < method.Params.Count; i++)
+                {
+                    var r = MethodCall.Arguments[i].Accept(this);
+                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]),$"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.");
+                }
+
+                MethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
+            }
+            return MethodCall.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitMinus(ASTMinusNode Minus)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Int;
 
             var left = Minus.Left.Accept(this);
             var right = Minus.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
-            return result;
+            Minus.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
+            Minus.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
+            Minus.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return Minus.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitMultiply(ASTMultiplyNode Multiply)
         {
             SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Int;
 
             var left = Multiply.Left.Accept(this);
             var right = Multiply.Right.Accept(this);
 
-            result.Correct = left.Correct && right.Correct && left.Type == result.Type && right.Type == result.Type;
-            return result;
+            Multiply.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
+            Multiply.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
+            Multiply.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return Multiply.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitNegative(ASTNegativeNode Negatve)
         {
-            SemanticCheckResult result = new SemanticCheckResult();
-            result.Type = CompilationUnit.Int;
-
             var exp = Negatve.Expression.Accept(this);
 
-            result.Correct = exp.Correct  && exp.Type == result.Type ;
-            return result;
+            Negatve.SemanticCheckResult.Ensure(exp, exp.Type == CompilationUnit.Int, "Expresion must have type Int");
+            Negatve.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            return Negatve.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitNew(ASTNewNode New)
         {
-            return new SemanticCheckResult() { Correct = CompilationUnit.IsTypeDef(New.Type), Type = CompilationUnit.GetTypeIfDef(New.Type) };
+            New.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(New.Type), $"Missing declaration for type {New.Type}.");
+            New.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(New.Type));
+            return New.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            var result = new SemanticCheckResult();
-            CoolMethod m = CompilationUnit.GetMethodIfDef(OwnMethodCall.TypeEnvironment.CoolType,OwnMethodCall.Method);
-            if (m.Params.Count==OwnMethodCall.Arguments.Length)
-                result.Correct = true;
-            else
-                result.Correct = false;
-            for (int i = 0; i < m.Params.Count; i++)
+            var isdef = OwnMethodCall.TypeEnvironment.IsDefMethod(OwnMethodCall.Method);
+            OwnMethodCall.SemanticCheckResult.Ensure(isdef, $"Missing declaration for method {OwnMethodCall.Method} on type {OwnMethodCall.TypeEnvironment.CoolType}.");
+            if (isdef)
             {
-                var r=OwnMethodCall.Arguments[i].Accept(this);
-                result.Correct &= r.Correct;
-                result.Correct &= (r.Type==m.Params[i]);
+                var method = OwnMethodCall.TypeEnvironment.GetMethod(OwnMethodCall.Method);
+                OwnMethodCall.SemanticCheckResult.Ensure(method.Params.Count == OwnMethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {OwnMethodCall.Arguments.Length}");
+
+                for (int i = 0; i < method.Params.Count; i++)
+                {
+                    var r = OwnMethodCall.Arguments[i].Accept(this);
+                    OwnMethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]), $"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.");
+                }
+
+                OwnMethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
             }
-            result.Type = m.ReturnType;
-            return result;
+            return OwnMethodCall.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitProgram(ASTProgramNode Program)
         {
-            var result = new SemanticCheckResult();
-            result.Correct = true;
             foreach (var item in Program.Clases)
-                result.Correct &= item.Accept(this).Correct;
-            return result;
+                Program.SemanticCheckResult.Ensure(item.Accept(this));
+            return Program.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
-            var result = new SemanticCheckResult();
-            if (CompilationUnit.IsTypeDef(Atribute.Type))
-                result.Correct = true;
-            else
-                result.Correct = false;
-            var t = CompilationUnit.GetTypeIfDef(Atribute.Type);
-            var r = Atribute.Init.Accept(this);
-            result.Correct &=r.Correct;
-            result.Correct &= (r.Type.IsIt(t));
-            result.Type = t;
-            return result;
+            var isdef = CompilationUnit.IsTypeDef(Atribute.Type);
+            Atribute.SemanticCheckResult.Ensure(isdef, $"Missing declaration for type {Atribute.Type}.");
+            if (isdef)
+            {
+                var t = CompilationUnit.GetTypeIfDef(Atribute.Type);
+                var r = Atribute.Init.Accept(this);
+                Atribute.SemanticCheckResult.Ensure(r,r.Type.IsIt(t),$"Type {r} does not inherit from type {t}.");
+                Atribute.SemanticCheckResult.EnsureReturnType(t);
+            }
+            return Atribute.SemanticCheckResult; ;
         }
 
         public SemanticCheckResult VisitStringConstant(ASTStringConstantNode StringConstant)
         {
-            var semanticCheckResult = new SemanticCheckResult();
-            semanticCheckResult.Correct = true;
-            semanticCheckResult.Type = CompilationUnit.String;
-            return semanticCheckResult;
+            StringConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.String);
+            return StringConstant.SemanticCheckResult; 
         }
 
         public SemanticCheckResult VisitWhile(ASTWhileNode While)
         {
-            var result = new SemanticCheckResult();
             var cond = While.Condition.Accept(this);
-            result.Correct = cond.Correct;
+            While.SemanticCheckResult.Ensure(cond);
             var body = While.Body.Accept(this);
-            result.Correct &= body.Correct;
-            result.Type = CompilationUnit.Object;
-            return result;
+            While.SemanticCheckResult.Ensure(body);
+            While.SemanticCheckResult.EnsureReturnType(CompilationUnit.Object);
+            return While.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitId(ASTIdNode Id)
         {
-            var result = new SemanticCheckResult();
-            result.Correct = Id.TypeEnvironment.IsDefO(Id.Name);
-            result.Type = CompilationUnit.GetTypeIfDef(Id.TypeEnvironment.GetTypeO(Id.Name));
-            return result;
+            Id.SemanticCheckResult.Ensure(Id.TypeEnvironment.IsDefO(Id.Name), $"Missing declaration from object {Id.Name}.");
+            Id.SemanticCheckResult.EnsureReturnType(Id.TypeEnvironment.GetTypeO(Id.Name));
+            return Id.SemanticCheckResult;
         }
 
         public SemanticCheckResult Visit(ASTNode Node)
@@ -377,22 +357,25 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
-            var result = new SemanticCheckResult();
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
-            result.Correct &= onResult.Correct;
-            CoolMethod m = CompilationUnit.GetMethodIfDef(onResult.Type.Name, MethodCall.MethodName);
-            if (m.Params.Count == MethodCall.Arguments.Length)
-                result.Correct = true;
-            else
-                result.Correct = false;
-            for (int i = 0; i < m.Params.Count; i++)
+            MethodCall.SemanticCheckResult.Ensure(onResult);
+
+            var isdef = CompilationUnit.IsMethodDef(onResult.Type.Name, MethodCall.MethodName);
+            MethodCall.SemanticCheckResult.Ensure(isdef, $"Missing declaration for method {MethodCall.MethodName}.");
+            if (isdef)
             {
-                var r = MethodCall.Arguments[i].Accept(this);
-                result.Correct &= r.Correct;
-                result.Correct &= (r.Type.IsIt(m.Params[i]));
+                var method = MethodCall.TypeEnvironment.GetMethod(MethodCall.MethodName);
+                MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}");
+
+                for (int i = 0; i < method.Params.Count; i++)
+                {
+                    var r = MethodCall.Arguments[i].Accept(this);
+                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]), $"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.");
+                }
+
+                MethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
             }
-            result.Type = m.ReturnType;
-            return result;
+            return MethodCall.SemanticCheckResult;
         }
     }
 }
