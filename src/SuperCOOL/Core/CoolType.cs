@@ -24,6 +24,13 @@ namespace SuperCOOL.Core
 
         public bool IsIt( CoolType Tatara )
         {
+            if (this is SelfType self && Tatara is SelfType tatara)
+                return self.ContextType == tatara.ContextType;
+            if (this is SelfType me)
+                return me.ContextType.IsIt(Tatara);
+            if (Tatara is SelfType ancestor)
+                return false;
+
             var type = this;
             if( type == Tatara )
                 return true;
@@ -34,6 +41,15 @@ namespace SuperCOOL.Core
                     return true;
             }
             return false;
+        }
+    }
+
+    public class SelfType : CoolType
+    {
+        public CoolType ContextType { get; set; }
+        public SelfType(CoolType contextType) : base("SelfType")
+        {
+            ContextType = contextType;
         }
     }
 }

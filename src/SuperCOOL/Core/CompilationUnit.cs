@@ -12,7 +12,6 @@ namespace SuperCOOL.Core
         public CoolType Bool => Types["Bool"];
         public CoolType Object => Types["Object"];
         public CoolType IO => Types["IO"];
-        public CoolType SelfType => Types["SelfType"]; 
 
         public CompilationUnit()
         {
@@ -27,17 +26,17 @@ namespace SuperCOOL.Core
             AddType("Bool");
             AddInheritance("Bool", "Object");
             AddType("IO");
+            AddInheritance("IO", "Object");
             AddMethod("Object", "abort", new List<CoolType>(), Object);
             AddMethod("Object", "type_name", new List<CoolType>(), String);
-            AddMethod("Object", "copy", new List<CoolType>(), SelfType);
+            AddMethod("Object", "copy", new List<CoolType>(), new SelfType(Object));
             AddMethod("String", "length", new List<CoolType>(), Int);
             AddMethod("String", "concat", new List<CoolType>() {String}, String);
             AddMethod("String", "substr", new List<CoolType>() {Int,Int}, String);
-            AddMethod("IO", "out_string", new List<CoolType>() {String}, SelfType);
-            AddMethod("IO", "out_int", new List<CoolType>() {Int}, SelfType);
+            AddMethod("IO", "out_string", new List<CoolType>() {String},new SelfType(IO));
+            AddMethod("IO", "out_int", new List<CoolType>() {Int}, new SelfType(IO));
             AddMethod("IO", "in_string", new List<CoolType>(), String);
             AddMethod("IO", "in_int", new List<CoolType>(), Int);
-            AddInheritance("IO", "Object");
         }
 
         public bool IsTypeDef(string Name)
@@ -45,7 +44,9 @@ namespace SuperCOOL.Core
             return Types.ContainsKey(Name);
         }
 
-        public bool InheritsFrom( CoolType A, CoolType B ) => A.IsIt( B );
+        public bool InheritsFrom(CoolType A, CoolType B) {
+            return A.IsIt(B);
+        }
 
         public CoolType GetTypeIfDef( string Name )
         {
@@ -79,8 +80,17 @@ namespace SuperCOOL.Core
 
         public CoolType GetTypeLCA( CoolType type1, CoolType type2 )
         {
-            if( this.lca_table == null )
+            if (this.lca_table == null )
                 LCATable();
+
+            if (type1 is SelfType A && type2 is SelfType B && A.ContextType == B.ContextType)
+                return A;
+
+            if (type1 is SelfType C)
+                return GetTypeLCA(C.ContextType,type2);
+
+            if (type2 is SelfType D)
+                return GetTypeLCA(type1,D.ContextType);
 
             int l1 = this.distance[ type1 ], l2 = this.distance[ type2 ];
             if( l1 > l2 )
