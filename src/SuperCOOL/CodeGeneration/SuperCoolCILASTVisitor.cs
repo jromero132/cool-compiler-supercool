@@ -96,7 +96,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            throw new NotImplementedException();
+            return new ASTCILIsVoidNode((ASTCILExpressionNode) VisitExpression(IsVoid.Expression));
         }
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
