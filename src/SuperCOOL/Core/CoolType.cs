@@ -21,7 +21,10 @@ namespace SuperCOOL.Core
         }
 
         public override int GetHashCode() => this.Name.GetHashCode();
-
+        public override string ToString()
+        {
+            return Name;
+        }
         public bool IsIt( CoolType Tatara )
         {
             if (this is SelfType self && Tatara is SelfType tatara)
