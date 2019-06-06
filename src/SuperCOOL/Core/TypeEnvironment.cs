@@ -42,11 +42,18 @@ namespace SuperCOOL.Core
 
         public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
         {
-            if (!MethodEnvironment.ContainsKey(type)) MethodEnvironment[type] = new List<CoolMethod>();
+            if (GetMethodOnIt(type, method, out CoolMethod))
+                return true;
+            if(type.Parent!=null)
+                return GetMethod(type.Parent, method, out CoolMethod);
+            return false;
+        }
+        public bool GetMethodOnIt(CoolType type, string method, out CoolMethod CoolMethod)
+        {
+            if (!MethodEnvironment.ContainsKey(type))
+                MethodEnvironment[type] = new List<CoolMethod>();
             CoolMethod = MethodEnvironment[type].Where(x => x.Name == method).FirstOrDefault();
-            if (CoolMethod != null) return true;
-            if (type.Parent == null) return false;
-            return GetMethod(type.Parent, method, out CoolMethod);
+            return CoolMethod != null;
         }
 
         public CoolType SelfType(ISymbolTable symbolTable)
@@ -161,6 +168,7 @@ namespace SuperCOOL.Core
         CoolType GetTypeForSelf(ISymbolTable symbolTable);
         bool GetTypeDefinition(string typeName,out CoolType coolType);
         bool GetMethod(CoolType type, string method,out CoolMethod CoolMethod);
+        bool GetMethodOnIt(CoolType type, string method,out CoolMethod CoolMethod);
         bool InheritsFrom(CoolType A, CoolType B);
         CoolType GetTypeLCA(CoolType type1, CoolType type2);
         CoolType Int { get; }

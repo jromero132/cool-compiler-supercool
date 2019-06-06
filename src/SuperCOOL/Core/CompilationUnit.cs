@@ -61,7 +61,7 @@ namespace SuperCOOL.Core
             foreach (var method in visitor.Functions)
             {
                 TypeEnvironment.GetTypeDefinition(method.type,out var type);
-                var def = TypeEnvironment.GetMethod(type, method.method, out var m);
+                var def = TypeEnvironment.GetMethodOnIt(type, method.method, out var m);
                 result.Ensure(!def,new Error($"Not allowed multyple methods with the same name on type {type}.",ErrorKind.MethodError));
                 if (!def)
                 {
