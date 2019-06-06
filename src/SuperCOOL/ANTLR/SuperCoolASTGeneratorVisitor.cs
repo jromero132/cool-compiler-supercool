@@ -102,18 +102,18 @@ namespace SuperCOOL.ANTLR
             var atributes = new List<ASTAtributeNode>();
             CurrentTable.DefObject("self", className);
             foreach (var item in context.feature())
-                switch (item.RuleIndex)//TODO :verify this to doit better
+                switch (item)
                 {
-                    case 2  ://method
+                    case SuperCOOLParser.MethodContext m://method
                         EnterScope();
-                        var method = (ASTMethodNode)item.Accept(this);
+                        var method = (ASTMethodNode)m.Accept(this);
                         methods.Add(method);
                         AssignSymbolTable(method);
                         DefFunc(className,method.Name, method.Formals.Select(x => x.type.Text).ToArray(), method.ReturnType);
                         ExitScope();
                         break;
-                    case 3 ://property
-                        var atribute = (ASTAtributeNode)item.Accept(this);
+                    case SuperCOOLParser.PropertyContext p://property
+                        var atribute = (ASTAtributeNode)p.Accept(this);
                         atributes.Add(atribute);
                         AssignSymbolTable(atribute);
                         CurrentTable.DefObject(atribute.AttributeName,atribute.TypeName);
