@@ -178,12 +178,23 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
-            throw new NotImplementedException();
+            return new ASTCILFuncStaticCallNode(MethodCall.MethodName, MethodCall.Type,
+                Enumerable.Repeat((ASTCILExpressionNode) VisitExpression(MethodCall.InvokeOnExpresion), 1)
+                    .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) VisitExpression(a))));
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
-            throw new NotImplementedException();
+            return new ASTCILFuncVirtualCallNode(MethodCall.MethodName,
+                Enumerable.Repeat((ASTCILExpressionNode) VisitExpression(MethodCall.InvokeOnExpresion), 1)
+                    .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) VisitExpression(a))));
+        }
+
+        public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
+        {
+            //TODO add self
+            return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method,
+                OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode)VisitExpression(a)));
         }
 
         public ASTCILNode VisitMinus(ASTMinusNode Minus)
@@ -222,11 +233,6 @@ namespace SuperCOOL.CodeGeneration
         }
 
         public ASTCILNode VisitNew(ASTNewNode context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             throw new NotImplementedException();
         }
