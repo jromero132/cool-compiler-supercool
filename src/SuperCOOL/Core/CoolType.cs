@@ -16,6 +16,8 @@ namespace SuperCOOL.Core
 
         public override bool Equals( object obj )
         {
+            if (this is NullType || obj is NullType)
+                return true;
             CoolType coolType = obj as CoolType;
             return coolType.Name == this.Name;
         }
@@ -27,6 +29,8 @@ namespace SuperCOOL.Core
         }
         public bool IsIt( CoolType Tatara )
         {
+            if (this is NullType || Tatara is NullType) return true;
+
             if (this is SelfType self && Tatara is SelfType tatara)
                 return self.ContextType == tatara.ContextType;
             if (this is SelfType me)
@@ -53,6 +57,13 @@ namespace SuperCOOL.Core
         public SelfType(CoolType contextType) : base("SelfType")
         {
             ContextType = contextType;
+        }
+    }
+
+    public class NullType : CoolType
+    {
+        public NullType() : base("Null")
+        {
         }
     }
 }
