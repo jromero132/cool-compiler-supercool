@@ -383,7 +383,7 @@ namespace SuperCOOL.SemanticCheck
 
             var isdef = CompilationUnit.TypeEnvironment.GetMethod(onResult.Type, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isdef, 
-                new Error($"Missing declaration for method {MethodCall.MethodName}.",ErrorKind.AttributeError,MethodCall.Method.Line,MethodCall.Method.Column));
+                new Error($"Missing declaration for method {MethodCall.MethodName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
             if (isdef)
             {
                 MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length,
