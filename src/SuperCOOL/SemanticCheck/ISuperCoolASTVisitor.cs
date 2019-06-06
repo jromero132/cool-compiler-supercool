@@ -56,8 +56,6 @@ namespace SuperCOOL.SemanticCheck
 
         Result VisitId(ASTIdNode Id);
 
-        Result VisitFormal(ASTFormalNode Formal);
-
         Result Visit(ASTNode Node);
 
         Result VisitExpression(ASTExpressionNode Expression);

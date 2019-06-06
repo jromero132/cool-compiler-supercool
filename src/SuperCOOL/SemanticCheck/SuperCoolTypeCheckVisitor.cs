@@ -7,6 +7,11 @@ namespace SuperCOOL.SemanticCheck
 {
     public class SuperCoolTypeCheckVisitor : ISuperCoolASTVisitor<SemanticCheckResult>
     {
+        public SuperCoolTypeCheckVisitor(CompilationUnit compilationUnit)
+        {
+            CompilationUnit = compilationUnit;
+        }
+
         public CompilationUnit CompilationUnit { get; }
 
         public SemanticCheckResult VisitAdd(ASTAddNode Add)
@@ -14,9 +19,9 @@ namespace SuperCOOL.SemanticCheck
             var left = Add.Left.Accept(this);
             var right = Add.Right.Accept(this);
 
-            Add.SemanticCheckResult.Ensure(left,left.Type==CompilationUnit.Int,"Left Expresion must have type Int");
-            Add.SemanticCheckResult.Ensure(right,right.Type==CompilationUnit.Int,"Right Expresion must have type Int");
-            Add.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            Add.SemanticCheckResult.Ensure(left,left.Type==CompilationUnit.TypeEnvironment.Int,"Left Expresion must have type Int");
+            Add.SemanticCheckResult.Ensure(right,right.Type==CompilationUnit.TypeEnvironment.Int,"Right Expresion must have type Int");
+            Add.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return Add.SemanticCheckResult;
         }
 
@@ -45,8 +50,8 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitBoolNot(ASTBoolNotNode BoolNode)
         {
             var exp = BoolNode.Accept(this);
-            BoolNode.SemanticCheckResult.Ensure(exp,exp.Type == CompilationUnit.Bool,"Expresion must be of tipe Bool");
-            BoolNode.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            BoolNode.SemanticCheckResult.Ensure(exp,exp.Type == CompilationUnit.TypeEnvironment.Bool,"Expresion must be of tipe Bool");
+            BoolNode.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
             return BoolNode.SemanticCheckResult;
         }
 
@@ -59,12 +64,12 @@ namespace SuperCOOL.SemanticCheck
             for (int i = 0; i < Case.Cases.Length; i++)
             {
                 branchresults[i] = Case.Cases[i].Branch.Accept(this);
-                Case.SemanticCheckResult.Ensure(branchresults[i],branchresults[i].Type.IsIt(CompilationUnit.GetTypeIfDef(Case.Cases[i].Type)), $"Type {branchresults[i].Type} is not subtype of {Case.Cases[i].Type}.");
+                Case.SemanticCheckResult.Ensure(branchresults[i],branchresults[i].Type.IsIt(CompilationUnit.TypeEnvironment.GetTypeForObject(Case.SymbolTable,Case.Cases[i].Type)), $"Type {branchresults[i].Type} is not subtype of {Case.Cases[i].Type}.");
             }
 
             Case.SemanticCheckResult.EnsureReturnType(branchresults[0].Type);
             for (int i = 1; i < Case.Cases.Length; i++)
-                Case.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeLCA(Case.SemanticCheckResult.Type,branchresults[i].Type));
+                Case.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.GetTypeLCA(Case.SemanticCheckResult.Type,branchresults[i].Type));
 
             return Case.SemanticCheckResult;
         }
@@ -72,13 +77,14 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitClass(ASTClassNode Class)
         {
             string inherit= Class.ParentTypeName;
-            Class.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(inherit),$"Type {inherit} is not defined.");
+            Class.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(inherit,out var _),$"Type {inherit} is not defined.");
 
             foreach (var item in Class.Methods)
                 Class.SemanticCheckResult.Ensure(item.Accept(this));
             foreach (var item in Class.Atributes)
                 Class.SemanticCheckResult.Ensure(item.Accept(this));
-            Class.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Class.TypeName));
+            CompilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, out var ret);
+            Class.SemanticCheckResult.EnsureReturnType(ret);
             return Class.SemanticCheckResult;
         }
 
@@ -87,9 +93,9 @@ namespace SuperCOOL.SemanticCheck
             var left = Divide.Left.Accept(this);
             var right = Divide.Right.Accept(this);
 
-            Divide.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
-            Divide.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
-            Divide.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            Divide.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.TypeEnvironment.Int, "Left Expresion must have type Int");
+            Divide.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.TypeEnvironment.Int, "Right Expresion must have type Int");
+            Divide.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return Divide.SemanticCheckResult;
         }
 
@@ -97,17 +103,17 @@ namespace SuperCOOL.SemanticCheck
         {
             var left = Equal.Left.Accept(this);
             var right = Equal.Right.Accept(this);
-            if (left.Type==CompilationUnit.Bool || left.Type==CompilationUnit.Int || left.Type==CompilationUnit.String || right.Type == CompilationUnit.Bool || right.Type == CompilationUnit.Int || right.Type == CompilationUnit.String)
+            if (left.Type==CompilationUnit.TypeEnvironment.Bool || left.Type==CompilationUnit.TypeEnvironment.Int || left.Type==CompilationUnit.TypeEnvironment.String || right.Type == CompilationUnit.TypeEnvironment.Bool || right.Type == CompilationUnit.TypeEnvironment.Int || right.Type == CompilationUnit.TypeEnvironment.String)
             {
                 Equal.SemanticCheckResult.Ensure(left.Type == right.Type, $"{left.Type} and {right.Type} has different Types.");
             }
-            Equal.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            Equal.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
             return Equal.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitBoolConstant(ASTBoolConstantNode BoolConstant)
         {
-            BoolConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            BoolConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
             return BoolConstant.SemanticCheckResult;
         }
 
@@ -119,22 +125,22 @@ namespace SuperCOOL.SemanticCheck
 
             If.SemanticCheckResult.Ensure(thenResult);
             If.SemanticCheckResult.Ensure(elseResult);
-            If.SemanticCheckResult.Ensure(conditionResult,conditionResult.Type == CompilationUnit.Bool,"Condition must be of Type Bool");
-            If.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeLCA(thenResult.Type, elseResult.Type));
+            If.SemanticCheckResult.Ensure(conditionResult,conditionResult.Type == CompilationUnit.TypeEnvironment.Bool,"Condition must be of Type Bool");
+            If.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.GetTypeLCA(thenResult.Type, elseResult.Type));
 
             return If.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitIntConstant(ASTIntConstantNode IntConstant)
         {
-            IntConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            IntConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return IntConstant.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitIsvoid(ASTIsVoidNode IsVoid)
         {
             var res = IsVoid.Expression.Accept(this);
-            IsVoid.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            IsVoid.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
             return IsVoid.SemanticCheckResult;
         }
 
@@ -143,9 +149,9 @@ namespace SuperCOOL.SemanticCheck
             var left = LessEqual.Left.Accept(this);
             var right = LessEqual.Right.Accept(this);
 
-            LessEqual.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must be of tipe Int.");
-            LessEqual.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must be of tipe Int.");
-            LessEqual.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            LessEqual.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.TypeEnvironment.Int, "Left Expresion must be of tipe Int.");
+            LessEqual.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.TypeEnvironment.Int, "Right Expresion must be of tipe Int.");
+            LessEqual.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
 
             return LessEqual.SemanticCheckResult;
         }
@@ -155,9 +161,9 @@ namespace SuperCOOL.SemanticCheck
             var left = LessThan.Left.Accept(this);
             var right = LessThan.Right.Accept(this);
 
-            LessThan.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must be of tipe Int.");
-            LessThan.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must be of tipe Int.");
-            LessThan.SemanticCheckResult.EnsureReturnType(CompilationUnit.Bool);
+            LessThan.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.TypeEnvironment.Int, "Left Expresion must be of tipe Int.");
+            LessThan.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.TypeEnvironment.Int, "Right Expresion must be of tipe Int.");
+            LessThan.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
 
             return LessThan.SemanticCheckResult;
         }
@@ -167,10 +173,10 @@ namespace SuperCOOL.SemanticCheck
             var declarations = LetIn.Declarations;
             foreach (var item in declarations)
             {
-                LetIn.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(item.Type),$"Missing declaration for type {item.Type}.");
-                if (CompilationUnit.IsTypeDef(item.Type))
+                var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type, out var type);
+                LetIn.SemanticCheckResult.Ensure(b,$"Missing declaration for type {item.Type}.");
+                if (b)
                 {
-                    var type = CompilationUnit.GetTypeIfDef(item.Type);
                     var resultExp = item.Expression.Accept(this);
                     LetIn.SemanticCheckResult.Ensure(resultExp,resultExp.Type.IsIt(type),$"Type {resultExp} does not inherit from type {type}");
                 }
@@ -182,27 +188,17 @@ namespace SuperCOOL.SemanticCheck
             return LetIn.SemanticCheckResult;
         }
 
-        public SemanticCheckResult VisitFormal(ASTFormalNode Formal)
-        {
-            var def=CompilationUnit.IsTypeDef(Formal.Type);
-            Formal.SemanticCheckResult.Ensure(def, $"Mising declaration for type {Formal.Type}.");
-            if (def)
-                Formal.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Formal.Type));
-            return Formal.SemanticCheckResult;
-        }
-
         public SemanticCheckResult VisitMethod(ASTMethodNode Method)
         {
             foreach (var item in Method.Formals)
-                Method.SemanticCheckResult.Ensure(item.Accept(this));
+                Method.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(item.type,out var _), $"Mising declaration for type {item.type}.");
 
             var exprResult = Method.Body.Accept(this);
-            var isDefRet = CompilationUnit.IsTypeDef(Method.ReturnType);
+            var isDefRet = CompilationUnit.TypeEnvironment.GetTypeDefinition(Method.ReturnType,out var ret);
             Method.SemanticCheckResult.Ensure(isDefRet, $"Missing Declaration for type {Method.ReturnType}.");
-            Method.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(Method.ReturnType));
+            Method.SemanticCheckResult.EnsureReturnType(ret);
             if (isDefRet)
             {
-                var ret = CompilationUnit.GetTypeIfDef(Method.ReturnType);
                 Method.SemanticCheckResult.Ensure(exprResult,exprResult.Type.IsIt(ret),$"Type {exprResult.Type} does not inherit from type {ret}.");
                 Method.SemanticCheckResult.EnsureReturnType(ret);
             }
@@ -213,19 +209,15 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
-            var isStaticDef = CompilationUnit.IsTypeDef(MethodCall.Type);
+            var isStaticDef = CompilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.Type,out var staticType);
             MethodCall.SemanticCheckResult.Ensure(isStaticDef, $"Missing declaration for type {MethodCall.Type}.");
             if (isStaticDef)
-            {
-                var staticType = CompilationUnit.GetTypeIfDef(MethodCall.Type);
                 MethodCall.SemanticCheckResult.Ensure(onResult, onResult.Type.IsIt(staticType), $"Type {onResult.Type} does not inherot from type {staticType}.");
-            }
 
-            var isMetDef = CompilationUnit.IsMethodDef(MethodCall.Type, MethodCall.MethodName);
+            var isMetDef = CompilationUnit.TypeEnvironment.GetMethod(staticType, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isMetDef, $"Missing declaration of method {MethodCall.MethodName} on type {MethodCall.Type}.");
             if (isMetDef)
             {
-                var method = CompilationUnit.GetMethodIfDef(MethodCall.Type, MethodCall.MethodName);
                 MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}");
 
                 for (int i = 0; i < method.Params.Count; i++)
@@ -246,9 +238,9 @@ namespace SuperCOOL.SemanticCheck
             var left = Minus.Left.Accept(this);
             var right = Minus.Right.Accept(this);
 
-            Minus.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
-            Minus.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
-            Minus.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            Minus.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.TypeEnvironment.Int, "Left Expresion must have type Int");
+            Minus.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.TypeEnvironment.Int, "Right Expresion must have type Int");
+            Minus.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return Minus.SemanticCheckResult;
         }
 
@@ -259,9 +251,9 @@ namespace SuperCOOL.SemanticCheck
             var left = Multiply.Left.Accept(this);
             var right = Multiply.Right.Accept(this);
 
-            Multiply.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.Int, "Left Expresion must have type Int");
-            Multiply.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.Int, "Right Expresion must have type Int");
-            Multiply.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            Multiply.SemanticCheckResult.Ensure(left, left.Type == CompilationUnit.TypeEnvironment.Int, "Left Expresion must have type Int.");
+            Multiply.SemanticCheckResult.Ensure(right, right.Type == CompilationUnit.TypeEnvironment.Int, "Right Expresion must have type Int.");
+            Multiply.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return Multiply.SemanticCheckResult;
         }
 
@@ -269,25 +261,25 @@ namespace SuperCOOL.SemanticCheck
         {
             var exp = Negatve.Expression.Accept(this);
 
-            Negatve.SemanticCheckResult.Ensure(exp, exp.Type == CompilationUnit.Int, "Expresion must have type Int");
-            Negatve.SemanticCheckResult.EnsureReturnType(CompilationUnit.Int);
+            Negatve.SemanticCheckResult.Ensure(exp, exp.Type == CompilationUnit.TypeEnvironment.Int, "Expresion must have type Int");
+            Negatve.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Int);
             return Negatve.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitNew(ASTNewNode New)
         {
-            New.SemanticCheckResult.Ensure(CompilationUnit.IsTypeDef(New.Type), $"Missing declaration for type {New.Type}.");
-            New.SemanticCheckResult.EnsureReturnType(CompilationUnit.GetTypeIfDef(New.Type));
+            New.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(New.Type,out var type), $"Missing declaration for type {New.Type}.");
+            New.SemanticCheckResult.EnsureReturnType(type);
             return New.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            var isdef = OwnMethodCall.TypeEnvironment.IsDefMethod(OwnMethodCall.Method);
-            OwnMethodCall.SemanticCheckResult.Ensure(isdef, $"Missing declaration for method {OwnMethodCall.Method} on type {OwnMethodCall.TypeEnvironment.CoolType}.");
+            var selfcooltype = CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable);
+            var isdef = CompilationUnit.TypeEnvironment.GetMethod(selfcooltype,OwnMethodCall.Method,out var method);
+            OwnMethodCall.SemanticCheckResult.Ensure(isdef, $"Missing declaration for method {OwnMethodCall.Method} on type {CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable)}.");
             if (isdef)
             {
-                var method = OwnMethodCall.TypeEnvironment.GetMethod(OwnMethodCall.Method);
                 OwnMethodCall.SemanticCheckResult.Ensure(method.Params.Count == OwnMethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {OwnMethodCall.Arguments.Length}");
 
                 for (int i = 0; i < method.Params.Count; i++)
@@ -310,11 +302,10 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
-            var isdef = CompilationUnit.IsTypeDef(Atribute.Type);
+            var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.Type,out var t);
             Atribute.SemanticCheckResult.Ensure(isdef, $"Missing declaration for type {Atribute.Type}.");
             if (isdef)
             {
-                var t = CompilationUnit.GetTypeIfDef(Atribute.Type);
                 var r = Atribute.Init.Accept(this);
                 Atribute.SemanticCheckResult.Ensure(r,r.Type.IsIt(t),$"Type {r} does not inherit from type {t}.");
                 Atribute.SemanticCheckResult.EnsureReturnType(t);
@@ -324,7 +315,7 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitStringConstant(ASTStringConstantNode StringConstant)
         {
-            StringConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.String);
+            StringConstant.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.String);
             return StringConstant.SemanticCheckResult; 
         }
 
@@ -334,14 +325,14 @@ namespace SuperCOOL.SemanticCheck
             While.SemanticCheckResult.Ensure(cond);
             var body = While.Body.Accept(this);
             While.SemanticCheckResult.Ensure(body);
-            While.SemanticCheckResult.EnsureReturnType(CompilationUnit.Object);
+            While.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Object);
             return While.SemanticCheckResult;
         }
 
         public SemanticCheckResult VisitId(ASTIdNode Id)
         {
-            Id.SemanticCheckResult.Ensure(Id.TypeEnvironment.IsDefO(Id.Name), $"Missing declaration from object {Id.Name}.");
-            Id.SemanticCheckResult.EnsureReturnType(Id.TypeEnvironment.GetTypeO(Id.Name));
+            Id.SemanticCheckResult.Ensure(Id.SymbolTable.IsDefObject(Id.Name,out var _), $"Missing declaration from object {Id.Name}.");
+            Id.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.GetTypeForObject(Id.SymbolTable,Id.Name));
             return Id.SemanticCheckResult;
         }
 
@@ -360,11 +351,10 @@ namespace SuperCOOL.SemanticCheck
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
             MethodCall.SemanticCheckResult.Ensure(onResult);
 
-            var isdef = CompilationUnit.IsMethodDef(onResult.Type.Name, MethodCall.MethodName);
+            var isdef = CompilationUnit.TypeEnvironment.GetMethod(onResult.Type, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isdef, $"Missing declaration for method {MethodCall.MethodName}.");
             if (isdef)
             {
-                var method = MethodCall.TypeEnvironment.GetMethod(MethodCall.MethodName);
                 MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length, $"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}");
 
                 for (int i = 0; i < method.Params.Count; i++)
@@ -377,5 +367,6 @@ namespace SuperCOOL.SemanticCheck
             }
             return MethodCall.SemanticCheckResult;
         }
+
     }
 }
