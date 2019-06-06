@@ -16,17 +16,17 @@ namespace SuperCOOL.NameGenerator
 
         public string GenerateVariable()
         {
-            return $"var_{variableIndex++}";
+            return $"_var_{variableIndex++}";
         }
 
         public string GenerateIf()
         {
-            return $"if_{ifIndex++}";
+            return $"_if_{ifIndex++}";
         }
 
         public (string varInit, string endOfCase) GenerateCase()
         {
-            return (GenerateVariable(), $"caseEnd_{caseIndex++}");
+            return (GenerateVariable(), $"_caseEnd_{caseIndex++}");
         }
     }
 }
