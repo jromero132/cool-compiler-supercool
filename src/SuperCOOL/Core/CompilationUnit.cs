@@ -115,7 +115,7 @@ namespace SuperCOOL.Core
         {
             if (!TypeEnvironment.GetTypeDefinition("Main", out var Main)) return false;
             if (!TypeEnvironment.GetMethod(Main, "main",out var main)) return false;
-            return main.Params.Count == 0 && main.ReturnType == TypeEnvironment.IO && Main.Parent == TypeEnvironment.Object;
+            return main.Params.Count == 0 && main.ReturnType == TypeEnvironment.Object && Main.Parent == TypeEnvironment.IO;
         }
     }
 }
