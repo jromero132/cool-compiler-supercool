@@ -1,55 +1,173 @@
-﻿using System;
+﻿using SuperCOOL.SemanticCheck;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SuperCOOL.Core
 {
-    public class TypeEnvironment
+    public class TypeEnvironment:ITypeEnvironment
     {
-        public TypeEnvironment(string Type,TypeEnvironment Parent):this(Type)
-        {
-            ParentEnvironment = Parent;
-        }
-        public TypeEnvironment(string Type)
-        {
-            ObjectEnvironment = new Dictionary<string, CoolType>();
-            MethodEnvironment = new Dictionary<string, CoolMethod>();
-            CoolType = new CoolType(Type);
-        }
-        public TypeEnvironment ParentEnvironment { get; set; }
-        Dictionary<string, CoolType> ObjectEnvironment { get; set; }
-        Dictionary<string,CoolMethod> MethodEnvironment { get; set; }
-        public CoolType CoolType { get; set; }
+        Dictionary<string, CoolType> Types { get; set; }
+        Dictionary<CoolType,List<CoolMethod>> MethodEnvironment { get; set; }
+        public CoolType Int => Types["Int"];
+        public CoolType String => Types["String"];
+        public CoolType Bool => Types["Bool"];
+        public CoolType Object => Types["Object"];
+        public CoolType IO => Types["IO"];
 
-        public bool AddObject(string id,CoolType coolType)
+        public TypeEnvironment(Dictionary<string, CoolType> Types, Dictionary<CoolType, List<CoolMethod>> MethodEnvironment)
         {
-            return ObjectEnvironment.TryAdd(id, coolType);
+            this.Types = Types;
+            this.MethodEnvironment = MethodEnvironment;
         }
 
-        internal bool IsDefO(string name)
+        public bool GetTypeDefinition(string typeName,out CoolType coolType)
         {
-            return ObjectEnvironment.ContainsKey(name);
+            if (typeName.IsSelfType())
+                throw new InvalidOperationException("No allowed SelfType as parameter.");
+            return Types.TryGetValue(typeName, out coolType);
         }
 
-        internal CoolType GetTypeO(string name)
+        public CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject)
         {
-            if (name == "SelfType")
-                return new SelfType(CoolType);
-            ObjectEnvironment.TryGetValue(name,out CoolType result);
-            return result;
-        }
-        public bool AddMethod(string Method,CoolMethod method)
-        {
-            return MethodEnvironment.TryAdd(Method, method);
-        }
-        internal bool IsDefMethod(string method)
-        {
-            return MethodEnvironment.ContainsKey(method);
+            symbolTable.IsDefObject(nameObject, out var type);
+            GetTypeDefinition(type, out var res);
+            return res??new NullType();
         }
 
-        internal CoolMethod GetMethod(string name)
+        public CoolType GetTypeForSelf(ISymbolTable symbolTable)
         {
-            MethodEnvironment.TryGetValue(name, out CoolMethod result);
-            return result;
+            return GetTypeForObject(symbolTable,"self");
         }
+
+        public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
+        {
+            if (!MethodEnvironment.ContainsKey(type)) MethodEnvironment[type] = new List<CoolMethod>();
+            CoolMethod = MethodEnvironment[type].Where(x => x.Name == method).FirstOrDefault();
+            if (CoolMethod != null) return true;
+            if (type.Parent == null) return false;
+            return GetMethod(type.Parent, method, out CoolMethod);
+        }
+
+        public CoolType SelfType(ISymbolTable symbolTable)
+        {
+            return new SelfType(GetTypeForSelf(symbolTable));
+        }
+
+        public bool InheritsFrom(CoolType A, CoolType B)
+        {
+            return A.IsIt(B);
+        }
+
+        public CoolType GetTypeLCA(CoolType type1, CoolType type2)
+        {
+            if (this.lca_table == null)
+                LCATable();
+
+            if (type1 is NullType) return type2;
+            if (type2 is NullType) return type1;
+
+
+            if (type1 is SelfType A && type2 is SelfType B && A.ContextType == B.ContextType)
+                return A;
+
+            if (type1 is SelfType C)
+                return GetTypeLCA(C.ContextType, type2);
+
+            if (type2 is SelfType D)
+                return GetTypeLCA(type1, D.ContextType);
+
+            int l1 = this.distance[type1], l2 = this.distance[type2];
+            if (l1 > l2)
+            {
+                var temp1 = type1;
+                type1 = type2;
+                type2 = temp1;
+
+                var temp2 = l1;
+                l1 = l2;
+                l2 = temp2;
+            }
+
+            for (int i = (int)Math.Log(l2, 2); i >= 0; --i)
+                if (l2 - (1 << i) >= l1)
+                {
+                    type2 = this.lca_table[type2][i];
+                    l2 = this.distance[type2];
+                }
+
+            if (type1 == type2)
+                return type1;
+
+            for (int i = (int)Math.Log(l1, 2); i >= 0; --i)
+            {
+                var t1 = this.lca_table[type1];
+                var t2 = this.lca_table[type2];
+
+                if (t1[i] != null && t1[i] != t2[i])
+                {
+                    type1 = this.lca_table[type1][i];
+                    type2 = this.lca_table[type2][i];
+                }
+            }
+            return this.lca_table[type1][0];
+        }
+
+        Dictionary<CoolType, List<CoolType>> lca_table;
+        Dictionary<CoolType, int> distance;
+        private void LCATable()
+        {
+            this.lca_table = new Dictionary<CoolType, List<CoolType>>()
+            {
+                [Object] = new List<CoolType>() { null }
+            };
+            this.distance = new Dictionary<CoolType, int>()
+            {
+                [Object] = 1
+            };
+
+            Queue<CoolType> q = new Queue<CoolType>();
+            for (q.Enqueue(Object); q.Count > 0; q.Dequeue())
+            {
+                var now = q.Peek();
+                foreach (var child in now.Childs)
+                {
+                    if (!this.lca_table.ContainsKey(child))
+                    {
+                        this.lca_table[child] = new List<CoolType> { now };
+                        this.distance[child] = this.distance[now] + 1;
+                        q.Enqueue(child);
+                    }
+                }
+            }
+
+            for (int j = 1; (1 << j) <= this.lca_table.Count; ++j)
+            {
+                foreach (var pair in this.lca_table)
+                {
+                    var parent = pair.Value[j - 1];
+                    var parents_table = parent is null ? null : this.lca_table[parent];
+                    var next_parent = parents_table?[j - 1];
+                    pair.Value.Add(next_parent);
+                }
+            }
+        }
+
+    }
+
+    public interface ITypeEnvironment
+    {
+        CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject);
+        CoolType GetTypeForSelf(ISymbolTable symbolTable);
+        bool GetTypeDefinition(string typeName,out CoolType coolType);
+        bool GetMethod(CoolType type, string method,out CoolMethod CoolMethod);
+        bool InheritsFrom(CoolType A, CoolType B);
+        CoolType GetTypeLCA(CoolType type1, CoolType type2);
+        CoolType Int { get; }
+        CoolType String { get; }
+        CoolType Bool { get; }
+        CoolType Object { get; }
+        CoolType IO { get; }
+        CoolType SelfType(ISymbolTable symbolTable);
     }
 }
