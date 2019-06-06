@@ -26,12 +26,12 @@ namespace SuperCOOL.CodeGeneration
                 return new ASTCILAddTwoConstantNode(left.Value, right.Value);
             if (Add.Left is ASTIntConstantNode left2)
                 return new ASTCILAddConstantVariableNode(left2.Value,
-                    (ASTCILExpressionNode) VisitExpression(Add.Right));
+                    (ASTCILExpressionNode)VisitExpression(Add.Right));
             if (Add.Right is ASTIntConstantNode right2)
-                return new ASTCILAddVariableConstantNode((ASTCILExpressionNode) VisitExpression(Add.Left),
+                return new ASTCILAddVariableConstantNode((ASTCILExpressionNode)VisitExpression(Add.Left),
                     right2.Value);
-            return new ASTCILAddTwoVariablesNode((ASTCILExpressionNode) VisitExpression(Add.Left),
-                (ASTCILExpressionNode) VisitExpression(Add.Right));
+            return new ASTCILAddTwoVariablesNode((ASTCILExpressionNode)VisitExpression(Add.Left),
+                (ASTCILExpressionNode)VisitExpression(Add.Right));
         }
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
@@ -43,17 +43,49 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
         {
-            return new ASTCILBlockNode(Block.Expresions.Select(x => (ASTCILExpressionNode) VisitExpression(x)));
+            return new ASTCILBlockNode(Block.Expresions.Select(x => (ASTCILExpressionNode)VisitExpression(x)));
         }
 
         public ASTCILNode VisitBoolNot(ASTBoolNotNode BoolNot)
         {
-            return new ASTCILBoolNotNode((ASTCILExpressionNode) VisitExpression(BoolNot));
+            return new ASTCILBoolNotNode((ASTCILExpressionNode)VisitExpression(BoolNot));
         }
 
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
-            throw new NotImplementedException();
+            var caseExpression = (ASTCILExpressionNode) VisitExpression(Case.ExpressionCase);
+            var caseLabels = labelIlGenerator.GenerateCase();
+            var caseExpressionCheckVoid = new ASTCILIfNode(new ASTCILIsVoidNode(caseExpression),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.CaseVoidRuntimeError),
+                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), labelIlGenerator.GenerateIf());
+            var caseExpressionType = caseExpression.Type;
+            var caseExpressions = new List<ASTCILExpressionNode>
+                { caseExpression, caseExpressionCheckVoid };
+            while (caseExpressionType != Types.Object)
+            {
+                foreach (var caseSubExpression in Case.Cases)
+                {
+                    caseExpressions.Add(new ASTCILIfNode(
+                        new ASTCILEqualNode(new ASTCILStringConstantNode(caseExpressionType),
+                            new ASTCILStringConstantNode(caseExpression.Type))
+                        , new ASTCILBlockNode
+                        (
+                            new[]
+                            {
+                                new ASTCILLocalNode(caseSubExpression.Name, caseSubExpression.Type),
+                                new ASTCILAssignmentNode(caseSubExpression.Name,
+                                    caseExpression),
+                                (ASTCILExpressionNode) VisitExpression(caseSubExpression.Branch),
+                                new ASTCILGotoNode(caseLabels.endOfCase),
+                            }
+                        ), new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()),
+                        labelIlGenerator.GenerateIf()));
+                }
+
+                //TODO up to the parentType
+            }
+
+            return new ASTCILBlockNode(caseExpressions);
         }
 
         public ASTCILNode VisitClass(ASTClassNode Class)
@@ -67,18 +99,18 @@ namespace SuperCOOL.CodeGeneration
                 return new ASTCILDivideTwoConstantNode(left.Value, right.Value);
             if (Division.Left is ASTIntConstantNode left2)
                 return new ASTCILDivideConstantVariableNode(left2.Value,
-                    (ASTCILExpressionNode) VisitExpression(Division.Right));
+                    (ASTCILExpressionNode)VisitExpression(Division.Right));
             if (Division.Right is ASTIntConstantNode right2)
-                return new ASTCILDivideVariableConstantNode((ASTCILExpressionNode) VisitExpression(Division.Left),
+                return new ASTCILDivideVariableConstantNode((ASTCILExpressionNode)VisitExpression(Division.Left),
                     right2.Value);
-            return new ASTCILDivideTwoVariablesNode((ASTCILExpressionNode) VisitExpression(Division.Left),
-                (ASTCILExpressionNode) VisitExpression(Division.Right));
+            return new ASTCILDivideTwoVariablesNode((ASTCILExpressionNode)VisitExpression(Division.Left),
+                (ASTCILExpressionNode)VisitExpression(Division.Right));
         }
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
         {
             return new ASTCILIfNode(
-                (ASTCILExpressionNode) VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),
+                (ASTCILExpressionNode)VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),
                 new ASTCILBoolConstantNode(true), new ASTCILBoolConstantNode(false),
                 labelIlGenerator.GenerateIf());
         }
@@ -90,8 +122,8 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIf(ASTIfNode If)
         {
-            return new ASTCILIfNode((ASTCILExpressionNode) VisitExpression(If.Condition),
-                (ASTCILExpressionNode) VisitExpression(If.Then), (ASTCILExpressionNode) VisitExpression(If.Else),
+            return new ASTCILIfNode((ASTCILExpressionNode)VisitExpression(If.Condition),
+                (ASTCILExpressionNode)VisitExpression(If.Then), (ASTCILExpressionNode)VisitExpression(If.Else),
                 labelIlGenerator.GenerateIf());
         }
 
@@ -102,17 +134,17 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            return new ASTCILIsVoidNode((ASTCILExpressionNode) VisitExpression(IsVoid.Expression));
+            return new ASTCILIsVoidNode((ASTCILExpressionNode)VisitExpression(IsVoid.Expression));
         }
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
         {
             return new ASTCILIfNode(
                 new ASTCILBoolOrTwoVariablesNode(
-                    (ASTCILExpressionNode) VisitExpression(new ASTLessThanNode
-                        { Left = LessEqual.Left, Right = LessEqual.Right }),
-                    (ASTCILExpressionNode) VisitExpression(new ASTEqualNode
-                        { Left = LessEqual.Left, Right = LessEqual.Right })), new ASTCILIntConstantNode(1),
+                    (ASTCILExpressionNode)VisitExpression(new ASTLessThanNode
+                    { Left = LessEqual.Left, Right = LessEqual.Right }),
+                    (ASTCILExpressionNode)VisitExpression(new ASTEqualNode
+                    { Left = LessEqual.Left, Right = LessEqual.Right })), new ASTCILIntConstantNode(1),
                 new ASTCILIntConstantNode(0), labelIlGenerator.GenerateIf());
         }
 
@@ -135,8 +167,8 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => new ASTCILExpressionNode[]
             {
                 new ASTCILLocalNode(x.Id, x.Type),
-                new ASTCILAssingmentNode(x.Id, (ASTCILExpressionNode) VisitExpression(x.Expression))
-            }).Concat(Enumerable.Repeat((ASTCILExpressionNode) VisitExpression(LetIn.LetExp), 1)));
+                new ASTCILAssignmentNode(x.Id, (ASTCILExpressionNode) VisitExpression(x.Expression))
+            }).Concat(Enumerable.Repeat((ASTCILExpressionNode)VisitExpression(LetIn.LetExp), 1)));
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
@@ -160,12 +192,12 @@ namespace SuperCOOL.CodeGeneration
                 return new ASTCILMinusTwoConstantNode(left.Value, right.Value);
             if (Minus.Left is ASTIntConstantNode left2)
                 return new ASTCILMinusConstantVariableNode(left2.Value,
-                    (ASTCILExpressionNode) VisitExpression(Minus.Right));
+                    (ASTCILExpressionNode)VisitExpression(Minus.Right));
             if (Minus.Right is ASTIntConstantNode right2)
-                return new ASTCILMinusVariableConstantNode((ASTCILExpressionNode) VisitExpression(Minus.Left),
+                return new ASTCILMinusVariableConstantNode((ASTCILExpressionNode)VisitExpression(Minus.Left),
                     right2.Value);
-            return new ASTCILMinusTwoVariablesNode((ASTCILExpressionNode) VisitExpression(Minus.Left),
-                (ASTCILExpressionNode) VisitExpression(Minus.Right));
+            return new ASTCILMinusTwoVariablesNode((ASTCILExpressionNode)VisitExpression(Minus.Left),
+                (ASTCILExpressionNode)VisitExpression(Minus.Right));
         }
 
         public ASTCILNode VisitMultiply(ASTMultiplyNode Multiply)
@@ -174,19 +206,19 @@ namespace SuperCOOL.CodeGeneration
                 return new ASTCILMultiplyTwoConstantNode(left.Value, right.Value);
             if (Multiply.Left is ASTIntConstantNode left2)
                 return new ASTCILMultiplyConstantVariableNode(left2.Value,
-                    (ASTCILExpressionNode) VisitExpression(Multiply.Right));
+                    (ASTCILExpressionNode)VisitExpression(Multiply.Right));
             if (Multiply.Right is ASTIntConstantNode right2)
-                return new ASTCILMultiplyVariableConstantNode((ASTCILExpressionNode) VisitExpression(Multiply.Left),
+                return new ASTCILMultiplyVariableConstantNode((ASTCILExpressionNode)VisitExpression(Multiply.Left),
                     right2.Value);
-            return new ASTCILMultiplyTwoVariablesNode((ASTCILExpressionNode) VisitExpression(Multiply.Left),
-                (ASTCILExpressionNode) VisitExpression(Multiply.Right));
+            return new ASTCILMultiplyTwoVariablesNode((ASTCILExpressionNode)VisitExpression(Multiply.Left),
+                (ASTCILExpressionNode)VisitExpression(Multiply.Right));
         }
 
         public ASTCILNode VisitNegative(ASTNegativeNode Negative)
         {
             if (Negative.Expression is ASTIntConstantNode constant)
                 return new ASTCILMultiplyTwoConstantNode(constant.Value, -1);
-            return new ASTCILMultiplyVariableConstantNode((ASTCILExpressionNode) VisitExpression(Negative), -1);
+            return new ASTCILMultiplyVariableConstantNode((ASTCILExpressionNode)VisitExpression(Negative), -1);
         }
 
         public ASTCILNode VisitNew(ASTNewNode context)
@@ -217,7 +249,7 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitWhile(ASTWhileNode While)
         {
             var ifLabel = labelIlGenerator.GenerateIf();
-            return new ASTCILIfNode((ASTCILExpressionNode) VisitExpression(While.Condition),
+            return new ASTCILIfNode((ASTCILExpressionNode)VisitExpression(While.Condition),
                 new ASTCILBlockNode(new[]
                     { (ASTCILExpressionNode) VisitExpression(While.Body), new ASTCILGotoNode(ifLabel) }),
                 new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), ifLabel);
