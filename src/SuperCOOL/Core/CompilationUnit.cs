@@ -1,199 +1,121 @@
-﻿using System;
+﻿using SuperCOOL.ANTLR;
+using SuperCOOL.SemanticCheck;
+using SuperCOOL.SemanticCheck.AST;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SuperCOOL.Core
 {
     public class CompilationUnit
     {
-        Dictionary<string,TypeEnvironment> Types { get; set; }
-        public CoolType Int => Types["Int"].CoolType;
-        public CoolType String => Types["String"].CoolType;
-        public CoolType Bool => Types["Bool"].CoolType;
-        public CoolType Object => Types["Object"].CoolType;
-        public CoolType IO => Types["IO"].CoolType;
+        public ITypeEnvironment TypeEnvironment { get;private set; }
 
-        public CompilationUnit()
+        public SemanticCheckResult BuildTypeEnvironment(SuperCoolASTGeneratorVisitor visitor)
         {
-            Types = new Dictionary<string, TypeEnvironment>();
-            AddType("SelfType");
-            AddType("Object");
-            AddType("Int");
-            AddInheritance("Int", "Object");
-            AddType("String");
-            AddInheritance("String", "Object");
-            AddType("Bool");
-            AddInheritance("Bool", "Object");
-            AddType("IO");
-            AddInheritance("IO", "Object");
-            AddMethod("Object", "abort", new List<CoolType>(), Object);
-            AddMethod("Object", "type_name", new List<CoolType>(), String);
-            AddMethod("Object", "copy", new List<CoolType>(), new SelfType(Object));
-            AddMethod("String", "length", new List<CoolType>(), Int);
-            AddMethod("String", "concat", new List<CoolType>() {String}, String);
-            AddMethod("String", "substr", new List<CoolType>() {Int,Int}, String);
-            AddMethod("IO", "out_string", new List<CoolType>() {String},new SelfType(IO));
-            AddMethod("IO", "out_int", new List<CoolType>() {Int}, new SelfType(IO));
-            AddMethod("IO", "in_string", new List<CoolType>(), String);
-            AddMethod("IO", "in_int", new List<CoolType>(), Int);
+            SemanticCheckResult result = new SemanticCheckResult();
+            Dictionary<string, CoolType> Types=new Dictionary<string, CoolType>();
+            Dictionary<CoolType, List<CoolMethod>> MethodEnvironment=new Dictionary<CoolType, List<CoolMethod>>();
+            TypeEnvironment = new TypeEnvironment(Types, MethodEnvironment);
+
+            AddType(Types,"Object");
+            AddType(Types, "Int");
+            AddInheritance(Types,"Int", "Object");
+            AddType(Types,"String");
+            AddInheritance(Types,"String", "Object");
+            AddType(Types,"Bool");
+            AddInheritance(Types,"Bool", "Object");
+            AddType(Types, "IO");
+            AddInheritance(Types, "IO", "Object");
+            AddMethod(MethodEnvironment,TypeEnvironment.Object, "abort", new List<CoolType>(), TypeEnvironment.Object);
+            AddMethod(MethodEnvironment,TypeEnvironment.Object, "type_name", new List<CoolType>(), TypeEnvironment.String);
+            AddMethod(MethodEnvironment,TypeEnvironment.Object, "copy", new List<CoolType>(), new SelfType(TypeEnvironment.Object));
+            AddMethod(MethodEnvironment,TypeEnvironment.String, "length", new List<CoolType>(), Types["Int"]);
+            AddMethod(MethodEnvironment,TypeEnvironment.String, "concat", new List<CoolType>() { TypeEnvironment.String }, TypeEnvironment.String);
+            AddMethod(MethodEnvironment,TypeEnvironment.String, "substr", new List<CoolType>() { TypeEnvironment.Int, TypeEnvironment.Int }, TypeEnvironment.String);
+            AddMethod(MethodEnvironment,TypeEnvironment.IO, "out_string", new List<CoolType>() { TypeEnvironment.String }, new SelfType(TypeEnvironment.IO));
+            AddMethod(MethodEnvironment,TypeEnvironment.IO, "out_int", new List<CoolType>() { TypeEnvironment.Int }, new SelfType(TypeEnvironment.IO));
+            AddMethod(MethodEnvironment,TypeEnvironment.IO, "in_string", new List<CoolType>(), TypeEnvironment.String);
+            AddMethod(MethodEnvironment,TypeEnvironment.IO, "in_int", new List<CoolType>(), TypeEnvironment.Int);
+
+            //Creating All Types
+            foreach (var type in visitor.Types)
+            {
+                var exist = Types.ContainsKey(type.type);
+                result.Ensure(!exist, $"Multiple Definitions for class {type.type}");
+                if (!exist)
+                    Types.Add(type.type, new CoolType(type.type));
+            }
+
+            //Inheritance
+            foreach (var type in visitor.Types)
+            {
+                var parent = type.parent ?? "Object";
+                var exist = Types.ContainsKey(parent);
+                result.Ensure(exist, $"Missing declaration for type {type.parent}.");
+                if (exist)
+                    AddInheritance(Types,type.type, parent);
+            }
+
+            //Not Repeated Method Definitions
+            foreach (var method in visitor.Functions)
+            {
+                TypeEnvironment.GetTypeDefinition(method.type,out var type);
+                var def = TypeEnvironment.GetMethod(type, method.method, out var m);
+                result.Ensure(!def, $"Not allowed multyple methods with the same name on type {type}.");
+                if (!def)
+                {
+                    TypeEnvironment.GetTypeDefinition(method.returnType,out var ret);
+                    AddMethod(MethodEnvironment,type, method.method, method.asrgTypes.Select(x => Types[x]).ToList(),ret);
+                }
+            }
+
+            result.Ensure(NotCyclicalInheritance(), "Detected Cyclical Inheritance");
+            result.Ensure(HasEntryPoint(), "No Entry Point Detected");
+
+            return result;
         }
 
-        public bool IsTypeDef(string Name)
+        private void AddType(Dictionary<string, CoolType> Types,string coolTypeName)
         {
-            return Types.ContainsKey(Name);
+            Types.Add(coolTypeName, new CoolType(coolTypeName));
         }
-
-        public bool InheritsFrom(CoolType A, CoolType B) {
-            return A.IsIt(B);
-        }
-
-        public CoolType GetTypeIfDef( string Name )
+        private void AddMethod(Dictionary<CoolType, List<CoolMethod>> MethodEnvironment,CoolType type, string method, List<CoolType> formals, CoolType returnType)
         {
-            Types.TryGetValue(Name, out TypeEnvironment env);
-            return env?.CoolType;
+            if(!MethodEnvironment.ContainsKey(type))
+                MethodEnvironment[type] = new List<CoolMethod>();
+            MethodEnvironment[type].Add(new CoolMethod(method, formals, returnType));
         }
-
-        public bool NotCyclicalInheritance()
+        private void AddInheritance(Dictionary<string, CoolType> Types,string t1, string t2)
+        {
+            var type1 = Types[t1];
+            var type2 = Types[t2];
+            type1.Parent = type2;
+            type2.Childs.Add(type1);
+        }
+        private bool NotCyclicalInheritance()
         {
             HashSet<CoolType> hs = new HashSet<CoolType>();
             Queue<CoolType> q = new Queue<CoolType>();
 
-            for( hs.Add( Object ), q.Enqueue( Object ) ; q.Count > 0 ; q.Dequeue() )
+            for (hs.Add(TypeEnvironment.Object), q.Enqueue(TypeEnvironment.Object); q.Count > 0; q.Dequeue())
             {
                 var cur = q.Peek();
-                foreach( var child in cur.Childs )
+                foreach (var child in cur.Childs)
                 {
-                    if( hs.Contains( child ) )
+                    if (hs.Contains(child))
                         return false;
-                    hs.Add( child );
-                    q.Enqueue( child );
+                    hs.Add(child);
+                    q.Enqueue(child);
                 }
             }
             return true;
         }
-
-        public bool HasEntryPoint()
+        private bool HasEntryPoint()
         {
-            return true;//TODO: Verify if there is an entry Point;
-        }
-
-        public CoolType GetTypeLCA( CoolType type1, CoolType type2 )
-        {
-            if (this.lca_table == null )
-                LCATable();
-
-            if (type1 is SelfType A && type2 is SelfType B && A.ContextType == B.ContextType)
-                return A;
-
-            if (type1 is SelfType C)
-                return GetTypeLCA(C.ContextType,type2);
-
-            if (type2 is SelfType D)
-                return GetTypeLCA(type1,D.ContextType);
-
-            int l1 = this.distance[ type1 ], l2 = this.distance[ type2 ];
-            if( l1 > l2 )
-            {
-                var temp1 = type1;
-                type1 = type2;
-                type2 = temp1;
-
-                var temp2 = l1;
-                l1 = l2;
-                l2 = temp2;
-            }
-
-            for( int i = (int)Math.Log( l2, 2 ) ; i >= 0 ; --i )
-                if( l2 - ( 1 << i ) >= l1 )
-                {
-                    type2 = this.lca_table[ type2 ][ i ];
-                    l2 = this.distance[ type2 ];
-                }
-
-            if( type1 == type2 )
-                return type1;
-
-            for( int i = (int)Math.Log( l1, 2 ) ; i >= 0 ; --i )
-            {
-                var t1 = this.lca_table[ type1 ];
-                var t2 = this.lca_table[ type2 ];
-
-                if( t1[ i ] != null && t1[ i ] != t2[ i ] )
-                {
-                    type1 = this.lca_table[ type1 ][ i ];
-                    type2 = this.lca_table[ type2 ][ i ];
-                }
-            }
-            return this.lca_table[ type1 ][ 0 ];
-        }
-
-        public void AddInheritance(string t1, string t2)
-        {
-            var type1 = GetTypeIfDef(t1);
-            var type2 = GetTypeIfDef(t2);
-            type1.Parent = type2;
-            type2.Childs.Add(type1);
-        }
-
-        Dictionary<CoolType, List<CoolType>> lca_table;
-        Dictionary<CoolType, int> distance;
-        private void LCATable()
-        {
-            this.lca_table = new Dictionary<CoolType, List<CoolType>>()
-            {
-                [ Object ] = new List<CoolType>() { null }
-            };
-            this.distance = new Dictionary<CoolType, int>()
-            {
-                [ Object] = 1
-            };
-
-            Queue<CoolType> q = new Queue<CoolType>();
-            for( q.Enqueue(Object) ; q.Count > 0 ; q.Dequeue() )
-            {
-                var now = q.Peek();
-                foreach( var child in now.Childs )
-                {
-                    if( !this.lca_table.ContainsKey( child ) )
-                    {
-                        this.lca_table[ child ] = new List<CoolType> { now };
-                        this.distance[ child ] = this.distance[ now ] + 1;
-                        q.Enqueue( child );
-                    }
-                }
-            }
-
-            for( int j = 1 ; ( 1 << j ) <= this.lca_table.Count ; ++j )
-            {
-                foreach( var pair in this.lca_table )
-                {
-                    var parent = pair.Value[ j - 1 ];
-                    var parents_table = parent is null ? null : this.lca_table[ parent ];
-                    var next_parent = parents_table?[ j - 1 ];
-                    pair.Value.Add( next_parent );
-                }
-            }
-        }
-
-        public CoolMethod GetMethodIfDef(string coolType, string method)
-        {
-            Types.TryGetValue(coolType, out TypeEnvironment env);
-            return env.GetMethod(method);
-        }
-
-        public bool IsMethodDef(string coolType, string method)
-        {
-            Types.TryGetValue(coolType, out TypeEnvironment env);
-            return env.IsDefMethod(method);
-        }
-
-        public void AddType(string coolTypeName)
-        {
-            Types.Add(coolTypeName,new TypeEnvironment(coolTypeName));
-        }
-
-        public void AddMethod(string type, string method,List<CoolType> formals,CoolType returnType)
-        {
-            Types[type].AddMethod(method, new CoolMethod(method,formals,returnType));
+            if (!TypeEnvironment.GetTypeDefinition("Main", out var Main)) return false;
+            if (!TypeEnvironment.GetMethod(Main, "main",out var main)) return false;
+            return main.Params.Count == 0 && main.ReturnType == TypeEnvironment.IO && Main.Parent == TypeEnvironment.Object;
         }
     }
 }
