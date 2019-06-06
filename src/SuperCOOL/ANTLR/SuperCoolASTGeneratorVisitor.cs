@@ -32,6 +32,7 @@ namespace SuperCOOL.ANTLR
             AssignSymbolTable(right);
             result.Left = left;
             result.Right = right;
+            result.AddToken = context.ADD().Symbol;
             return result;
         }
 
@@ -44,7 +45,7 @@ namespace SuperCOOL.ANTLR
             AssignSymbolTable(id);
             result.Id = id;
             result.Expresion = exp;
-
+            result.AssigmentToken = context.ASSIGNMENT().Symbol;
             return result;
         }
 
@@ -68,6 +69,7 @@ namespace SuperCOOL.ANTLR
             var expresion=(ASTExpressionNode)context.expression().Accept(this);
             AssignSymbolTable(expresion);
             result.Expresion = expresion;
+            result.NotToken = context.NOT().Symbol;
             return result;
         }
 
@@ -134,6 +136,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
+            result.DivToken = context.DIVISION().Symbol;
             return result;
         }
 
@@ -147,6 +150,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
+            result.EqualToken = context.EQUAL().Symbol;
             return result;
         }
 
@@ -173,7 +177,7 @@ namespace SuperCOOL.ANTLR
             result.Condition = cond;
             result.Then = then;
             result.Else = @else;
-
+            result.IfToken = context.IF().Symbol;
             return result;
         }
 
@@ -203,6 +207,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
+            result.LessEqualToken = context.LESS_EQUAL().Symbol;
             return result;
         }
 
@@ -216,6 +221,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
+            result.LessThanToken = context.LESS_THAN().Symbol;
             return result;
         }
 
@@ -313,7 +319,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
-
+            result.MinusToken = context.MINUS().Symbol;
             return  result;
         }
 
@@ -327,6 +333,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
+            result.MultToken = context.MULTIPLY().Symbol;
             return result;
         }
 
@@ -336,6 +343,7 @@ namespace SuperCOOL.ANTLR
             var exp = context.expression().Accept(this);
             AssignSymbolTable(exp);
             result.Expression =exp;
+            result.NegativeToken = context.INTEGER_NEGATIVE().Symbol;
             return result;
         }
 
