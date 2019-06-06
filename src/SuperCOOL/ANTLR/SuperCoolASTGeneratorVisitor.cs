@@ -402,11 +402,13 @@ namespace SuperCOOL.ANTLR
         public override ASTNode VisitProperty([NotNull] SuperCOOLParser.PropertyContext context)
         {
             var result = new ASTAtributeNode();
-            var init = (ASTExpressionNode)context.expression().Accept(this);
-            AssignSymbolTable(init);
+            var init = (ASTExpressionNode)context.expression()?.Accept(this)??null;
+            if(init!=null)
+                AssignSymbolTable(init);
 
             result.Attribute = context.OBJECTID().Symbol;
             result.Type = context.TYPEID().Symbol;
+            result.Init = init;
 
             return result;
         }
