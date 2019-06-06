@@ -79,13 +79,13 @@ namespace SuperCOOL.ANTLR
             var expCases = (ASTExpressionNode)context.expression()[0].Accept(this);
             AssignSymbolTable(expCases);
             var cases = new (IToken, IToken, ASTExpressionNode)[context.expression().Length-1];
-            for (int i = 1; i < context.expression().Length; i++)
+            for (int i = 0; i < cases.Length; i++)
             {
-                var objectName = context.OBJECTID(i - 1).Symbol;
-                var typename = context.TYPEID(i - 1).Symbol;
+                var objectName = context.OBJECTID(i).Symbol;
+                var typename = context.TYPEID(i).Symbol;
                 EnterScope();
                 CurrentTable.DefObject(objectName.Text, typename.Text);
-                cases[i] = (objectName,typename,(ASTExpressionNode)context.expression(i).Accept(this));
+                cases[i] = (objectName,typename,(ASTExpressionNode)context.expression(i+1).Accept(this));
                 AssignSymbolTable(cases[i].Item3);
                 ExitScope();
             }
@@ -278,9 +278,9 @@ namespace SuperCOOL.ANTLR
                 AssignSymbolTable(invokeOnExpresion);
                 var methodName = context.OBJECTID().Symbol;
                 var arguments = new ASTExpressionNode[expresions.Length - 1];
-                for (int i = 1; i < expresions.Length; i++)
+                for (int i = 0; i < arguments.Length; i++)
                 {
-                    arguments[i] = (ASTExpressionNode)expresions[i].Accept(this);
+                    arguments[i] = (ASTExpressionNode)expresions[i+1].Accept(this);
                     AssignSymbolTable(arguments[i]);
                 }
                 var type = context.TYPEID().Symbol;
