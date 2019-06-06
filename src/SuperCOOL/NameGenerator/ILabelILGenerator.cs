@@ -6,7 +6,8 @@ namespace SuperCOOL
 {
     interface ILabelILGenerator
     {
+        string GenerateVariable();
         string GenerateIf();
-        string GenerateWhile();
+        (string varInit, string endOfCase) GenerateCase();
     }
 }

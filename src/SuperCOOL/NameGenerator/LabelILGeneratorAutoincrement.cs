@@ -7,19 +7,26 @@ namespace SuperCOOL.NameGenerator
     class LabelILGeneratorAutoincrement : ILabelILGenerator
     {
         private int ifIndex { get; set; }
-        private int whileIndex { get; set; }
+        private int caseIndex { get; set; }
+        private int variableIndex { get; set; }
         public LabelILGeneratorAutoincrement()
         {
-            ifIndex = whileIndex = 0;
+            ifIndex = caseIndex = variableIndex = 0;
         }
+
+        public string GenerateVariable()
+        {
+            return $"var_{variableIndex++}";
+        }
+
         public string GenerateIf()
         {
             return $"if_{ifIndex++}";
         }
 
-        public string GenerateWhile()
+        public (string varInit, string endOfCase) GenerateCase()
         {
-            return $"while_{whileIndex++}";
+            return (GenerateVariable(), $"caseEnd_{caseIndex++}");
         }
     }
 }
