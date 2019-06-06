@@ -42,7 +42,7 @@ namespace SuperCOOL.Core
             foreach (var type in visitor.Types)
             {
                 var exist = Types.ContainsKey(type.type);
-                result.Ensure(!exist, $"Multiple Definitions for class {type.type}");
+                result.Ensure(!exist, new Error($"Multiple Definitions for class {type.type}",ErrorKind.TypeError));
                 if (!exist)
                     Types.Add(type.type, new CoolType(type.type));
             }
@@ -52,7 +52,7 @@ namespace SuperCOOL.Core
             {
                 var parent = type.parent ?? "Object";
                 var exist = Types.ContainsKey(parent);
-                result.Ensure(exist, $"Missing declaration for type {type.parent}.");
+                result.Ensure(exist,new Error( $"Missing declaration for type {type.parent}.",ErrorKind.TypeError));
                 if (exist)
                     AddInheritance(Types,type.type, parent);
             }
@@ -62,7 +62,7 @@ namespace SuperCOOL.Core
             {
                 TypeEnvironment.GetTypeDefinition(method.type,out var type);
                 var def = TypeEnvironment.GetMethod(type, method.method, out var m);
-                result.Ensure(!def, $"Not allowed multyple methods with the same name on type {type}.");
+                result.Ensure(!def,new Error($"Not allowed multyple methods with the same name on type {type}.",ErrorKind.AttributeError));
                 if (!def)
                 {
                     TypeEnvironment.GetTypeDefinition(method.returnType,out var ret);
@@ -70,8 +70,8 @@ namespace SuperCOOL.Core
                 }
             }
 
-            result.Ensure(NotCyclicalInheritance(), "Detected Cyclical Inheritance");
-            result.Ensure(HasEntryPoint(), "No Entry Point Detected");
+            result.Ensure(NotCyclicalInheritance(),new Error("Detected Cyclical Inheritance",ErrorKind.SemanticError));
+            result.Ensure(HasEntryPoint(),new Error("No Entry Point Detected",ErrorKind.SemanticError));
 
             return result;
         }

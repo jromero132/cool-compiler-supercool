@@ -8,10 +8,10 @@ namespace SuperCOOL.SemanticCheck
     {
         public bool Correct => Errors.Count == 0;
         public CoolType Type { get; private set; }
-        public List<string> Errors { get; internal set; }
+        public List<Error> Errors { get; internal set; }
         public SemanticCheckResult()
         {
-            Errors = new List<string>();
+            Errors = new List<Error>();
             Type = new NullType();
         }
 
@@ -20,12 +20,12 @@ namespace SuperCOOL.SemanticCheck
             if (!semanticCheckResult.Correct)
                 Errors.AddRange(semanticCheckResult.Errors);
         }
-        public void Ensure(SemanticCheckResult semanticCheckResult ,bool condition, string Message)
+        public void Ensure(SemanticCheckResult semanticCheckResult ,bool condition, Error error)
         {
             if (!semanticCheckResult.Correct)
                 Errors.AddRange(semanticCheckResult.Errors);
             else if (!condition)
-                Errors.Add(Message);
+                Errors.Add(error);
         }
 
         internal void EnsureReturnType(CoolType type)
@@ -34,10 +34,10 @@ namespace SuperCOOL.SemanticCheck
                 Type = type;
         }
 
-        internal void Ensure(bool condition, string Message)
+        internal void Ensure(bool condition, Error error)
         {
             if (!condition)
-                Errors.Add(Message);
+                Errors.Add(error);
         }
     }
 }
