@@ -12,6 +12,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult()
         {
             Errors = new List<string>();
+            Type = new NullType();
         }
 
         public void Ensure(SemanticCheckResult semanticCheckResult)
