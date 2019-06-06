@@ -268,11 +268,6 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILIdNode(Id.Name);
         }
 
-        public ASTCILNode VisitFormal(ASTFormalNode Formal)
-        {
-            return new ASTCILFormalNode(Formal.Name, Formal.Type);
-        }
-
         public ASTCILNode Visit(ASTNode Node)
         {
             throw new NotImplementedException();
