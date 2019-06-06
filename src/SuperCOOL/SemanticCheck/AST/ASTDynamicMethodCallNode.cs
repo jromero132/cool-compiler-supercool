@@ -1,10 +1,12 @@
-﻿using SuperCOOL.Core;
+﻿using Antlr4.Runtime;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.SemanticCheck.AST
 {
     public class ASTDynamicMethodCallNode:ASTExpressionNode
     {
-        public string MethodName { get; internal set; }
+        public IToken Method { get; set; }
+        public string MethodName => Method.Text;
         internal ASTExpressionNode InvokeOnExpresion { get; set; }
         internal ASTExpressionNode[] Arguments { get; set; }
 

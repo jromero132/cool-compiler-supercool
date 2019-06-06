@@ -1,10 +1,12 @@
-﻿using SuperCOOL.Core;
+﻿using Antlr4.Runtime;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.SemanticCheck.AST
 {
     public class ASTOwnMethodCallNode : ASTExpressionNode
     {
-        public string Method { get; set; }
+        public IToken Method { get; set; }
+        public string MethodName => Method.Text;
         public ASTExpressionNode[] Arguments { get; set; }
 
         public override Result Accept<Result>(ISuperCoolASTVisitor<Result> Visitor)
