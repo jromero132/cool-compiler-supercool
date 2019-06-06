@@ -31,8 +31,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
-            return new ASTCILAssingmentNode(Assigment.Id.Name,
-                (ASTCILExpressionNode) VisitExpression(Assigment.Expresion));
+            //TODO setattr if is a field and localAssigment if not
+            return new ASTCILAssignmentNode(Assigment.Id.Name,
+                (ASTCILExpressionNode)VisitExpression(Assigment.Expresion));
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
