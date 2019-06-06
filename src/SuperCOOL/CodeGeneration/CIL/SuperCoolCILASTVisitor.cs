@@ -61,8 +61,9 @@ namespace SuperCOOL.CodeGeneration
             var caseExpressionType = caseExpression.Type;
             var caseExpressions = new List<ASTCILExpressionNode>
                 { caseExpression, caseExpressionCheckVoid };
-            while (caseExpressionType != Types.Object)
+            while (caseExpressionType != null)
             {
+
                 foreach (var caseSubExpression in Case.Cases)
                 {
                     caseExpressions.Add(new ASTCILIfNode(
@@ -82,8 +83,11 @@ namespace SuperCOOL.CodeGeneration
                         labelIlGenerator.GenerateIf()));
                 }
 
-                //TODO up to the parentType
+                compilationUnit.TypeEnvironment.GetTypeDefinition(caseExpressionType, out var type);
+                caseExpressionType = type.Parent.Name;
             }
+
+            caseExpressions.Add(new ASTCILRuntimeErrorNode(RuntimeErrors.CaseWithoutMatching));
 
             return new ASTCILBlockNode(caseExpressions);
         }
