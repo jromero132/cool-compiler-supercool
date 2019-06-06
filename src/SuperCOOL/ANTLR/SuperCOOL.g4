@@ -23,7 +23,7 @@ http://sist.shanghaitech.edu.cn/faculty/songfu/course/spring2017/cs131/COOL/COOL
 grammar SuperCOOL;
 
 program
-   : classDefine (';' classDefine)* # classes
+   : classDefine ';'( classDefine ';')* # classes
    | EOF # eof
    ;
 
@@ -32,8 +32,8 @@ classDefine
    ;
 
 feature
-   : OBJECTID '(' (formal (',' formal)*)* ')' ':' (SELF_TYPE|TYPEID) '{' expression '}' # method
-   | OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)? # property
+   : OBJECTID '(' (formal (',' formal)*)* ')' ':' TYPEID '{' expression '}' # method
+   | OBJECTID ':' TYPEID (ASSIGNMENT expression)? # property
    ;
 
 formal
@@ -47,9 +47,9 @@ expression
    | IF expression THEN expression ELSE expression FI # if
    | WHILE expression LOOP expression POOL # while
    | '{' (expression ';') + '}' # block
-   | LET OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)? (',' OBJECTID ':' (SELF_TYPE|TYPEID) (ASSIGNMENT expression)?)* IN expression # letIn
+   | LET OBJECTID ':' TYPEID (ASSIGNMENT expression)? (',' OBJECTID ':' TYPEID (ASSIGNMENT expression)?)* IN expression # letIn
    | CASE expression OF (OBJECTID ':' TYPEID CASE_ARROW expression ';') + ESAC # case
-   | NEW (TYPEID|SELF_TYPE) # new
+   | NEW TYPEID # new
    | INTEGER_NEGATIVE expression # negative
    | ISVOID expression # isvoid
    | expression MULTIPLY expression # multiply
