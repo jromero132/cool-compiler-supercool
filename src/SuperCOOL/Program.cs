@@ -5,6 +5,7 @@ using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck;
 using SuperCOOL.SemanticCheck.AST;
 using System.IO;
+using System.Linq;
 
 namespace SuperCOOL
 {
@@ -20,11 +21,16 @@ namespace SuperCOOL
             SuperCOOLParser superCOOLParser = new SuperCOOLParser(new CommonTokenStream(superCOOLLexer));
             IParseTree parseTree = superCOOLParser.program();
             //Build AST
-            ASTNode ast = parseTree.Accept(new SuperCoolASTGeneratorVisitor());
-            //Semantic Check
-            ast.Accept(new SuperCoolClassDefSemanticCheckVisitor());
-            ast.Accept(new SuperCoolTypeCheckVisitor());
-            //...
+            CompilationUnit compilationUnit = new CompilationUnit();
+            var astgenerator = new SuperCoolASTGeneratorVisitor();
+            ASTNode ast = parseTree.Accept(astgenerator);
+            var fase1=compilationUnit.BuildTypeEnvironment(astgenerator);
+            
+            //Type Check
+            ast.Accept(new SuperCoolTypeCheckVisitor(compilationUnit));
+
+            foreach (var item in fase1.Errors.Concat(ast.SemanticCheckResult.Errors))
+                System.Console.WriteLine(item);
         }
     }
 }
