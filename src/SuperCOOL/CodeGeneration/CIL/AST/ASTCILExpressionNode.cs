@@ -10,6 +10,6 @@
         {
             Type = type;
         }
-        public string Type { get; protected set; }
+        public string Type { get; protected internal set; }
     }
 }
