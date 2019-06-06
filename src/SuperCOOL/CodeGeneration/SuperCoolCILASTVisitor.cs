@@ -1,7 +1,10 @@
 ﻿using SuperCOOL.CodeGeneration.CIL.AST;
+using SuperCOOL.Constants;
+using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck;
 using SuperCOOL.SemanticCheck.AST;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SuperCOOL.CodeGeneration
@@ -9,10 +12,12 @@ namespace SuperCOOL.CodeGeneration
     class SuperCoolCILASTVisitor : ISuperCoolASTVisitor<ASTCILNode>
     {
         private ILabelILGenerator labelIlGenerator { get; }
+        private CompilationUnit compilationUnit { get; }
 
-        public SuperCoolCILASTVisitor(ILabelILGenerator labelIlGenerator)
+        public SuperCoolCILASTVisitor(ILabelILGenerator labelIlGenerator, CompilationUnit compilationUnit)
         {
             this.labelIlGenerator = labelIlGenerator;
+            this.compilationUnit = compilationUnit;
         }
 
         public ASTCILNode VisitAdd(ASTAddNode Add)
