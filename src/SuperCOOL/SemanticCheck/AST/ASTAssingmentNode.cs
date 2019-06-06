@@ -1,4 +1,5 @@
-﻿using SuperCOOL.Core;
+﻿using Antlr4.Runtime;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.SemanticCheck.AST
 {
@@ -6,6 +7,7 @@ namespace SuperCOOL.SemanticCheck.AST
     {
         public ASTIdNode Id { get; internal set; }
         public ASTExpressionNode Expresion { get; set; }
+        public IToken AssigmentToken { get; internal set; }
 
         public override Result Accept<Result>(ISuperCoolASTVisitor<Result> Visitor)
         {

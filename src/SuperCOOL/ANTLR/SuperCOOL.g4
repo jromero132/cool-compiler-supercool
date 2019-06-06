@@ -69,11 +69,6 @@ expression
    | OBJECTID ASSIGNMENT expression # assignment
    ;
 
-// key words
-SELF_TYPE
-   : S E L F '_' T Y P E
-   ;
-
 CLASS
    : C L A S S
    ;
