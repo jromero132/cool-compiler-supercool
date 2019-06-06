@@ -1,11 +1,11 @@
 ﻿namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILAssingmentNode : ASTCILExpressionNode
+    class ASTCILAssignmentNode : ASTCILExpressionNode
     {
         public string Identifier { get; }
         public ASTCILExpressionNode Expresion { get; }
 
-        public ASTCILAssingmentNode(string identifier, ASTCILExpressionNode expresion)
+        public ASTCILAssignmentNode(string identifier, ASTCILExpressionNode expresion)
         {
             Identifier = identifier;
             Expresion = expresion;

@@ -1,10 +1,12 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Constants;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILStringConstantNode : ASTCILNode
+    class ASTCILStringConstantNode : ASTCILExpressionNode
     {
         public string Value { get; }
 
-        public ASTCILStringConstantNode(string value)
+        public ASTCILStringConstantNode(string value) : base(Types.String)
         {
             Value = value;
         }

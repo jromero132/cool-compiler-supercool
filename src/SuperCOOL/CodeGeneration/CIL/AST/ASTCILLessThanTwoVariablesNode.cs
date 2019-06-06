@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
@@ -9,7 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILLessThanTwoVariablesNode(ASTCILExpressionNode left, ASTCILExpressionNode right)
+        public ASTCILLessThanTwoVariablesNode(ASTCILExpressionNode left, ASTCILExpressionNode right) : base(Types.Bool)
         {
             Left = left;
             Right = right;

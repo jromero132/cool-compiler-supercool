@@ -10,6 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILBlockNode(IEnumerable<ASTCILExpressionNode> expressions)
         {
             Expressions = expressions.ToList();
+            Type = Expressions.Last().Type;
         }
     }
 }
