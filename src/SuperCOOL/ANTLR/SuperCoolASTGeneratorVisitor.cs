@@ -11,15 +11,24 @@ namespace SuperCOOL.ANTLR
 {
     public class SuperCoolASTGeneratorVisitor : SuperCOOLBaseVisitor<ASTNode>
     {
-        CompilationUnit CompilationUnit { get; set; }
+        SymbolTable CurrentTable;
+        public List<(string type, string parent)> Types;
+        public List<(string type,string method, string[] asrgTypes, string returnType)> Functions;
+
+        public SuperCoolASTGeneratorVisitor()
+        {
+            CurrentTable = new SymbolTable();
+            Types = new List<(string type, string parent)>();
+            Functions = new List<(string type, string method, string[] asrgTypes, string returnType)>();
+        }
 
         public override ASTNode VisitAdd([NotNull] SuperCOOLParser.AddContext context)
         {
             var result=new ASTAddNode() { };
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
             result.Left = left;
             result.Right = right;
 
@@ -30,9 +39,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTAssingmentNode();
             ASTExpressionNode exp = (ASTExpressionNode)context.expression().Accept(this);
-            exp.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(exp);
             ASTIdNode id = new ASTIdNode() { Name= context.OBJECTID().Symbol.Text};
-            id.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(id);
             result.Id = id;
             result.Expresion = exp;
 
@@ -47,7 +56,7 @@ namespace SuperCOOL.ANTLR
             for (int i = 0; i < exps.Length; i++)
             {
                 exp[i] = (ASTExpressionNode)exps[i].Accept(this);
-                exp[i].TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                AssignSymbolTable(exp[i]);
             }
             result.Expresions = exp;
             return result;
@@ -57,7 +66,7 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTBoolNotNode();
             var expresion=(ASTExpressionNode)context.expression().Accept(this);
-            expresion.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(expresion);
             result.Expresion = expresion;
             return result;
         }
@@ -66,12 +75,17 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTCaseNode();
             var expCases = (ASTExpressionNode)context.expression()[0].Accept(this);
-            expCases.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(expCases);
             var cases = new (string, string, ASTExpressionNode)[context.expression().Length-1];
             for (int i = 1; i < context.expression().Length; i++)
             {
-                cases[i] = (context.OBJECTID(i-1).Symbol.Text,context.TYPEID(i-1).Symbol.Text,(ASTExpressionNode)context.expression(i).Accept(this));
-                cases[i].Item3.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                var objectName = context.OBJECTID(i - 1).Symbol.Text;
+                var typename = context.TYPEID(i - 1).Symbol.Text;
+                EnterScope();
+                CurrentTable.DefObject(objectName, typename);
+                cases[i] = (objectName,typename,(ASTExpressionNode)context.expression(i).Accept(this));
+                AssignSymbolTable(cases[i].Item3);
+                ExitScope();
             }
             result.ExpressionCase = expCases;
             result.Cases = cases;
@@ -80,37 +94,43 @@ namespace SuperCOOL.ANTLR
 
         public override ASTNode VisitClassDefine([NotNull] SuperCOOLParser.ClassDefineContext context)
         {
+            var className = context.TYPEID(0).Symbol.Text;
             var result = new ASTClassNode();
             var methods = new List<ASTMethodNode>();
             var atributes = new List<ASTAtributeNode>();
+            CurrentTable.DefObject("self", className);
             foreach (var item in context.feature())
-                switch (item.Accept(this))
+                switch (item.RuleIndex)//TODO :verify this to doit better
                 {
-                    case ASTMethodNode method :
-                        method.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                    case 2  ://method
+                        EnterScope();
+                        var method = (ASTMethodNode)item.Accept(this);
                         methods.Add(method);
-                        result.TypeEnvironment.AddMethod(method.Name,new CoolMethod(method.Name,method.Formals.ConvertAll((x) => CompilationUnit.GetTypeIfDef(x.Type)),CompilationUnit.GetTypeIfDef(method.ReturnType)));
+                        AssignSymbolTable(method);
+                        DefFunc(className,method.Name, method.Formals.Select(x => x.type).ToArray(), method.ReturnType);
+                        ExitScope();
                         break;
-                    case ASTAtributeNode atribute:
-                        atribute.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                    case 3 ://property
+                        var atribute = (ASTAtributeNode)item.Accept(this);
                         atributes.Add(atribute);
-                        result.TypeEnvironment.AddObject(atribute.Name, CompilationUnit.GetTypeIfDef(atribute.Type));
+                        AssignSymbolTable(atribute);
+                        CurrentTable.DefObject(atribute.Name,atribute.Type);
                         break;
                 }
             result.TypeName = context.TYPEID(0).Symbol.Text;
-            result.ParentTypeName = context.TYPEID(0).Symbol.Text;
+            result.ParentTypeName = context.TYPEID(1)?.Symbol.Text??"Object";
             result.Methods = methods;
             result.Atributes = atributes;
-            return  result;
+            return result;
         }
 
         public override ASTNode VisitDivision([NotNull] SuperCOOLParser.DivisionContext context)
         {
             var result = new ASTDivideNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -121,9 +141,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTEqualNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -144,11 +164,11 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTIfNode();
             var cond = (ASTExpressionNode)context.expression(0).Accept(this);
-            cond.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(cond);
             var then = (ASTExpressionNode)context.expression(1).Accept(this);
-            then.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(then);
             var @else = (ASTExpressionNode)context.expression(2).Accept(this);
-            @else.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(@else);
 
             result.Condition = cond;
             result.Then = then;
@@ -167,7 +187,7 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTIsVoidNode();
             var expression = context.expression().Accept(this);
-            expression.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(expression);
 
             result.Expression = expression;
             return  result;
@@ -177,9 +197,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTLessEqualNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -190,9 +210,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTLessThanNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -204,14 +224,19 @@ namespace SuperCOOL.ANTLR
             var result = new ASTLetInNode();
             var expresions = context.expression();
             var declarations = new (string, string, ASTExpressionNode)[expresions.Length - 1];
-            var letExp = (ASTExpressionNode)expresions[expresions.Length - 1].Accept(this);
-            letExp.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
             for (int i = 0; i < expresions.Length - 1; i++)
             {
                 declarations[i] = (context.OBJECTID(i)?.Symbol.Text?? context.OBJECTID(i).Symbol.Text,context.TYPEID(i).Symbol.Text,(ASTExpressionNode)context.expression(i).Accept(this));
-                declarations[i].Item3.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
-                letExp.TypeEnvironment.AddObject(declarations[i].Item1,CompilationUnit.GetTypeIfDef(declarations[i].Item2));
+                AssignSymbolTable(declarations[i].Item3);
             }
+
+            EnterScope();
+            foreach (var declaration in declarations)
+                CurrentTable.DefObject(declaration.Item1,declaration.Item2);
+
+            var letExp = (ASTExpressionNode)expresions[expresions.Length - 1].Accept(this);
+            AssignSymbolTable(letExp);
+            ExitScope();
 
             result.Declarations = declarations;
             result.LetExp = letExp;
@@ -221,15 +246,18 @@ namespace SuperCOOL.ANTLR
         public override ASTNode VisitMethod([NotNull] SuperCOOLParser.MethodContext context)
         {
             var result = new ASTMethodNode();
+            var formals = context.formal().Select(x=>(x.OBJECTID().Symbol.Text,x.TYPEID().Symbol.Text)).ToList();
+            EnterScope();
+            foreach (var item in formals)
+                CurrentTable.DefObject(item.Item1,item.Item2);
+
             var body = (ASTExpressionNode)context.expression().Accept(this);
-            body.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
-            var formals = new List<ASTFormalNode>();
-            foreach (var formal in context.formal())
-                formals.Add((ASTFormalNode)formal.Accept(this));
+            AssignSymbolTable(body);
+            ExitScope();
 
             result.Name = context.OBJECTID().Symbol.Text;
             result.Body = body;
-            result.ReturnType = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text;
+            result.ReturnType = context.TYPEID().Symbol.Text;
             result.Formals = formals;
             return result;
         }
@@ -241,13 +269,13 @@ namespace SuperCOOL.ANTLR
                 var result = new ASTStaticMethodCallNode();
                 var expresions = context.expression();
                 var invokeOnExpresion = (ASTExpressionNode)expresions[0].Accept(this);
-                invokeOnExpresion.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                AssignSymbolTable(invokeOnExpresion);
                 var methodName = context.OBJECTID().Symbol.Text;
                 var arguments = new ASTExpressionNode[expresions.Length - 1];
                 for (int i = 1; i < expresions.Length; i++)
                 {
                     arguments[i] = (ASTExpressionNode)expresions[i].Accept(this);
-                    arguments[i].TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                    AssignSymbolTable(arguments[i]);
                 }
                 var type = context.TYPEID().Symbol.Text;
                 result.MethodName = methodName;
@@ -260,13 +288,13 @@ namespace SuperCOOL.ANTLR
             var dresult = new ASTDynamicMethodCallNode();
             var dexpresions = context.expression();
             var dinvokeOnExpresion = (ASTExpressionNode)dexpresions[0].Accept(this);
-            dinvokeOnExpresion.TypeEnvironment.ParentEnvironment = dresult.TypeEnvironment;
+            AssignSymbolTable(dinvokeOnExpresion);
             var dmethodName = context.OBJECTID().Symbol.Text;
             var darguments = new ASTExpressionNode[dexpresions.Length - 1];
-            for (int i = 1; i < dexpresions.Length; i++)
+            for (int i = 0; i < darguments.Length; i++)
             {
                 darguments[i] = (ASTExpressionNode)dexpresions[i].Accept(this);
-                darguments[i].TypeEnvironment.ParentEnvironment = dresult.TypeEnvironment;
+                AssignSymbolTable(darguments[i]);
             }
             dresult.MethodName = dmethodName;
             dresult.InvokeOnExpresion = dinvokeOnExpresion;
@@ -279,9 +307,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTMinusNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -293,9 +321,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTMultiplyNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            left.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            right.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(right);
 
             result.Left = left;
             result.Right = right;
@@ -306,14 +334,14 @@ namespace SuperCOOL.ANTLR
         {
             var result=new ASTNegativeNode();
             var exp = context.expression().Accept(this);
-            exp.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(exp);
             result.Expression =exp;
             return result;
         }
 
         public override ASTNode VisitNew([NotNull] SuperCOOLParser.NewContext context)
         {
-            return new ASTNewNode() { Type = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text };
+            return new ASTNewNode() { Type = context.TYPEID().Symbol.Text };
         }
 
         public override ASTNode VisitOwnMethodCall([NotNull] SuperCOOLParser.OwnMethodCallContext context)
@@ -325,7 +353,7 @@ namespace SuperCOOL.ANTLR
             for (int i = 0; i < exps.Length; i++)
             {
                 arguments[i] = (ASTExpressionNode)exps[i].Accept(this);
-                arguments[i].TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+                AssignSymbolTable(arguments[i]);
             }
 
             result.Method = context.OBJECTID().Symbol.Text;
@@ -337,34 +365,40 @@ namespace SuperCOOL.ANTLR
         {
             return context.expression().Accept(this);
         }
-
         public override ASTNode VisitClasses([NotNull] SuperCOOLParser.ClassesContext context)
         {
             var program =new ASTProgramNode();
             var clases = context.classDefine();
-            foreach (var item in clases)
-                CompilationUnit.AddType(item.CLASS().Symbol.Text);
+            var ProgramTable = new SymbolTable();
             foreach (var item in clases)
             {
+                DefType(item.TYPEID(0).Symbol.Text, item.TYPEID(1)?.Symbol.Text);
+                EnterScope();
                 var classe = (ASTClassNode)item.Accept(this);
+                AssignSymbolTable(classe);
                 program.Clases.Add(classe);
+                ExitScope();
             }
+
+            AssignSymbolTable(program);
             return program;
         }
 
         public override ASTNode VisitEof([NotNull] SuperCOOLParser.EofContext context)
         {
-            return new ASTProgramNode();
+            var prog= new ASTProgramNode();
+            AssignSymbolTable(prog);
+            return prog;
         }
 
         public override ASTNode VisitProperty([NotNull] SuperCOOLParser.PropertyContext context)
         {
             var result = new ASTAtributeNode();
             var init = (ASTExpressionNode)context.expression().Accept(this);
-            init.TypeEnvironment.ParentEnvironment = init.TypeEnvironment;
+            AssignSymbolTable(init);
 
             result.Name = context.OBJECTID().Symbol.Text;
-            result.Type = context.SELF_TYPE()?.Symbol.Text??context.TYPEID().Symbol.Text;
+            result.Type = context.TYPEID().Symbol.Text;
 
             return result;
         }
@@ -383,9 +417,9 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTWhileNode();
             var condition= context.expression(1).Accept(this);
-            condition.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(condition);
             var body = context.expression(1).Accept(this);
-            body.TypeEnvironment.ParentEnvironment = result.TypeEnvironment;
+            AssignSymbolTable(body);
 
             result.Condition = condition;
             result.Body = body;
@@ -397,9 +431,29 @@ namespace SuperCOOL.ANTLR
             return new ASTIdNode() { Name = context.OBJECTID().Symbol.Text };
         }
 
-        public override ASTNode VisitFormal([NotNull] SuperCOOLParser.FormalContext context)
+        private void AssignSymbolTable(ASTNode node)
         {
-            return new ASTFormalNode() { Name = context.OBJECTID().Symbol.Text, Type = context.TYPEID().Symbol.Text };
+            node.SymbolTable = CurrentTable;
+        }
+
+        private void EnterScope()
+        {
+            CurrentTable =(SymbolTable)CurrentTable.EnterScope();
+        }
+
+        private void ExitScope()
+        {
+            CurrentTable = (SymbolTable)CurrentTable.ExitScope();
+        }
+
+        private void DefType(string name, string parent)
+        {
+            Types.Add((name, parent));
+        }
+
+        private void DefFunc(string type,string name, string[] argsTypes, string returnType)
+        {
+            Functions.Add((type,name, argsTypes, returnType));
         }
     }
 }
