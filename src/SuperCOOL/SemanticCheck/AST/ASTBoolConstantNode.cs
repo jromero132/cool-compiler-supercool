@@ -3,7 +3,7 @@ using SuperCOOL.Core;
 
 namespace SuperCOOL.SemanticCheck.AST
 {
-    public class ASTBoolConstantNode : ASTNode
+    public class ASTBoolConstantNode : ASTExpressionNode
     {
         public bool Value { get; internal set; }
 
