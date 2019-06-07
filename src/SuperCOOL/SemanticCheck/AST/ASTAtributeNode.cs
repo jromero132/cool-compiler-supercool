@@ -9,7 +9,7 @@ namespace SuperCOOL.SemanticCheck.AST
         public IToken Attribute { get; internal set; }
         public string AttributeName => Attribute.Text;
         public IToken Type { get; internal set; }
-        public string TypeName { get; internal set; }
+        public string TypeName => Type.Text;
         public ASTExpressionNode Init { get; internal set; }
         public bool HasInit => Init != null;
         public override Result Accept<Result>(ISuperCoolASTVisitor<Result> Visitor)
