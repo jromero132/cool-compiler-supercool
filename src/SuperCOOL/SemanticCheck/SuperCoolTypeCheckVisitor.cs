@@ -181,7 +181,7 @@ namespace SuperCOOL.SemanticCheck
                 var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type.Text,LetIn.SymbolTable, out var type);
                 LetIn.SemanticCheckResult.Ensure(b,
                     new Error($"Missing declaration for type {item.Type.Text}.",ErrorKind.TypeError,item.Type.Line,item.Type.Column));
-                if (b)
+                if (b && item.Expression!=null)
                 {
                     var resultExp = item.Expression.Accept(this);
                     LetIn.SemanticCheckResult.Ensure(resultExp,resultExp.Type.IsIt(type),
@@ -237,7 +237,8 @@ namespace SuperCOOL.SemanticCheck
                         new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.MethodError, MethodCall.Method.Line, MethodCall.Method.Column));
                 }
 
-                MethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
+                var returntype = (method.ReturnType is SelfType) ?onResult.Type: method.ReturnType;
+                MethodCall.SemanticCheckResult.EnsureReturnType(returntype);
             }
             return MethodCall.SemanticCheckResult;
         }
@@ -307,8 +308,8 @@ namespace SuperCOOL.SemanticCheck
                     OwnMethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]),
                         new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
                 }
-
-                OwnMethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
+                var returntype = (method.ReturnType is SelfType) ? CompilationUnit.TypeEnvironment.SelfType(OwnMethodCall.SymbolTable) : method.ReturnType;
+                OwnMethodCall.SemanticCheckResult.EnsureReturnType(returntype);
             }
             return OwnMethodCall.SemanticCheckResult;
         }
@@ -325,7 +326,7 @@ namespace SuperCOOL.SemanticCheck
             var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.TypeName,Atribute.SymbolTable,out var t);
             Atribute.SemanticCheckResult.Ensure(isdef,
                 new Error ($"Missing declaration for type {Atribute.TypeName}.",ErrorKind.TypeError,Atribute.Type.Line, Atribute.Type.Column));
-            if (isdef)
+            if (isdef && Atribute.HasInit)
             {
                 var r = Atribute.Init.Accept(this);
                 Atribute.SemanticCheckResult.Ensure(r,r.Type.IsIt(t),
@@ -389,7 +390,8 @@ namespace SuperCOOL.SemanticCheck
                         new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.TypeError,MethodCall.Method.Line,MethodCall.Method.Column));
                 }
 
-                MethodCall.SemanticCheckResult.EnsureReturnType(method.ReturnType);
+                var returntype = (method.ReturnType is SelfType) ? onResult.Type : method.ReturnType;
+                MethodCall.SemanticCheckResult.EnsureReturnType(returntype);
             }
             return MethodCall.SemanticCheckResult;
         }
