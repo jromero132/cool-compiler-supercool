@@ -353,9 +353,9 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitId(ASTIdNode Id)
         {
-            Id.SemanticCheckResult.Ensure(Id.SymbolTable.IsDefObject(Id.Name,out var _),
+            Id.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeForObject(Id.SymbolTable, Id.Name,out var type),
                 new Error($"Missing declaration from object {Id.Name}.",ErrorKind.NameError,Id.Token.Line,Id.Token.Column));
-            Id.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.GetTypeForObject(Id.SymbolTable,Id.Name));
+            Id.SemanticCheckResult.EnsureReturnType(type);
             return Id.SemanticCheckResult;
         }
 

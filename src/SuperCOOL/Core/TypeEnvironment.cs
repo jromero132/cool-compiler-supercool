@@ -29,16 +29,23 @@ namespace SuperCOOL.Core
             return Types.TryGetValue(typeName, out coolType);
         }
 
-        public CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject)
+        public bool GetTypeForObject(ISymbolTable symbolTable, string nameObject,out CoolType coolType)
         {
-            symbolTable.IsDefObject(nameObject, out var type);
-            GetTypeDefinition(type, symbolTable, out var res);
-            return res??new NullType();
+            var result=symbolTable.IsDefObject(nameObject, out var type);
+            if (!result)
+            {
+                coolType = new NullType();
+                return false;
+            }
+            GetTypeDefinition(type, symbolTable, out coolType);
+            coolType= coolType ?? new NullType();
+            return true;
         }
 
         public CoolType GetContextType(ISymbolTable symbolTable)
         {
-            return GetTypeForObject(symbolTable,"_self");
+            GetTypeForObject(symbolTable,"_self",out var context);
+            return context;
         }
 
         public CoolType SelfType(ISymbolTable symbolTable)
@@ -164,7 +171,7 @@ namespace SuperCOOL.Core
     {
         void AddType(string coolTypeName);
         void AddInheritance(string t1, string t2);
-        CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject);
+        bool GetTypeForObject(ISymbolTable symbolTable, string nameObjectout,out CoolType coolType);
         CoolType GetContextType(ISymbolTable symbolTable);
         bool GetTypeDefinition(string typeName,ISymbolTable symbolTable,out CoolType coolType);
         bool InheritsFrom(CoolType A, CoolType B);
