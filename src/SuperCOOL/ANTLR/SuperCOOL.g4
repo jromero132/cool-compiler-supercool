@@ -47,7 +47,7 @@ expression
    | IF expression THEN expression ELSE expression FI # if
    | WHILE expression LOOP expression POOL # while
    | '{' (expression ';') + '}' # block
-   | LET OBJECTID ':' TYPEID (ASSIGNMENT expression)? (',' OBJECTID ':' TYPEID (ASSIGNMENT expression)?)* IN expression # letIn
+   | LET letassign (',' letassign)* IN expression # letIn
    | CASE expression OF (OBJECTID ':' TYPEID CASE_ARROW expression ';') + ESAC # case
    | NEW TYPEID # new
    | INTEGER_NEGATIVE expression # negative
@@ -68,6 +68,10 @@ expression
    | FALSE # false
    | OBJECTID ASSIGNMENT expression # assignment
    ;
+
+letassign
+	: OBJECTID ':' TYPEID (ASSIGNMENT expression)?
+	;
 
 CLASS
    : C L A S S

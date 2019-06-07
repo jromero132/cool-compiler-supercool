@@ -228,19 +228,19 @@ namespace SuperCOOL.ANTLR
         public override ASTNode VisitLetIn([NotNull] SuperCOOLParser.LetInContext context)
         {
             var result = new ASTLetInNode();
-            var expresions = context.expression();
-            var declarations = new (IToken, IToken, ASTExpressionNode)[expresions.Length - 1];
-            for (int i = 0; i < expresions.Length - 1; i++)
+            var declarations = new (IToken, IToken, ASTExpressionNode)[context.letassign().Length];
+            for (int i = 0; i < declarations.Length; i++)
             {
-                declarations[i] = (context.OBJECTID(i)?.Symbol,context.TYPEID(i).Symbol,(ASTExpressionNode)context.expression(i).Accept(this));
-                AssignSymbolTable(declarations[i].Item3);
+                declarations[i] = (context.letassign(i).OBJECTID()?.Symbol,context.letassign(i).TYPEID().Symbol,(ASTExpressionNode)context.letassign(i).expression()?.Accept(this));
+                if(declarations[i].Item3!=null)
+                    AssignSymbolTable(declarations[i].Item3);
             }
 
             EnterScope();
             foreach (var declaration in declarations)
                 CurrentTable.DefObject(declaration.Item1.Text,declaration.Item2.Text);
 
-            var letExp = (ASTExpressionNode)expresions[expresions.Length - 1].Accept(this);
+            var letExp = (ASTExpressionNode)context.expression().Accept(this);
             AssignSymbolTable(letExp);
             ExitScope();
 
