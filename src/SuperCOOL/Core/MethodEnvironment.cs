@@ -20,6 +20,11 @@ namespace SuperCOOL.Core
         }
         public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
         {
+            CoolMethod = null;
+            if (type is NullType)
+                return true;//TODO make NullCool Method
+            if (type is SelfType selftype)
+                return GetMethod(selftype.ContextType,method,out CoolMethod);
             if (GetMethodOnIt(type, method, out CoolMethod))
                 return true;
             if (type.Parent != null)
