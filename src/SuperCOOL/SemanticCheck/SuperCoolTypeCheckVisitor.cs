@@ -12,7 +12,7 @@ namespace SuperCOOL.SemanticCheck
             CompilationUnit = compilationUnit;
         }
 
-        public CompilationUnit CompilationUnit { get; }
+        private CompilationUnit CompilationUnit { get; }
 
         public SemanticCheckResult VisitAdd(ASTAddNode Add)
         {
@@ -80,15 +80,11 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitClass(ASTClassNode Class)
         {
-            string inherit= Class.ParentTypeName;
-            Class.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(inherit,out var _),
-                new Error($"Type {inherit} is not defined.",ErrorKind.TypeError,Class.ParentType?.Line??0,Class.ParentType?.Column??0));
-
             foreach (var item in Class.Methods)
                 Class.SemanticCheckResult.Ensure(item.Accept(this));
             foreach (var item in Class.Atributes)
                 Class.SemanticCheckResult.Ensure(item.Accept(this));
-            CompilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, out var ret);
+            CompilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName,Class.SymbolTable, out var ret);
             Class.SemanticCheckResult.EnsureReturnType(ret);
             return Class.SemanticCheckResult;
         }
@@ -182,7 +178,7 @@ namespace SuperCOOL.SemanticCheck
             var declarations = LetIn.Declarations;
             foreach (var item in declarations)
             {
-                var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type.Text, out var type);
+                var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type.Text,LetIn.SymbolTable, out var type);
                 LetIn.SemanticCheckResult.Ensure(b,
                     new Error($"Missing declaration for type {item.Type.Text}.",ErrorKind.TypeError,item.Type.Line,item.Type.Column));
                 if (b)
@@ -201,17 +197,14 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitMethod(ASTMethodNode Method)
         {
-            foreach (var item in Method.Formals)
-                Method.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(item.type.Text,out var _),
-                    new Error($"Mising declaration for type {item.type}.",ErrorKind.TypeError,item.type.Line,item.type.Column));
-
             var exprResult = Method.Body.Accept(this);
-            var isDefRet = CompilationUnit.TypeEnvironment.GetTypeDefinition(Method.ReturnType,out var ret);
+            var isDefRet = CompilationUnit.TypeEnvironment.GetTypeDefinition(Method.ReturnType,Method.SymbolTable,out var ret);
             Method.SemanticCheckResult.Ensure(isDefRet,
                 new Error($"Missing Declaration for type {Method.ReturnType}.",ErrorKind.TypeError,Method.Return.Line,Method.Return.Column));
             Method.SemanticCheckResult.EnsureReturnType(ret);
             if (isDefRet)
             {
+                //Todo check if ret.IsIt(exprResult.Type)...
                 Method.SemanticCheckResult.Ensure(exprResult,exprResult.Type.IsIt(ret),new Error($"Type {exprResult.Type} does not inherit from type {ret}.",ErrorKind.TypeError,Method.Return.Line,Method.Return.Column));
                 Method.SemanticCheckResult.EnsureReturnType(ret);
             }
@@ -222,14 +215,14 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
-            var isStaticDef = CompilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName,out var staticType);
+            var isStaticDef = CompilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName,MethodCall.SymbolTable,out var staticType);
             MethodCall.SemanticCheckResult.Ensure(isStaticDef,
                 new Error($"Missing declaration for type {MethodCall.TypeName}.",ErrorKind.TypeError,MethodCall.Type.Line,MethodCall.Type.Column));
             if (isStaticDef)
                 MethodCall.SemanticCheckResult.Ensure(onResult, onResult.Type.IsIt(staticType),
                     new Error($"Type {onResult.Type} does not inherot from type {staticType}.",ErrorKind.TypeError,MethodCall.Type.Line,MethodCall.Type.Line));
 
-            var isMetDef = CompilationUnit.TypeEnvironment.GetMethod(staticType, MethodCall.MethodName,out var method);
+            var isMetDef = CompilationUnit.MethodEnvironment.GetMethod(staticType, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isMetDef, 
                 new Error($"Missing declaration of method {MethodCall.MethodName} on type {MethodCall.TypeName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
             if (isMetDef)
@@ -291,7 +284,7 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitNew(ASTNewNode New)
         {
-            New.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(New.TypeName,out var type),
+            New.SemanticCheckResult.Ensure(CompilationUnit.TypeEnvironment.GetTypeDefinition(New.TypeName,New.SymbolTable,out var type),
                 new Error($"Missing declaration for type {New.TypeName}.",ErrorKind.TypeError,New.Type.Line,New.Type.Column));
             New.SemanticCheckResult.EnsureReturnType(type);
             return New.SemanticCheckResult;
@@ -300,7 +293,7 @@ namespace SuperCOOL.SemanticCheck
         public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             var selfcooltype = CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable);
-            var isdef = CompilationUnit.TypeEnvironment.GetMethod(selfcooltype,OwnMethodCall.MethodName,out var method);
+            var isdef = CompilationUnit.MethodEnvironment.GetMethod(selfcooltype,OwnMethodCall.MethodName,out var method);
             OwnMethodCall.SemanticCheckResult.Ensure(isdef,
                 new Error($"Missing declaration for method {OwnMethodCall.MethodName} on type {CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable)}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
             if (isdef)
@@ -329,7 +322,7 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
-            var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.TypeName,out var t);
+            var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.TypeName,Atribute.SymbolTable,out var t);
             Atribute.SemanticCheckResult.Ensure(isdef,
                 new Error ($"Missing declaration for type {Atribute.TypeName}.",ErrorKind.TypeError,Atribute.Type.Line, Atribute.Type.Column));
             if (isdef)
@@ -381,7 +374,7 @@ namespace SuperCOOL.SemanticCheck
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
             MethodCall.SemanticCheckResult.Ensure(onResult);
 
-            var isdef = CompilationUnit.TypeEnvironment.GetMethod(onResult.Type, MethodCall.MethodName,out var method);
+            var isdef = CompilationUnit.MethodEnvironment.GetMethod(onResult.Type, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isdef, 
                 new Error($"Missing declaration for method {MethodCall.MethodName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
             if (isdef)

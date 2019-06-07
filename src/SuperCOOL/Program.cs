@@ -22,11 +22,12 @@ namespace SuperCOOL
 
             var examples = Directory.GetCurrentDirectory() + "/../../../" + "/Examples/";
             args = new[] {
-                examples + "atoi_test.cl",
-                examples + "atoi.cl"
+                //examples + "atoi_test.cl",
+                //examples + "atoi.cl",
+                examples+"arith.cl"
             };
 
-            string program=ProcessInput(args,out var CompilerErrors);
+            string program=ProcessInput(args,out var Errors);
             //Lexer TODO: Lexer Errors
             SuperCOOLLexer superCOOLLexer = new SuperCOOLLexer(new AntlrInputStream(program));
             //Parser TODO: Parser Errors
@@ -34,15 +35,17 @@ namespace SuperCOOL
             IParseTree parseTree = superCOOLParser.program();
             //Build AST
             CompilationUnit compilationUnit = new CompilationUnit();
-            var astgenerator = new SuperCoolASTGeneratorVisitor();
-            ASTNode ast = parseTree.Accept(astgenerator);
-            //Semantyc Check
-            var SemantycPhase1=compilationUnit.BuildTypeEnvironment(astgenerator);
+            ASTNode ast = parseTree.Accept(new SuperCoolASTGeneratorVisitor());
+            //TypeDef Check
+            ast.Accept(new SuperCoolTypeDefsVisitor(compilationUnit));
+            //MethodDef Check
+            ast.Accept(new SuperCoolMethodDefsVisitor(compilationUnit));
             //Type Check
             ast.Accept(new SuperCoolTypeCheckVisitor(compilationUnit));
+            Errors.AddRange(ast.SemanticCheckResult.Errors);
 
             //PrintErrors
-            foreach (var item in CompilerErrors.Concat(SemantycPhase1.Errors).Concat(ast.SemanticCheckResult.Errors))
+            foreach (var item in Errors)
                 Console.WriteLine(item);
         }
 
