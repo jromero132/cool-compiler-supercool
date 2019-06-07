@@ -54,7 +54,7 @@ namespace SuperCOOL.Core
     public class SelfType : CoolType
     {
         public CoolType ContextType { get; set; }
-        public SelfType(CoolType contextType) : base("SelfType")
+        public SelfType(CoolType contextType) : base("SELF_TYPE")
         {
             ContextType = contextType;
         }
@@ -62,7 +62,7 @@ namespace SuperCOOL.Core
 
     public class NullType : CoolType
     {
-        public NullType() : base("Null")
+        public NullType() : base("_Null")
         {
         }
     }
