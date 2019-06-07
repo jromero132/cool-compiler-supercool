@@ -41,10 +41,10 @@ namespace SuperCOOL.SemanticCheck
                 var defAncestor=CompilationUnit.MethodEnvironment.GetMethod(type, Method.Name, out var m2);
                 if (defAncestor)
                 {
-                    var samesignature = Method.Name == m2.Name && Method.ReturnType == m2.ReturnType.Name && Method.Formals.Count == m2.Params.Count;
+                    var samesignature = Method.Name == m2.Name && Method.ReturnType == m2.ReturnType.Name && m2.EnsureParametersCount(Method.Formals.Count);
                     if(samesignature)
                     for (int i = 0; i < Method.Formals.Count; i++)
-                        samesignature&=Method.Formals[i].type.Text == m2.Params[i].Name;
+                        samesignature&=Method.Formals[i].type.Text == m2.GetParam(i).Name;
                     result.Ensure(samesignature, 
                         new Error($@"Method {Method.Name} on type {type.Name} has diferent signature that a method with the same name defined 
                                   on an ancestor of {type.Name}.To override methods must have the same signature.",

@@ -204,7 +204,6 @@ namespace SuperCOOL.SemanticCheck
             Method.SemanticCheckResult.EnsureReturnType(ret);
             if (isDefRet)
             {
-                //Todo check if ret.IsIt(exprResult.Type)...
                 Method.SemanticCheckResult.Ensure(exprResult,exprResult.Type.IsIt(ret),new Error($"Type {exprResult.Type} does not inherit from type {ret}.",ErrorKind.TypeError,Method.Return.Line,Method.Return.Column));
                 Method.SemanticCheckResult.EnsureReturnType(ret);
             }
@@ -227,14 +226,14 @@ namespace SuperCOOL.SemanticCheck
                 new Error($"Missing declaration of method {MethodCall.MethodName} on type {MethodCall.TypeName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
             if (isMetDef)
             {
-                MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length,
-                    new Error($"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}",ErrorKind.SemanticError, MethodCall.Method.Line, MethodCall.Method.Column));
+                MethodCall.SemanticCheckResult.Ensure(method.EnsureParametersCount(MethodCall.Arguments.Length),
+                    new Error($"Mismatch parameters and argument count. Expected {method.CountParams} and provided {MethodCall.Arguments.Length}",ErrorKind.SemanticError, MethodCall.Method.Line, MethodCall.Method.Column));
 
-                for (int i = 0; i < method.Params.Count; i++)
+                for (int i = 0; i < MethodCall.Arguments.Length; i++)
                 {
                     var r = MethodCall.Arguments[i].Accept(this);
-                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]),
-                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.MethodError, MethodCall.Method.Line, MethodCall.Method.Column));
+                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.GetParam(i)),
+                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.GetParam(i)}.",ErrorKind.MethodError, MethodCall.Method.Line, MethodCall.Method.Column));
                 }
 
                 var returntype = (method.ReturnType is SelfType) ?onResult.Type: method.ReturnType;
@@ -299,14 +298,14 @@ namespace SuperCOOL.SemanticCheck
                 new Error($"Missing declaration for method {OwnMethodCall.MethodName} on type {CompilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable)}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
             if (isdef)
             {
-                OwnMethodCall.SemanticCheckResult.Ensure(method.Params.Count == OwnMethodCall.Arguments.Length, 
-                    new Error($"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {OwnMethodCall.Arguments.Length}", ErrorKind.MethodError, OwnMethodCall.Method.Line, OwnMethodCall.Method.Column));
+                OwnMethodCall.SemanticCheckResult.Ensure(method.EnsureParametersCount(OwnMethodCall.Arguments.Length), 
+                    new Error($"Mismatch parameters and argument count. Expected {method.CountParams} and provided {OwnMethodCall.Arguments.Length}", ErrorKind.MethodError, OwnMethodCall.Method.Line, OwnMethodCall.Method.Column));
 
-                for (int i = 0; i < method.Params.Count; i++)
+                for (int i = 0; i < OwnMethodCall.Arguments.Length; i++)
                 {
                     var r = OwnMethodCall.Arguments[i].Accept(this);
-                    OwnMethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]),
-                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
+                    OwnMethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.GetParam(i)),
+                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.GetParam(i)}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
                 }
                 var returntype = (method.ReturnType is SelfType) ? CompilationUnit.TypeEnvironment.SelfType(OwnMethodCall.SymbolTable) : method.ReturnType;
                 OwnMethodCall.SemanticCheckResult.EnsureReturnType(returntype);
@@ -380,14 +379,14 @@ namespace SuperCOOL.SemanticCheck
                 new Error($"Missing declaration for method {MethodCall.MethodName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
             if (isdef)
             {
-                MethodCall.SemanticCheckResult.Ensure(method.Params.Count == MethodCall.Arguments.Length,
-                    new Error($"Mismatch parameters and argument count. Expected {method.Params.Count} and provided {MethodCall.Arguments.Length}",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
+                MethodCall.SemanticCheckResult.Ensure(method.EnsureParametersCount(MethodCall.Arguments.Length),
+                    new Error($"Mismatch parameters and argument count. Expected {method.CountParams} and provided {MethodCall.Arguments.Length}",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column));
 
-                for (int i = 0; i < method.Params.Count; i++)
+                for (int i = 0; i < MethodCall.Arguments.Length; i++)
                 {
                     var r = MethodCall.Arguments[i].Accept(this);
-                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.Params[i]),
-                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.Params[i]}.",ErrorKind.TypeError,MethodCall.Method.Line,MethodCall.Method.Column));
+                    MethodCall.SemanticCheckResult.Ensure(r, r.Type.IsIt(method.GetParam(i)),
+                        new Error($"Paremeter {i} type mismatch. Type {r.Type} does not inherit from type {method.GetParam(i)}.",ErrorKind.TypeError,MethodCall.Method.Line,MethodCall.Method.Column));
                 }
 
                 var returntype = (method.ReturnType is SelfType) ? onResult.Type : method.ReturnType;
