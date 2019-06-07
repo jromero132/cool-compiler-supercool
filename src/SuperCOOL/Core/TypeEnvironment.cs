@@ -8,52 +8,37 @@ namespace SuperCOOL.Core
     public class TypeEnvironment:ITypeEnvironment
     {
         Dictionary<string, CoolType> Types { get; set; }
-        Dictionary<CoolType,List<CoolMethod>> MethodEnvironment { get; set; }
         public CoolType Int => Types["Int"];
         public CoolType String => Types["String"];
         public CoolType Bool => Types["Bool"];
         public CoolType Object => Types["Object"];
         public CoolType IO => Types["IO"];
 
-        public TypeEnvironment(Dictionary<string, CoolType> Types, Dictionary<CoolType, List<CoolMethod>> MethodEnvironment)
+        public TypeEnvironment()
         {
-            this.Types = Types;
-            this.MethodEnvironment = MethodEnvironment;
+            this.Types = new Dictionary<string, CoolType>();
         }
 
-        public bool GetTypeDefinition(string typeName,out CoolType coolType)
+        public bool GetTypeDefinition(string typeName, ISymbolTable symbolTable,out CoolType coolType)
         {
             if (typeName.IsSelfType())
-                throw new InvalidOperationException("No allowed SelfType as parameter.");
+            {
+                coolType = SelfType(symbolTable);
+                return true;
+            }
             return Types.TryGetValue(typeName, out coolType);
         }
 
         public CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject)
         {
             symbolTable.IsDefObject(nameObject, out var type);
-            GetTypeDefinition(type, out var res);
+            GetTypeDefinition(type, symbolTable, out var res);
             return res??new NullType();
         }
 
         public CoolType GetTypeForSelf(ISymbolTable symbolTable)
         {
             return GetTypeForObject(symbolTable,"self");
-        }
-
-        public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
-        {
-            if (GetMethodOnIt(type, method, out CoolMethod))
-                return true;
-            if(type.Parent!=null)
-                return GetMethod(type.Parent, method, out CoolMethod);
-            return false;
-        }
-        public bool GetMethodOnIt(CoolType type, string method, out CoolMethod CoolMethod)
-        {
-            if (!MethodEnvironment.ContainsKey(type))
-                MethodEnvironment[type] = new List<CoolMethod>();
-            CoolMethod = MethodEnvironment[type].Where(x => x.Name == method).FirstOrDefault();
-            return CoolMethod != null;
         }
 
         public CoolType SelfType(ISymbolTable symbolTable)
@@ -64,6 +49,19 @@ namespace SuperCOOL.Core
         public bool InheritsFrom(CoolType A, CoolType B)
         {
             return A.IsIt(B);
+        }
+
+        public void AddType(string coolTypeName)
+        {
+            Types.Add(coolTypeName, new CoolType(coolTypeName));
+        }
+
+        public void AddInheritance(string t1, string t2)
+        {
+            var type1 = Types[t1];
+            var type2 = Types[t2];
+            type1.Parent = type2;
+            type2.Childs.Add(type1);
         }
 
         public CoolType GetTypeLCA(CoolType type1, CoolType type2)
@@ -164,11 +162,11 @@ namespace SuperCOOL.Core
 
     public interface ITypeEnvironment
     {
+        void AddType(string coolTypeName);
+        void AddInheritance(string t1, string t2);
         CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject);
         CoolType GetTypeForSelf(ISymbolTable symbolTable);
-        bool GetTypeDefinition(string typeName,out CoolType coolType);
-        bool GetMethod(CoolType type, string method,out CoolMethod CoolMethod);
-        bool GetMethodOnIt(CoolType type, string method,out CoolMethod CoolMethod);
+        bool GetTypeDefinition(string typeName,ISymbolTable symbolTable,out CoolType coolType);
         bool InheritsFrom(CoolType A, CoolType B);
         CoolType GetTypeLCA(CoolType type1, CoolType type2);
         CoolType Int { get; }
