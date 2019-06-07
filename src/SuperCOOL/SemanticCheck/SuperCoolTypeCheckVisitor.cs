@@ -292,10 +292,10 @@ namespace SuperCOOL.SemanticCheck
 
         public SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            var selfcooltype = CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable);
+            var selfcooltype = CompilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable);
             var isdef = CompilationUnit.MethodEnvironment.GetMethod(selfcooltype,OwnMethodCall.MethodName,out var method);
             OwnMethodCall.SemanticCheckResult.Ensure(isdef,
-                new Error($"Missing declaration for method {OwnMethodCall.MethodName} on type {CompilationUnit.TypeEnvironment.GetTypeForSelf(OwnMethodCall.SymbolTable)}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
+                new Error($"Missing declaration for method {OwnMethodCall.MethodName} on type {CompilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable)}.",ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column));
             if (isdef)
             {
                 OwnMethodCall.SemanticCheckResult.Ensure(method.Params.Count == OwnMethodCall.Arguments.Length, 

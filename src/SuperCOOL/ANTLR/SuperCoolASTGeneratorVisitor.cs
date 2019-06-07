@@ -100,7 +100,8 @@ namespace SuperCOOL.ANTLR
             var result = new ASTClassNode();
             var methods = new List<ASTMethodNode>();
             var atributes = new List<ASTAtributeNode>();
-            CurrentTable.DefObject("self", className);
+            CurrentTable.DefObject("self", "SELF_TYPE");
+            CurrentTable.DefObject("_self", className);
             foreach (var item in context.feature())
                 switch (item)
                 {

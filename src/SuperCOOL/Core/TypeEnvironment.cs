@@ -36,14 +36,14 @@ namespace SuperCOOL.Core
             return res??new NullType();
         }
 
-        public CoolType GetTypeForSelf(ISymbolTable symbolTable)
+        public CoolType GetContextType(ISymbolTable symbolTable)
         {
-            return GetTypeForObject(symbolTable,"self");
+            return GetTypeForObject(symbolTable,"_self");
         }
 
         public CoolType SelfType(ISymbolTable symbolTable)
         {
-            return new SelfType(GetTypeForSelf(symbolTable));
+            return new SelfType(GetContextType(symbolTable));
         }
 
         public bool InheritsFrom(CoolType A, CoolType B)
@@ -165,7 +165,7 @@ namespace SuperCOOL.Core
         void AddType(string coolTypeName);
         void AddInheritance(string t1, string t2);
         CoolType GetTypeForObject(ISymbolTable symbolTable, string nameObject);
-        CoolType GetTypeForSelf(ISymbolTable symbolTable);
+        CoolType GetContextType(ISymbolTable symbolTable);
         bool GetTypeDefinition(string typeName,ISymbolTable symbolTable,out CoolType coolType);
         bool InheritsFrom(CoolType A, CoolType B);
         CoolType GetTypeLCA(CoolType type1, CoolType type2);

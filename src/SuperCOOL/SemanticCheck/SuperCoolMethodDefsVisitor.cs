@@ -32,10 +32,10 @@ namespace SuperCOOL.SemanticCheck
         public override SemanticCheckResult VisitMethod(ASTMethodNode Method)
         {
             var result = Method.SemanticCheckResult;
-            var type=CompilationUnit.TypeEnvironment.GetTypeForSelf(Method.SymbolTable);
+            var type=CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             var def = CompilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name, out var _);
             result.Ensure(!def,
-                new Error($"Multiple declaration of method {Method.Name}  on type {CompilationUnit.TypeEnvironment.GetTypeForSelf(Method.SymbolTable)}.", ErrorKind.MethodError));
+                new Error($"Multiple declaration of method {Method.Name}  on type {CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable)}.", ErrorKind.MethodError));
             if (!def)
             {
                 var defAncestor=CompilationUnit.MethodEnvironment.GetMethod(type, Method.Name, out var m2);
