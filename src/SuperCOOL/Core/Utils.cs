@@ -13,7 +13,7 @@ namespace SuperCOOL.Core
 
         public static bool IsSelfType(this string name)
         {
-            return name == "SelfType";
+            return name == "SELF_TYPE";
         }
     }
 }
