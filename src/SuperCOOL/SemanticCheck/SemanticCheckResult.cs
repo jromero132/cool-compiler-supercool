@@ -20,12 +20,12 @@ namespace SuperCOOL.SemanticCheck
             if (!semanticCheckResult.Correct)
                 Errors.AddRange(semanticCheckResult.Errors);
         }
-        public void Ensure(SemanticCheckResult semanticCheckResult ,bool condition, Error error)
+        public void Ensure(SemanticCheckResult semanticCheckResult ,bool condition, Lazy<Error> error)
         {
             if (!semanticCheckResult.Correct)
                 Errors.AddRange(semanticCheckResult.Errors);
             else if (!condition)
-                Errors.Add(error);
+                Errors.Add(error.Value);
         }
 
         internal void EnsureReturnType(CoolType type)
@@ -34,10 +34,10 @@ namespace SuperCOOL.SemanticCheck
                 Type = type;
         }
 
-        internal void Ensure(bool condition, Error error)
+        internal void Ensure(bool condition, Lazy<Error> error)
         {
             if (!condition)
-                Errors.Add(error);
+                Errors.Add(error.Value);
         }
     }
 }

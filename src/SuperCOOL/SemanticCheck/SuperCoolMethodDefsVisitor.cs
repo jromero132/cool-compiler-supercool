@@ -18,7 +18,7 @@ namespace SuperCOOL.SemanticCheck
         {
             foreach (var item in Program.Clases)
                 Program.SemanticCheckResult.Ensure(item.Accept(this));
-            Program.SemanticCheckResult.Ensure(CompilationUnit.HasEntryPoint(), new Error("No Entry Point Detected", ErrorKind.SemanticError));
+            Program.SemanticCheckResult.Ensure(CompilationUnit.HasEntryPoint(), new Lazy<Error>(()=>new Error("No Entry Point Detected", ErrorKind.SemanticError)));
             return Program.SemanticCheckResult;
         }
 
@@ -35,7 +35,7 @@ namespace SuperCOOL.SemanticCheck
             var type=CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             var def = CompilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name, out var _);
             result.Ensure(!def,
-                new Error($"Multiple declaration of method {Method.Name}  on type {CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable)}.", ErrorKind.MethodError));
+                new Lazy<Error>(()=>new Error($"Multiple declaration of method {Method.Name}  on type {CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable)}.", ErrorKind.MethodError)));
             if (!def)
             {
                 var defAncestor=CompilationUnit.MethodEnvironment.GetMethod(type, Method.Name, out var m2);
@@ -46,9 +46,9 @@ namespace SuperCOOL.SemanticCheck
                     for (int i = 0; i < Method.Formals.Count; i++)
                         samesignature&=Method.Formals[i].type.Text == m2.GetParam(i).Name;
                     result.Ensure(samesignature, 
-                        new Error($@"Method {Method.Name} on type {type.Name} has diferent signature that a method with the same name defined 
-                                  on an ancestor of {type.Name}.To override methods must have the same signature.",
-                                  ErrorKind.MethodError,Method.Method.Line,Method.Method.Column));
+                        new Lazy<Error>(()=>new Error($@"Method {Method.Name} on type {type.Name} has diferent signature that a method 
+                                    with the same name defined on an ancestor of {type.Name}.To override methods must have the same signature.",
+                                    ErrorKind.MethodError,Method.Method.Line,Method.Method.Column)));
                 }
 
                 var defformals = true;
@@ -57,12 +57,12 @@ namespace SuperCOOL.SemanticCheck
                 {
                     var defformal = CompilationUnit.TypeEnvironment.GetTypeDefinition(item.type.Text, Method.SymbolTable, out var ftype);
                     Method.SemanticCheckResult.Ensure(defformal,
-                        new Error($"Mising declaration for type {item.type}.", ErrorKind.TypeError, item.type.Line, item.type.Column));
+                        new Lazy<Error>(()=>new Error($"Mising declaration for type {item.type}.", ErrorKind.TypeError, item.type.Line, item.type.Column)));
                     defformals &= defformal;
                     formalTypes.Add(ftype);
                 }
                 var defreturn=CompilationUnit.TypeEnvironment.GetTypeDefinition(Method.ReturnType,Method.SymbolTable,out var ret);
-                result.Ensure(defreturn, new Error($"Missing declaration for type {Method.ReturnType}.", ErrorKind.TypeError, Method.Return.Line, Method.Return.Column));
+                result.Ensure(defreturn, new Lazy<Error>(()=>new Error($"Missing declaration for type {Method.ReturnType}.", ErrorKind.TypeError, Method.Return.Line, Method.Return.Column)));
                 if(defreturn && defformals)
                     CompilationUnit.MethodEnvironment.AddMethod(type, Method.Name,formalTypes, ret);
             }

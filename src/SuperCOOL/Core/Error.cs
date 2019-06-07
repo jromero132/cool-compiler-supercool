@@ -24,7 +24,9 @@ namespace SuperCOOL.Core
         {
             return $"({Line},{Column}) - {ErrorKind}: {Message}";
         }
+
     }
+
 
     public enum ErrorKind
     {
