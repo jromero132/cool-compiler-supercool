@@ -106,9 +106,9 @@ namespace SuperCOOL.Tests.CoolTest
         }
 
         [Fact]
-        public void Live()
+        public void Life()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/live.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/life.cl" });
             Assert.Equal(new List<Error>(), output);
         }
 
