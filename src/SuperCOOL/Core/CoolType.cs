@@ -4,14 +4,20 @@ namespace SuperCOOL.Core
 {
     public class CoolType
     {
+        public string Name { get; private set; }
         public CoolType Parent { get; set; }
         public List<CoolType> Childs { get; set; }
-
-        public string Name { get; private set; }
+        public ISymbolTable SymbolTable { get; set; }
 
         public CoolType(string Name) {
             this.Name = Name;
-            Childs = new List<CoolType>(); 
+            Childs = new List<CoolType>();
+            SymbolTable = new SymbolTable();
+        }
+
+        public CoolType(string Name, ISymbolTable symbolTable) : this(Name)
+        {
+            SymbolTable = symbolTable;
         }
 
         public override bool Equals( object obj )
