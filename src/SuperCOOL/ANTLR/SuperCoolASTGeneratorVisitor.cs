@@ -194,8 +194,8 @@ namespace SuperCOOL.ANTLR
             var expression = context.expression().Accept(this);
             AssignSymbolTable(expression);
 
-            result.Expression = expression;
-            return  result;
+            result.Expression = (ASTExpressionNode) expression;
+            return result;
         }
 
         public override ASTNode VisitLessEqual([NotNull] SuperCOOLParser.LessEqualContext context)
@@ -427,13 +427,13 @@ namespace SuperCOOL.ANTLR
         public override ASTNode VisitWhile([NotNull] SuperCOOLParser.WhileContext context)
         {
             var result = new ASTWhileNode();
-            var condition= context.expression(1).Accept(this);
+            var condition = context.expression(1).Accept(this);
             AssignSymbolTable(condition);
             var body = context.expression(1).Accept(this);
             AssignSymbolTable(body);
 
-            result.Condition = condition;
-            result.Body = body;
+            result.Condition = (ASTExpressionNode) condition;
+            result.Body = (ASTExpressionNode) body;
             return result;
         }
 

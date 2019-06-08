@@ -5,7 +5,7 @@ using SuperCOOL.SemanticCheck.AST;
 
 namespace SuperCOOL.Core
 {
-    public class CoolMethod
+    public class CoolMethod //TODO need to have the type where is defined
     {
         public CoolMethod(string name, List<CoolType> formals, CoolType returnType)
         {
