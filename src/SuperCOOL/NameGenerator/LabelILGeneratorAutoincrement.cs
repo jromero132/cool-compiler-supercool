@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.NameGenerator
 {
@@ -27,6 +28,11 @@ namespace SuperCOOL.NameGenerator
         public (string varInit, string endOfCase) GenerateCase()
         {
             return (GenerateVariable(), $"_caseEnd_{caseIndex++}");
+        }
+
+        public string GenerateFunc(CoolMethod method)
+        {
+            return $"{method.Type}_{method.Name}";
         }
     }
 }

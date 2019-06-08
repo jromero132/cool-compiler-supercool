@@ -185,8 +185,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
         {
-            Method.SymbolTable.IsDefObject(Variables.Self, out var currentType);
-            return new ASTCILFuncNode($"_{currentType}_{Method.Name}",
+            var type=compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
+            compilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name,out var coolMethod);
+            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod),
                 Method.Formals.Select(x => new ASTCILParamNode(x.name.Text, x.type.Text))
                     .Append((ASTCILExpressionNode) Method.Body.Accept(this))
             );
