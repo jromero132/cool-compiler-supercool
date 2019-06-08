@@ -94,7 +94,15 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitClass(ASTClassNode Class)
         {
-            throw new NotImplementedException();
+            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
+
+            var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
+                .Append(new ASTCILFuncNode(Functions.Init, attributesInit));
+
+            var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
+            compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
+            var virtualTable = compilationUnit.MethodEnvironment.GetVirtualTable(type);
+            return new ASTCILTypeNode(type, attributesInfo, virtualTable, methods);
         }
 
         public ASTCILNode VisitDivision(ASTDivideNode Division)
