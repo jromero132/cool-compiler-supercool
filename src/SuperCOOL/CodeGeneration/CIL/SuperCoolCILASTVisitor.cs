@@ -73,8 +73,8 @@ namespace SuperCOOL.CodeGeneration
                         (
                             new[]
                             {
-                                new ASTCILLocalNode(caseSubExpression.Name, caseSubExpression.Type),
-                                new ASTCILAssignmentNode(caseSubExpression.Name,
+                                new ASTCILLocalNode(caseSubExpression.Name.Text, caseSubExpression.Type.Text),
+                                new ASTCILAssignmentNode(caseSubExpression.Name.Text,
                                     caseExpression),
                                 (ASTCILExpressionNode) caseSubExpression.Branch.Accept(this),
                                 new ASTCILGotoNode(caseLabels.endOfCase),
@@ -170,8 +170,8 @@ namespace SuperCOOL.CodeGeneration
         {
             return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => new ASTCILExpressionNode[]
             {
-                new ASTCILLocalNode(x.Id, x.Type),
-                new ASTCILAssignmentNode(x.Id, (ASTCILExpressionNode) x.Expression.Accept(this))
+                new ASTCILLocalNode(x.Id.Text, x.Type.Text),
+                new ASTCILAssignmentNode(x.Id.Text, (ASTCILExpressionNode) x.Expression.Accept(this))
             }).Concat(Enumerable.Repeat((ASTCILExpressionNode) LetIn.LetExp.Accept(this), 1)));
         }
 
