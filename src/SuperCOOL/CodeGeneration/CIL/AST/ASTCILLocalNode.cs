@@ -3,12 +3,10 @@
     class ASTCILLocalNode : ASTCILExpressionNode
     {
         public string Name { get; }
-        public string Type { get; }
 
-        public ASTCILLocalNode(string name, string type)
+        public ASTCILLocalNode(string name, string type) : base(type)
         {
             Name = name;
-            Type = type;
         }
     }
 }
