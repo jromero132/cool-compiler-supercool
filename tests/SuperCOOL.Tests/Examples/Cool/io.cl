@@ -1,4 +1,4 @@
-﻿(*
+(*
  *  The IO class is predefined and has 4 methods:
  *
  *    out_string(s : String) : SELF_TYPE

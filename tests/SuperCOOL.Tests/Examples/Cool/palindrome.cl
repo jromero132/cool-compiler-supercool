@@ -1,4 +1,4 @@
-﻿class Main inherits IO {
+class Main inherits IO {
     pal(s : String) : Bool {
 	if s.length() = 0
 	then true

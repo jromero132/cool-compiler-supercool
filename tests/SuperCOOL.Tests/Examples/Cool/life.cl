@@ -1,4 +1,4 @@
-﻿(* The Game of Life 
+(* The Game of Life 
    Tendo Kayiira, Summer '95
    With code taken from /private/cool/class/examples/cells.cl
  This introduction was taken off the internet. It gives a brief 

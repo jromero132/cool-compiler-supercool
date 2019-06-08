@@ -1,4 +1,4 @@
-﻿class Main inherits IO {
+class Main inherits IO {
     main() : SELF_TYPE {
 	(let c : Complex <- (new Complex).init(1, 1) in
 	    {

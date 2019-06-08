@@ -1,4 +1,4 @@
-﻿(*
+(*
    This file presents a fairly large example of Cool programming.  The
 class List defines the names of standard list operations ala Scheme:
 car, cdr, cons, isNil, rev, sort, rcons (add an element to the end of
