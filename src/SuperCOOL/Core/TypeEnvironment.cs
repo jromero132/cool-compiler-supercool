@@ -58,6 +58,12 @@ namespace SuperCOOL.Core
             return A.IsIt(B);
         }
 
+        public void AddType(ISymbolTable symbolTable)
+        {
+            symbolTable.IsDefObject("_self", out var coolTypeName);
+            Types.Add(coolTypeName, new CoolType(coolTypeName,symbolTable));
+        }
+
         public void AddType(string coolTypeName)
         {
             Types.Add(coolTypeName, new CoolType(coolTypeName));
@@ -69,6 +75,7 @@ namespace SuperCOOL.Core
             var type2 = Types[t2];
             type1.Parent = type2;
             type2.Childs.Add(type1);
+            type1.SymbolTable.InheritsFrom(type2.SymbolTable);
         }
 
         public CoolType GetTypeLCA(CoolType type1, CoolType type2)
@@ -169,8 +176,9 @@ namespace SuperCOOL.Core
 
     public interface ITypeEnvironment
     {
+        void AddType(ISymbolTable symbolTable);
         void AddType(string coolTypeName);
-        void AddInheritance(string t1, string t2);
+        void AddInheritance(string st1, string st2);
         bool GetTypeForObject(ISymbolTable symbolTable, string nameObjectout,out CoolType coolType);
         CoolType GetContextType(ISymbolTable symbolTable);
         bool GetTypeDefinition(string typeName,ISymbolTable symbolTable,out CoolType coolType);

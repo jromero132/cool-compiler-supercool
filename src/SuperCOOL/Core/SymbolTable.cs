@@ -12,6 +12,7 @@ namespace SuperCOOL.Core
         bool IsDefObjectOnThis(string name, out string type);
         ISymbolTable EnterScope();
         ISymbolTable ExitScope();
+        void InheritsFrom(ISymbolTable parent);
     }
 
     public class SymbolTable : ISymbolTable
@@ -55,5 +56,9 @@ namespace SuperCOOL.Core
             return Objects.TryGetValue(name,out type);
         }
 
+        public void InheritsFrom(ISymbolTable parent)
+        {
+            Parent =(SymbolTable)parent;
+        }
     }
 }

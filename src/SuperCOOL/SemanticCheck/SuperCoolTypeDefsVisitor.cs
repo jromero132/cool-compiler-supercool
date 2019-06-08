@@ -23,7 +23,7 @@ namespace SuperCOOL.SemanticCheck
                 Program.SemanticCheckResult.Ensure(!exist, 
                     new Lazy<Error>(()=>new Error($"Multiple Definitions for class {type.TypeName}", ErrorKind.TypeError,type.Type.Line,type.Type.Column)));
                 if (!exist)
-                    CompilationUnit.TypeEnvironment.AddType(type.TypeName);
+                    CompilationUnit.TypeEnvironment.AddType(type.SymbolTable);
             }
 
             //Inheritance
