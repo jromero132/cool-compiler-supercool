@@ -84,7 +84,7 @@ namespace SuperCOOL.ANTLR
                 var objectName = context.OBJECTID(i).Symbol;
                 var typename = context.TYPEID(i).Symbol;
                 EnterScope();
-                CurrentTable.DefObject(objectName.Text, typename.Text);
+                CurrentTable.DefObject(objectName.Text, typename.Text,ObjectKind.Local);
                 cases[i] = (objectName,typename,(ASTExpressionNode)context.expression(i+1).Accept(this));
                 AssignSymbolTable(cases[i].Item3);
                 ExitScope();
@@ -100,8 +100,8 @@ namespace SuperCOOL.ANTLR
             var result = new ASTClassNode();
             var methods = new List<ASTMethodNode>();
             var atributes = new List<ASTAtributeNode>();
-            CurrentTable.DefObject("self", "SELF_TYPE");
-            CurrentTable.DefObject("_self", className);
+            CurrentTable.DefObject("self", "SELF_TYPE",ObjectKind.Self);
+            CurrentTable.DefObject("_self", className,ObjectKind.ContextType);
             foreach (var item in context.feature())
                 switch (item)
                 {
@@ -117,7 +117,7 @@ namespace SuperCOOL.ANTLR
                         var atribute = (ASTAtributeNode)p.Accept(this);
                         atributes.Add(atribute);
                         AssignSymbolTable(atribute);
-                        CurrentTable.DefObject(atribute.AttributeName,atribute.TypeName);
+                        CurrentTable.DefObject(atribute.AttributeName,atribute.TypeName,ObjectKind.Atribute);
                         break;
                 }
             result.Type = context.TYPEID(0).Symbol;
@@ -239,7 +239,7 @@ namespace SuperCOOL.ANTLR
 
             EnterScope();
             foreach (var declaration in declarations)
-                CurrentTable.DefObject(declaration.Item1.Text,declaration.Item2.Text);
+                CurrentTable.DefObject(declaration.Item1.Text,declaration.Item2.Text,ObjectKind.Local);
 
             var letExp = (ASTExpressionNode)context.expression().Accept(this);
             AssignSymbolTable(letExp);
@@ -256,7 +256,7 @@ namespace SuperCOOL.ANTLR
             var formals = context.formal().Select(x=>(x.OBJECTID().Symbol,x.TYPEID().Symbol)).ToList();
             EnterScope();
             foreach (var item in formals)
-                CurrentTable.DefObject(item.Item1.Text,item.Item2.Text);
+                CurrentTable.DefObject(item.Item1.Text,item.Item2.Text,ObjectKind.Parameter);
 
             var body = (ASTExpressionNode)context.expression().Accept(this);
             AssignSymbolTable(body);

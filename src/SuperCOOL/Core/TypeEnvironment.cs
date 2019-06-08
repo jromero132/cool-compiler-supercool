@@ -31,13 +31,13 @@ namespace SuperCOOL.Core
 
         public bool GetTypeForObject(ISymbolTable symbolTable, string nameObject,out CoolType coolType)
         {
-            var result=symbolTable.IsDefObject(nameObject, out var type);
+            var result=symbolTable.IsDefObject(nameObject, out var info);
             if (!result)
             {
                 coolType = new NullType();
                 return false;
             }
-            GetTypeDefinition(type, symbolTable, out coolType);
+            GetTypeDefinition(info.Type,symbolTable, out coolType);
             coolType= coolType ?? new NullType();
             return true;
         }
@@ -60,8 +60,8 @@ namespace SuperCOOL.Core
 
         public void AddType(ISymbolTable symbolTable)
         {
-            symbolTable.IsDefObject("_self", out var coolTypeName);
-            Types.Add(coolTypeName, new CoolType(coolTypeName,symbolTable));
+            symbolTable.IsDefObject("_self", out var info);
+            Types.Add(info.Type, new CoolType(info.Type,symbolTable));
         }
 
         public void AddType(string coolTypeName)
