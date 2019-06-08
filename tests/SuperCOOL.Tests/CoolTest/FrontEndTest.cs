@@ -9,29 +9,46 @@ using System.IO;
 
 namespace SuperCOOL.Tests.CoolTest
 {
-    public class SemantycCheckTest
+    public class FrontEndTest
     {
+        private void Check(string[] files)
+        {
+            var output = Compiler.Compile(files);
+            Helper.RunCoolCompilerFrontend(files, "semantic.txt");
+            string out_file = File.ReadAllText("semantic.txt");
+            Helper.DeleteFile("semantic.txt");
+            Assert.True(Compare(out_file, output));
+        }
+
+        private bool Compare(string out_file, List<Error> output)
+        {
+            return out_file == "" && output.Count == 0;
+        }
+
         [Fact]
         public void Arith()
         {
-            var output=Compiler.Compile(new string[] { "Examples/Cool/arith.cl" });
-            Assert.Equal(new List<Error>(), output);
+            var files = new string[] { "Examples/Cool/arith.cl"};
+            Check(files);
         }
+
 
         [Fact]
         public void Atoi()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/atoi_test.cl", "Examples/Cool/atoi.cl" });
-            Assert.Equal(new List<Error>(), output);
+            var files = new string[] { "Examples/Cool/atoi_test.cl", "Examples/Cool/atoi.cl" };
+            Check(files);
         }
+
 
         [Fact]
         public void BookList()
         {
-            var output=Compiler.Compile(new string[] { "Examples/Cool/book_list.cl"});
-            Assert.Equal(new List<Error>(), output);
+            var files = new string[] { "Examples/Cool/book_list.cl" };
+            Check(files);
         }
 
+        //TODO:: LIke the others when new cool compiler arrives
         [Fact]
         public void Cells()
         {
