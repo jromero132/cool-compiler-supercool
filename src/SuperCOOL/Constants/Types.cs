@@ -1,7 +1,10 @@
-﻿namespace SuperCOOL.Constants
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.Constants
 {
     public static class Types
     {
+        public const string IO="IO";
         public const string Bool = "Bool";
         public const string Int = "Int";
         public const string String = "String";

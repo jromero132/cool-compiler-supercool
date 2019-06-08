@@ -4,6 +4,7 @@ using SuperCOOL.SemanticCheck.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.Core
 {
@@ -16,25 +17,25 @@ namespace SuperCOOL.Core
         {
             TypeEnvironment = new TypeEnvironment();
             MethodEnvironment = new MethodEnvironment();
-            TypeEnvironment.AddType("Object");
-            TypeEnvironment.AddType("Int");
-            TypeEnvironment.AddInheritance("Int", "Object");
-            TypeEnvironment.AddType("String");
-            TypeEnvironment.AddInheritance("String", "Object");
-            TypeEnvironment.AddType("Bool");
-            TypeEnvironment.AddInheritance("Bool", "Object");
-            TypeEnvironment.AddType("IO");
-            TypeEnvironment.AddInheritance("IO", "Object");
-            MethodEnvironment.AddMethod(TypeEnvironment.Object, "abort", new List<CoolType>(), TypeEnvironment.Object);
-            MethodEnvironment.AddMethod(TypeEnvironment.Object, "type_name", new List<CoolType>(), TypeEnvironment.String);
-            MethodEnvironment.AddMethod(TypeEnvironment.Object, "copy", new List<CoolType>(), new SelfType(TypeEnvironment.Object));
-            MethodEnvironment.AddMethod(TypeEnvironment.String, "length", new List<CoolType>(), TypeEnvironment.Int);
-            MethodEnvironment.AddMethod(TypeEnvironment.String, "concat", new List<CoolType>() { TypeEnvironment.String }, TypeEnvironment.String);
-            MethodEnvironment.AddMethod(TypeEnvironment.String, "substr", new List<CoolType>() { TypeEnvironment.Int, TypeEnvironment.Int }, TypeEnvironment.String);
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, "out_string", new List<CoolType>() { TypeEnvironment.String }, new SelfType(TypeEnvironment.IO));
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, "out_int", new List<CoolType>() { TypeEnvironment.Int }, new SelfType(TypeEnvironment.IO));
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, "in_string", new List<CoolType>(), TypeEnvironment.String);
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, "in_int", new List<CoolType>(), TypeEnvironment.Int);
+            TypeEnvironment.AddType(Types.Object);
+            TypeEnvironment.AddType(Types.Int);
+            TypeEnvironment.AddInheritance(Types.Int, Types.Object);
+            TypeEnvironment.AddType(Types.String);
+            TypeEnvironment.AddInheritance(Types.String,Types.Object);
+            TypeEnvironment.AddType(Types.Bool);
+            TypeEnvironment.AddInheritance(Types.Bool, Types.Object);
+            TypeEnvironment.AddType(Types.IO);
+            TypeEnvironment.AddInheritance(Types.IO, Types.Object);
+            MethodEnvironment.AddMethod(TypeEnvironment.Object, Functions.Abort, new List<CoolType>(), TypeEnvironment.Object);
+            MethodEnvironment.AddMethod(TypeEnvironment.Object, Functions.Type_Name, new List<CoolType>(), TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.Object, Functions.Copy, new List<CoolType>(), new SelfType(TypeEnvironment.Object));
+            MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Length, new List<CoolType>(), TypeEnvironment.Int);
+            MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Concat, new List<CoolType>() { TypeEnvironment.String }, TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Substr, new List<CoolType>() { TypeEnvironment.Int, TypeEnvironment.Int }, TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InInt, new List<CoolType>(), TypeEnvironment.Int);
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutInt, new List<CoolType>() { TypeEnvironment.Int }, new SelfType(TypeEnvironment.IO));
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InInt, new List<CoolType>(), TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutString, new List<CoolType>() { TypeEnvironment.String }, new SelfType(TypeEnvironment.IO));
         }
 
         public bool HasEntryPoint()
