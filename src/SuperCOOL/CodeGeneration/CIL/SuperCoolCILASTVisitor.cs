@@ -273,7 +273,21 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAtribute(ASTAtributeNode Atribute)
         {
-            throw new NotImplementedException();
+            if (Atribute.HasInit)
+                return Atribute.Init.Accept(this);
+
+            compilationUnit.TypeEnvironment.GetTypeForObject(Atribute.SymbolTable, Atribute.AttributeName,
+                out var coolType);
+            if (coolType.Equals(compilationUnit.TypeEnvironment.Int))
+                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
+                    new ASTCILIntConstantNode(0));
+            if (coolType.Equals(compilationUnit.TypeEnvironment.String))
+                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
+                    new ASTCILStringConstantNode(""));
+            if (coolType.Equals(compilationUnit.TypeEnvironment.Bool))
+                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
+                    new ASTCILBoolConstantNode(false));
+            return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName, new ASTCILVoidNode());
         }
 
         public ASTCILNode VisitStringConstant(ASTStringConstantNode StringConstant)
