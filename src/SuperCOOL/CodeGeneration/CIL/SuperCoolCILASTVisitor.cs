@@ -177,7 +177,11 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
         {
-            throw new NotImplementedException();
+            Method.SymbolTable.IsDefObject(Variables.Self, out var currentType);
+            return new ASTCILFuncNode($"_{currentType}_{Method.Name}",
+                Method.Formals.Select(x => new ASTCILParamNode(x.name.Text, x.type.Text))
+                    .Append((ASTCILExpressionNode) Method.Body.Accept(this))
+            );
         }
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)

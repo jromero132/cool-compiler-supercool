@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SuperCOOL.Constants
 {
@@ -15,6 +13,6 @@ namespace SuperCOOL.Constants
         public const int HeapOverflow = 6;
 
         public static Dictionary<int, string> GetRuntimeErrorString = typeof(RuntimeErrors).GetFields()
-            .Where(x => x.FieldType == typeof(int)).ToDictionary(x => (int) x.GetValue(null), x => x.Name);
+            .Where(x => x.FieldType == typeof(int)).ToDictionary(x => (int)x.GetValue(null), x => x.Name);
     }
 }
