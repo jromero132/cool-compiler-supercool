@@ -22,9 +22,25 @@ namespace SuperCOOL
 
             var examples = Directory.GetCurrentDirectory() + "/../../../" + "/Examples/";
             args = new[] {
+                examples+"arith.cl",
                 //examples + "atoi_test.cl",
                 //examples + "atoi.cl",
-                examples+"arith.cl"
+                //examples + "book_list.cl",
+                //examples + "cells.cl",
+                //examples + "comments.cl",
+                //examples + "complex.cl",
+                //examples + "cool.cl",
+                //examples + "graph.cl",//Error Atributes are not inherited
+                //examples + "hair_scary.cl",//Error objects not defined
+                //examples + "hello_world.cl",
+                //examples + "io.cl",//Error Atributes are not inherited
+                //examples + "lam.cl",
+                //examples + "life.cl",//Error Atributes are not inherited
+                //examples + "list.cl",
+                //examples + "new_complex.cl",
+                //examples + "palindrome.cl",
+                //examples + "primes.cl",
+                //examples + "sort_list.cl",
             };
 
             string program=ProcessInput(args,out var Errors);
@@ -47,6 +63,7 @@ namespace SuperCOOL
             //PrintErrors
             foreach (var item in Errors)
                 Console.WriteLine(item);
+
         }
 
         private static string ProcessInput(string[] args,out List<Error> Errors)
