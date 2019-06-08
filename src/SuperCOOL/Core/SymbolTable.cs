@@ -53,6 +53,7 @@ namespace SuperCOOL.Core
         ISymbolTable ExitScope();
         void InheritsFrom(ISymbolTable parent);
         IList<SymbollInfo> AllDefinedObjects();
+        IList<SymbollInfo> AllDefinedAttributes();
     }
 
     public class SymbolTable : ISymbolTable
@@ -109,5 +110,13 @@ namespace SuperCOOL.Core
             return Objects.Values.Concat(Parent.AllDefinedObjects()).Distinct().ToList();
         }
 
+        public IList<SymbollInfo> AllDefinedAttributes()
+        {
+            var myAttributes = Objects.Values.Where(x => x.Kind == ObjectKind.Atribute);
+            if (Parent == null)
+                return myAttributes.ToList();
+
+            return Parent.AllDefinedAttributes().Concat(myAttributes).ToList();
+        }
     }
 }
