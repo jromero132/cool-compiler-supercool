@@ -276,7 +276,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitProgram(ASTProgramNode Program)
         {
-            throw new NotImplementedException();
+            return new ASTCILProgramNode(Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this)));
         }
 
         public ASTCILNode VisitAtribute(ASTAtributeNode Atribute)

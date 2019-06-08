@@ -1,14 +1,15 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     class ASTCILProgramNode : ASTCILNode
     {
-        public ASTCILCodeNode Code { get; }
-        public ASTCILDataNode Data { get; }
+        public IReadOnlyList<ASTCILTypeNode> Types { get; }
 
-        public ASTCILProgramNode(ASTCILCodeNode code, ASTCILDataNode data)
+        public ASTCILProgramNode(IEnumerable<ASTCILTypeNode> types)
         {
-            Code = code;
-            Data = data;
+            Types = types.ToImmutableList();
         }
     }
 }
