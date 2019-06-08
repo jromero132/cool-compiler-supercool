@@ -12,38 +12,45 @@ using System.Text;
 
 namespace SuperCOOL
 {
-    class Compiler
+    public class Compiler
     {
         const string COOL_EXTENSION = "cl";
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.WriteLine("SuperCool Compiler Platform");
             Console.WriteLine("Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved.");
 
-            var examples = Directory.GetCurrentDirectory() + "/../../../" + "/Examples/";
-            args = new[] {
-                examples+"arith.cl",
-                //examples + "atoi_test.cl",
-                //examples + "atoi.cl",
-                //examples + "book_list.cl",
-                //examples + "cells.cl",
-                //examples + "comments.cl",
-                //examples + "complex.cl",
-                //examples + "cool.cl",
-                //examples + "graph.cl",//Error Atributes are not inherited
-                //examples + "hair_scary.cl",//Error objects not defined
-                //examples + "hello_world.cl",
-                //examples + "io.cl",//Error Atributes are not inherited
-                //examples + "lam.cl",
-                //examples + "life.cl",//Error Atributes are not inherited
-                //examples + "list.cl",
-                //examples + "new_complex.cl",
-                //examples + "palindrome.cl",
-                //examples + "primes.cl",
-                //examples + "sort_list.cl",
-            };
+            //var examples = Directory.GetCurrentDirectory() + "/../../../" + "/Examples/";
+            //args = new[] {
+            //    examples+"arith.cl",
+            //examples + "atoi_test.cl",
+            //examples + "atoi.cl",
+            //examples + "book_list.cl",
+            //examples + "cells.cl",
+            //examples + "complex.cl",
+            //examples + "cool.cl",
+            //examples + "graph.cl",//Error Atributes are not inherited
+            //examples + "hair_scary.cl",//Error Atributes are not inherited
+            //examples + "hello_world.cl",
+            //examples + "io.cl",//Error Atributes are not inherited
+            //examples + "lam.cl",
+            //examples + "life.cl",//Error Atributes are not inherited
+            //examples + "list.cl",
+            //examples + "new_complex.cl",
+            //examples + "palindrome.cl",
+            //examples + "primes.cl",
+            //examples + "sort_list.cl",
+            //};
 
-            string program=ProcessInput(args,out var Errors);
+            var Errors =Compile(args);
+            //PrintErrors
+            foreach (var item in Errors)
+                Console.WriteLine(item);
+        }
+
+        public static List<Error> Compile(string[] args)
+        {
+            string program = ProcessInput(args, out var Errors);
             //Lexer TODO: Lexer Errors
             SuperCOOLLexer superCOOLLexer = new SuperCOOLLexer(new AntlrInputStream(program));
             //Parser TODO: Parser Errors
@@ -60,10 +67,7 @@ namespace SuperCOOL
             ast.Accept(new SuperCoolTypeCheckVisitor(compilationUnit));
             Errors.AddRange(ast.SemanticCheckResult.Errors);
 
-            //PrintErrors
-            foreach (var item in Errors)
-                Console.WriteLine(item);
-
+            return Errors;
         }
 
         private static string ProcessInput(string[] args,out List<Error> Errors)
