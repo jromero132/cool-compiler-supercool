@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace SuperCOOL.Tests.MipsGenerationTests
+namespace SuperCOOL.Tests
 {
     static class Helper
     {
@@ -19,11 +19,28 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             }
         }
 
-        public static void RunFile( string file_name, string input_file = null, string output_file = null )
+        public static void RunSpim(string file_name, string input_file = null, string output_file = null)
         {
-            var cd = $"cd \"\"{ Path.GetDirectoryName( file_name ) }\"\"";
-            var wsl = $"wsl spim -f \"\"{ Path.GetFileName( file_name ) }\"\"{ ( input_file is null ? "" : $" < \"\"{ Path.GetFileName( input_file ) }\"\"" ) }{ ( output_file is null ? "" : $" > \"\"{ Path.GetFileName( output_file ) }\"\"" ) }";
-            var x = $"/c { cd } && { wsl }";
+            RunFile($"spim -f \"\"{ file_name }\"\"",input_file,output_file);
+        }
+
+        public static void RunCoolCompiler(string file_name,string output_file)
+        {
+            RunFile($"CompilerStanford/mycool \"\"{file_name}\"\"", null, output_file);
+        }
+
+        public static void RunCoolCompilerFrontend(string[] file_name, string output_file)
+        {
+            var cmd = $"CompilerStanford/frontend ";
+            foreach (var item in file_name)
+                cmd+=$" \"\"{item}\"\"";
+            RunFile(cmd, null, output_file);
+        }
+
+        private static void RunFile(string command, string input_file = null, string output_file = null )
+        {
+            var cmd = $"wsl {command} { ( input_file is null ? "" : $" < \"\"{input_file}\"\"" ) }{ ( output_file is null ? "" : $" > \"\"{output_file}\"\"" ) }";
+            var x = $"/c { cmd }".Replace('\\','/');
             Process.Start( "cmd", x ).WaitForExit();
         }
 

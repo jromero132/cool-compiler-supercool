@@ -35,7 +35,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "132" );
 
             // Running
-            Helper.RunFile( file_name, output_file: output_file );
+            Helper.RunSpim( file_name, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
@@ -67,7 +67,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "15" );
 
             // Running
-            Helper.RunFile( file_name, output_file: output_file );
+            Helper.RunSpim( file_name, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
@@ -104,7 +104,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "15" );
 
             // Running
-            Helper.RunFile( file_name, input_file: input_file, output_file: output_file );
+            Helper.RunSpim( file_name, input_file: input_file, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
@@ -147,7 +147,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "15" );
 
             // Running
-            Helper.RunFile( file_name, input_file: input_file, output_file: output_file );
+            Helper.RunSpim( file_name, input_file: input_file, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
@@ -190,7 +190,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "13" );
 
             // Running
-            Helper.RunFile( file_name, input_file: input_file, output_file: output_file );
+            Helper.RunSpim( file_name, input_file: input_file, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
@@ -244,7 +244,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             Helper.CreateFile( answer_file, "15\r\n11\r\n26\r\n6" );
 
             // Running
-            Helper.RunFile( file_name, input_file: input_file, output_file: output_file );
+            Helper.RunSpim( file_name, input_file: input_file, output_file: output_file );
 
             // Normalize --> deleting unuseful lines at the beginning of the file
             Helper.Normalize( output_file );
