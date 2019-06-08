@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperCOOL.Core
 {
-    public class MethodEnvironment:IMethodEnvironment
+    public class MethodEnvironment : IMethodEnvironment
     {
         public MethodEnvironment()
         {
@@ -36,8 +36,28 @@ namespace SuperCOOL.Core
         {
             if (!Methods.ContainsKey(type))
                 Methods[type] = new List<CoolMethod>();
-            CoolMethod = Methods[type].Where(x => x.Name == method).FirstOrDefault();
+            CoolMethod = Methods[type].FirstOrDefault(x => x.Name == method);
             return CoolMethod != null;
+        }
+
+        public IList<CoolMethod> GetVirtualTable(CoolType type)
+        {
+            var currentVirtualTable = Methods[type];
+            if (type.Parent == null)
+                return currentVirtualTable;
+
+            var parentVirtualTable = GetVirtualTable(type.Parent);
+            foreach (var (method, i) in parentVirtualTable.Select((x, i) => (x, i)))
+            {
+                int index;
+                if ((index = currentVirtualTable.IndexOf(method)) < 0) continue;
+                parentVirtualTable[i] = currentVirtualTable[index];
+                currentVirtualTable.RemoveAt(index);
+            }
+
+            parentVirtualTable.ToList().AddRange(currentVirtualTable);
+
+            return parentVirtualTable;
         }
     }
 
@@ -46,5 +66,6 @@ namespace SuperCOOL.Core
         void AddMethod(CoolType type, string method, List<CoolType> formals, CoolType returnType);
         bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod);
         bool GetMethodOnIt(CoolType type, string method, out CoolMethod CoolMethod);
+        IList<CoolMethod> GetVirtualTable(CoolType type);
     }
 }
