@@ -97,7 +97,7 @@ namespace SuperCOOL.CodeGeneration
             var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
-                .Append(new ASTCILFuncNode(Functions.Init, attributesInit));
+                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName), attributesInit));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
@@ -271,7 +271,7 @@ namespace SuperCOOL.CodeGeneration
             {
                 localVariable,
                 new ASTCILAllocateNode(type, localVariable),
-                new ASTCILFuncVirtualCallNode(Functions.Init, Enumerable.Repeat(localVariable, 1))
+                new ASTCILFuncVirtualCallNode(labelIlGenerator.GenerateInit(type), Enumerable.Repeat(localVariable, 1))
             });
         }
 

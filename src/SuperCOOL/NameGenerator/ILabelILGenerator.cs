@@ -11,5 +11,6 @@ namespace SuperCOOL
         string GenerateIf();
         (string varInit, string endOfCase) GenerateCase();
         string GenerateFunc(CoolMethod method);
+        string GenerateInit(string classTypeName);
     }
 }

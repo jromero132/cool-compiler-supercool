@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SuperCOOL.Constants;
 using SuperCOOL.Core;
 
 namespace SuperCOOL.NameGenerator
@@ -33,6 +34,11 @@ namespace SuperCOOL.NameGenerator
         public string GenerateFunc(CoolMethod method)
         {
             return $"{method.Type}_{method.Name}";
+        }
+
+        public string GenerateInit(string classTypeName)
+        {
+            return $"{classTypeName}__init";
         }
     }
 }
