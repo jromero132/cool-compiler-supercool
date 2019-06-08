@@ -83,7 +83,7 @@ namespace SuperCOOL.CodeGeneration
                         labelIlGenerator.GenerateIf()));
                 }
 
-                compilationUnit.TypeEnvironment.GetTypeDefinition(caseExpressionType, out var type);
+                compilationUnit.TypeEnvironment.GetTypeDefinition(caseExpressionType, Case.SymbolTable, out var type);
                 caseExpressionType = type.Parent.Name;
             }
 
