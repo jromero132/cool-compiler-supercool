@@ -41,7 +41,7 @@ namespace SuperCOOL.Core
         {
             if (!TypeEnvironment.GetTypeDefinition("Main", null, out var Main)) return false;
             if (!MethodEnvironment.GetMethod(Main, "main", out var main)) return false;
-            return main.EnsureParametersCount(0) && main.ReturnType == TypeEnvironment.Object && Main.Parent == TypeEnvironment.IO;
+            return main.EnsureParametersCount(0);
         }
 
         public bool NotCyclicalInheritance()
