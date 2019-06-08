@@ -2,9 +2,10 @@
 {
     class ASTCILAllocateNode : ASTCILExpressionNode
     {
-        public ASTCILAllocateNode(string type) : base(type)
+        public ASTCILLocalNode Variable { get; }
+        public ASTCILAllocateNode(string type, ASTCILLocalNode variable) : base(type)
         {
-
+            Variable = variable;
         }
     }
 }

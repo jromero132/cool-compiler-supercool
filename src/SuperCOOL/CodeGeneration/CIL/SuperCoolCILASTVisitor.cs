@@ -246,7 +246,20 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitNew(ASTNewNode context)
         {
-            throw new NotImplementedException();
+            var type = context.SemanticCheckResult.Type.Name;
+            if (context.SemanticCheckResult.Type is SelfType selftype)
+            {
+                type = selftype.ContextType.Name;
+            }
+
+            var variableName = labelIlGenerator.GenerateVariable();
+            var localVariable = new ASTCILLocalNode(variableName, type);
+            return new ASTCILBlockNode(new ASTCILExpressionNode[]
+            {
+                localVariable,
+                new ASTCILAllocateNode(type, localVariable),
+                new ASTCILFuncVirtualCallNode(Functions.Init, Enumerable.Repeat(localVariable, 1))
+            });
         }
 
         public ASTCILNode VisitProgram(ASTProgramNode Program)
