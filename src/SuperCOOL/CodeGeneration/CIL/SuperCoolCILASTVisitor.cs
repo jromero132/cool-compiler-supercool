@@ -182,22 +182,30 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
-            return new ASTCILFuncStaticCallNode(MethodCall.MethodName, MethodCall.Type,
-                Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
-                    .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
+            return new ASTCILIfNode(
+                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncStaticCallNode(
+                    MethodCall.MethodName, MethodCall.Type.Text,
+                    Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
-            return new ASTCILFuncVirtualCallNode(MethodCall.MethodName,
-                Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
-                    .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
+            return new ASTCILIfNode(
+                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(
+                    MethodCall.MethodName,
+                    Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             //TODO add self
-            return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method,
+            return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method.Text,
                 OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
         }
 
