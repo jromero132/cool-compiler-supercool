@@ -1,4 +1,4 @@
-﻿(*
+(*
  * methodless-primes.cl
  *
  * Designed by Jesse H. Willett, jhw@cory, 11103234, with 

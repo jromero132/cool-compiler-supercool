@@ -1,4 +1,4 @@
-﻿(* A program for
+(* A program for
    1. Representing lambda terms
    2. Interpreting lambda terms
    3. Compiling lambda calculus programs to Cool

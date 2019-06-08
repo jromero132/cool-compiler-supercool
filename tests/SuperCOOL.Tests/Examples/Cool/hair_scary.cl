@@ -1,4 +1,4 @@
-﻿(* hairy  . . .*)
+(* hairy  . . .*)
 
 class Foo inherits Bazz {
      a : Razz <- case self of

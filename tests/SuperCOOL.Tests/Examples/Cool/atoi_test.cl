@@ -1,4 +1,4 @@
-﻿(*
+(*
    This method implements a driver for testing the ATOI class.
 The program repeatedly asks the user to enter a number, which
 is then coverted from its string form to an integer and back

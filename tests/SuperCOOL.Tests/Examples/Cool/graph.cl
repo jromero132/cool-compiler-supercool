@@ -1,4 +1,4 @@
-﻿(*
+(*
  *   Cool program reading descriptions of weighted directed graphs
  *   from stdin. It builds up a graph objects with a list of vertices
  *   and a list of edges. Every vertice has a list of outgoing edges.

@@ -1,4 +1,4 @@
-﻿-- example of static and dynamic type differing for a dispatch
+-- example of static and dynamic type differing for a dispatch
 
 Class Book inherits IO {
     title : String;
