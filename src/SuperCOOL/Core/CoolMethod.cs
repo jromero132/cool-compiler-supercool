@@ -5,14 +5,17 @@ using SuperCOOL.SemanticCheck.AST;
 
 namespace SuperCOOL.Core
 {
-    public class CoolMethod //TODO need to have the type where is defined
+    public class CoolMethod 
     {
-        public CoolMethod(string name, List<CoolType> formals, CoolType returnType)
+        public CoolMethod(CoolType contextType,string name, List<CoolType> formals, CoolType returnType)
         {
+            Type = contextType;
             Name = name;
             Params = formals;
             ReturnType = returnType;
         }
+
+        public CoolType Type { get;}
 
         List<CoolType> Params;
         public string Name { get; }
@@ -38,7 +41,7 @@ namespace SuperCOOL.Core
 
     public class NullMethod : CoolMethod
     {
-        public NullMethod(string name):base(name,new List<CoolType>(),new NullType())
+        public NullMethod(string name):base(null,name,new List<CoolType>(),new NullType())
         {
         }
         public override bool EnsureParameter(int index, CoolType type)
