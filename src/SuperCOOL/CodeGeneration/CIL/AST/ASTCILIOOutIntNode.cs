@@ -8,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public int Value { get; }
 
         public ASTCILIOOutIntNode(int value) : base("", // TODO set func name 
-            Enumerable.Empty<ASTCILExpressionNode>(), Enumerable.Empty<ASTCILLocalNode>())
+            Enumerable.Empty<ASTCILExpressionNode>())
         {
             Value = value;
             throw new NotImplementedException();
