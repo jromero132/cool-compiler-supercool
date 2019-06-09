@@ -6,7 +6,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public int Value { get; }
 
-        public ASTCILIntConstantNode( int value ) : base( Types.Int )
+        public ASTCILIntConstantNode( int value, Core.ISymbolTable symbolTable) : base(symbolTable)
         {
             Value = value;
         }

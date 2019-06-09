@@ -9,7 +9,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public bool Value { get; }
 
-        public ASTCILBoolConstantNode( bool value ) : base( Types.Bool )
+        public ASTCILBoolConstantNode( bool value, Core.ISymbolTable symbolTable) : base( symbolTable)
         {
             Value = value;
         }

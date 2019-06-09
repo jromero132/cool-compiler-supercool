@@ -40,7 +40,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitLessThanTwoConstant( ASTCILLessThanTwoConstantNode LessThanTwoConstant );
         Result VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables );
         Result VisitLessThanVariableConstant( ASTCILLessThanVariableConstantNode LessThanVariableConstant );
-        Result VisitLocal( ASTCILLocalNode Local );
         Result VisitMinusConstantVariable( ASTCILMinusConstantVariableNode MinusConstantVariable );
         Result VisitMinusTwoConstant( ASTCILMinusTwoConstantNode MinusTwoConstant );
         Result VisitMinusTwoVariables( ASTCILMinusTwoVariablesNode MinusTwoVariables );
@@ -51,7 +50,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitMultiplyVariableConstant( ASTCILMultiplyVariableConstantNode MultiplyVariableConstant );
         Result VisitNew( ASTCILNewNode New );
         Result VisitNode( ASTCILNode Node );
-        Result VisitParam( ASTCILParamNode Param );
         Result VisitProgram( ASTCILProgramNode Program );
         Result VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError );
         Result VisitSetAttribute( ASTCILSetAttributeNode SetAttribute );

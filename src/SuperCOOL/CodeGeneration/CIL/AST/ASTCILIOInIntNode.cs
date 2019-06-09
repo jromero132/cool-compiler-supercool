@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using SuperCOOL.Constants;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILIOInIntNode : ASTCILFuncNode
     {
-        public ASTCILIOInIntNode( ILabelILGenerator labelgenerator ) : base( labelgenerator.GenerateFunc( Types.IO, Functions.InInt ),
-            Enumerable.Empty<ASTCILExpressionNode>() )
+        public ASTCILIOInIntNode( ILabelILGenerator labelgenerator, ISymbolTable symbolTable ) : base( labelgenerator.GenerateFunc( Types.IO, Functions.InInt ),
+            Enumerable.Empty<ASTCILExpressionNode>(), symbolTable )
         {
         }
 

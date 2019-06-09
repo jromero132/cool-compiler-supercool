@@ -1,16 +1,19 @@
 ﻿using SuperCOOL.CodeGeneration.CIL;
 using SuperCOOL.CodeGeneration.CIL.AST;
+using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
         public MipsProgram VisitAddConstantVariable(ASTCILAddConstantVariableNode AddConstantVariable)
         {
-            throw new NotImplementedException();
+            var rigth = AddConstantVariable.Right.Accept(this);
+            var add = new MipsProgram();
+            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0,AddConstantVariable.Left,MipsRegisterSet.a0));
+            return rigth + add;
         }
 
         public MipsProgram VisitAddTwoConstant(ASTCILAddTwoConstantNode AddTwoConstant)
@@ -25,7 +28,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitAddVariableConstant(ASTCILAddVariableConstantNode AddVariableConstant)
         {
-            throw new NotImplementedException();
+            var left = AddVariableConstant.Left.Accept(this);
+            var add = new MipsProgram();
+            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0, AddVariableConstant.Right, MipsRegisterSet.a0));
+            return left + add;
         }
 
         public MipsProgram VisitAllocate(ASTCILAllocateNode Allocate)
@@ -40,7 +46,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBlock(ASTCILBlockNode Block)
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            foreach (var item in Block.Expressions)
+                result += item.Accept(this);
+            return result;
         }
 
         public MipsProgram VisitBoolConstant(ASTCILBoolConstantNode BoolConstant)
@@ -183,11 +192,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLocal(ASTCILLocalNode Local)
-        {
-            throw new NotImplementedException();
-        }
-
         public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
         {
             throw new NotImplementedException();
@@ -234,11 +238,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
         }
 
         public MipsProgram VisitNode(ASTCILNode Node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public MipsProgram VisitParam(ASTCILParamNode Param)
         {
             throw new NotImplementedException();
         }

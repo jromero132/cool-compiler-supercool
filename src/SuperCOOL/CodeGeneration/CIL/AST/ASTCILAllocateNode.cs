@@ -1,11 +1,14 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILAllocateNode : ASTCILExpressionNode
     {
-        public ASTCILLocalNode Variable { get; }
-        public ASTCILAllocateNode( string type, ASTCILLocalNode variable ) : base( type )
+        public string Type { get; }
+
+        public ASTCILAllocateNode(string type,ISymbolTable symbolTable) : base( symbolTable )
         {
-            Variable = variable;
+            this.Type = type;
         }
 
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitAllocate( this );

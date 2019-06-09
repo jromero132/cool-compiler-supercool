@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SuperCOOL.Core;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
@@ -7,10 +8,9 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public IReadOnlyList<ASTCILExpressionNode> Expressions { get; }
 
-        public ASTCILBlockNode( IEnumerable<ASTCILExpressionNode> expressions )
+        public ASTCILBlockNode( IEnumerable<ASTCILExpressionNode> expressions, ISymbolTable symbolTable) :base(symbolTable)
         {
             Expressions = expressions.ToList();
-            Type = Expressions.Last().Type;
         }
 
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitBlock( this );

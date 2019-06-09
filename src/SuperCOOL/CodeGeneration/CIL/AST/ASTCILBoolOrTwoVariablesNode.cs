@@ -1,11 +1,13 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILBoolOrTwoVariablesNode : ASTCILExpressionNode
     {
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILBoolOrTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right )
+        public ASTCILBoolOrTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right,ISymbolTable symbolTable):base(symbolTable)
         {
             Left = left;
             Right = right;

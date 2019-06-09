@@ -1,11 +1,13 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILDivideTwoConstantNode : ASTCILExpressionNode
     {
         public int Left { get; }
         public int Right { get; }
 
-        public ASTCILDivideTwoConstantNode( int left, int right )
+        public ASTCILDivideTwoConstantNode( int left, int right,ISymbolTable symbolTable):base(symbolTable)
         {
             Left = left;
             Right = right;

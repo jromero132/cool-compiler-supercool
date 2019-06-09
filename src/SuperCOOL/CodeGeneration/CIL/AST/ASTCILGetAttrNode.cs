@@ -1,11 +1,13 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILGetAttrNode : ASTCILExpressionNode
     {
         public string TypeName { get; }
         public string AttributeName { get; }
 
-        public ASTCILGetAttrNode( string typeName, string attributeName )
+        public ASTCILGetAttrNode( string typeName, string attributeName,ISymbolTable symbolTable):base(symbolTable)
         {
             TypeName = typeName;
             AttributeName = attributeName;
