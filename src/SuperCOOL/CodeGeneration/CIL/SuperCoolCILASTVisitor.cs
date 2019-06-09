@@ -105,12 +105,13 @@ namespace SuperCOOL.CodeGeneration
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
                 .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),
                     attributesInit.Append(new ASTCILSetAttributeNode(Class.TypeName, Attributes.TypeName,
-                        new ASTCILStringConstantNode(Class.TypeName, labelIlGenerator.GenerateStringData()))), Class.SymbolTable));
+                        new ASTCILStringConstantNode(Class.TypeName, Class.SymbolTable,
+                            labelIlGenerator.GenerateStringData()), Class.SymbolTable)), Class.SymbolTable));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
             var virtualTable = compilationUnit.MethodEnvironment.GetVirtualTable(type);
-            return new ASTCILTypeNode(type, attributesInfo, virtualTable, methods,Class.SymbolTable);
+            return new ASTCILTypeNode(type, attributesInfo, virtualTable, methods, Class.SymbolTable);
         }
 
         public ASTCILNode VisitDivision(ASTDivideNode Division)
@@ -284,33 +285,33 @@ namespace SuperCOOL.CodeGeneration
             (
                 Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbollInfo>(),
-                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>()))
+                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbollInfo>(),
-                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>()))
+                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO, Enumerable.Empty<SymbollInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.IO),
                         new ASTCILFuncNode[]
                         {
-                            new ASTCILIOInIntNode(labelIlGenerator),
-                            new ASTCILIOInStringNode(labelIlGenerator),
-                            new ASTCILIOOutIntNode(labelIlGenerator),
-                            new ASTCILIOOutStringNode(labelIlGenerator)
-                        }))
+                            new ASTCILIOInIntNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILIOInStringNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILIOOutIntNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable)
+                        }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
                         Enumerable.Repeat(new SymbollInfo(Attributes.TypeName, Types.String, ObjectKind.Atribute), 1),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
                         new ASTCILFuncNode[]
                         {
-                            new ASTCILObjectAbortNode(labelIlGenerator),
-                            new ASTCILObjectTypeNameNode(labelIlGenerator), 
-                            new ASTCILObjectCopyNode(labelIlGenerator)
-                        }))
+                            new ASTCILObjectAbortNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable), 
+                            new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
+                        }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String, Enumerable.Empty<SymbollInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
                         new ASTCILFuncNode[]
                         {
 
-                        })), Program.SymbolTable
+                        }, Program.SymbolTable)), Program.SymbolTable
             );
         }
 
