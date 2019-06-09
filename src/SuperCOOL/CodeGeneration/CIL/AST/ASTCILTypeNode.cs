@@ -4,7 +4,7 @@ using SuperCOOL.Core;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILTypeNode : ASTCILNode
+  public class ASTCILTypeNode : ASTCILNode
     {
         public int AllocateSize => Attributes.Count * 4;
         public CoolType Type { get; }

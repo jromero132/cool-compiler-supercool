@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILGotoNode : ASTCILExpressionNode
+    public class ASTCILGotoNode : ASTCILExpressionNode
     {
         public string Label { get; }
         public ASTCILGotoNode(string label)

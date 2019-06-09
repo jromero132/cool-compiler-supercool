@@ -2,7 +2,7 @@
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILRuntimeErrorNode : ASTCILExpressionNode
+  public class ASTCILRuntimeErrorNode : ASTCILExpressionNode
     {
         public int Id { get; }
         public ASTCILRuntimeErrorNode(int id)

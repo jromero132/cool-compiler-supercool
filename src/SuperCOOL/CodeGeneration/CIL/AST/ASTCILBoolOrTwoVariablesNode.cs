@@ -1,6 +1,6 @@
 ﻿namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILBoolOrTwoVariablesNode : ASTCILExpressionNode
+    public class ASTCILBoolOrTwoVariablesNode : ASTCILExpressionNode
     {
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }

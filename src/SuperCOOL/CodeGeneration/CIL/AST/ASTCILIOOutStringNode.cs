@@ -4,7 +4,7 @@ using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILIOOutStringNode : ASTCILFuncNode
+    public class ASTCILIOOutStringNode : ASTCILFuncNode
     {
         public ASTCILIOOutStringNode(ILabelILGenerator labelIlGenerator,ASTCILExpressionNode expresion) : base(labelIlGenerator.GenerateFunc(Types.IO,Functions.OutString), 
             new[] {expresion})

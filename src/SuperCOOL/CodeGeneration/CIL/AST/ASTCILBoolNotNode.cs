@@ -5,7 +5,7 @@ using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILBoolNotNode : ASTCILExpressionNode
+    public class ASTCILBoolNotNode : ASTCILExpressionNode
     {
         public ASTCILExpressionNode Expression { get; }
 

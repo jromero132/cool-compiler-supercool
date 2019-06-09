@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILFuncVirtualCallNode : ASTCILExpressionNode
+    public class ASTCILFuncVirtualCallNode : ASTCILExpressionNode
     {
         public string MethodName { get; }
         public IReadOnlyList<ASTCILExpressionNode> Arguments { get; }

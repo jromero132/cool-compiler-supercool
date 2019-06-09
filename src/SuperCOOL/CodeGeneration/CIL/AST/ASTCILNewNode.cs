@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILNewNode : ASTCILNode
+  public class ASTCILNewNode : ASTCILNode
     {
         public string Type { get; }
 

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILProgramNode : ASTCILNode
+  public class ASTCILProgramNode : ASTCILNode
     {
         public IReadOnlyList<ASTCILTypeNode> Types { get; }
 

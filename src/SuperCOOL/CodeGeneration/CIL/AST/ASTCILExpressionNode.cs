@@ -1,6 +1,6 @@
 ﻿namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    abstract class ASTCILExpressionNode : ASTCILNode
+    public abstract class ASTCILExpressionNode : ASTCILNode
     {
         public ASTCILExpressionNode()
         {
