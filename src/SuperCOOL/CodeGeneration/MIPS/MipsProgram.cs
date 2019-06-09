@@ -6,6 +6,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 {
     public class MipsProgram
     {
+        public const int TRUE = 1, FALSE = 0, NULL = 0;
+
         public StringBuilder SectionCode { get; }
         public StringBuilder SectionData { get; }
         public StringBuilder SectionFunctions { get; }
@@ -17,12 +19,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
             SectionFunctions = new StringBuilder();
         }
 
-        public static MipsProgram operator +(MipsProgram left, MipsProgram right)
+        public static MipsProgram operator +( MipsProgram left, MipsProgram right )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append(left.SectionCode).Append(right.SectionCode);
-            result.SectionData.Append(left.SectionData).Append(right.SectionData);
-            result.SectionFunctions.Append(left.SectionFunctions).Append(right.SectionFunctions);
+            result.SectionCode.Append( left.SectionCode ).Append( right.SectionCode );
+            result.SectionData.Append( left.SectionData ).Append( right.SectionData );
+            result.SectionFunctions.Append( left.SectionFunctions ).Append( right.SectionFunctions );
             return result;
         }
 
@@ -30,7 +32,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             //TODO:
             //generate el program
-            throw new Exception("Aleluya");
+            throw new Exception( "Aleluya" );
         }
     }
 }
