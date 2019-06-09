@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Linq;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     class ASTCILIOOutStringNode : ASTCILFuncNode
     {
-        public string Value { get; }
-
-        public ASTCILIOOutStringNode(string value) : base("", // TODO set func name 
-            Enumerable.Empty<ASTCILExpressionNode>())
+        public ASTCILIOOutStringNode(ILabelILGenerator labelIlGenerator,ASTCILExpressionNode expresion) : base(labelIlGenerator.GenerateFunc(Types.IO,Functions.OutString), 
+            new[] {expresion})
         {
-            Value = value;
-            throw new NotImplementedException();
         }
     }
 }

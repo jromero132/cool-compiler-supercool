@@ -97,7 +97,7 @@ namespace SuperCOOL.CodeGeneration
             var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
-                .Append(new ASTCILFuncNode(Functions.Init, attributesInit));
+                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName), attributesInit));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
@@ -185,8 +185,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
         {
-            Method.SymbolTable.IsDefObject(Variables.Self, out var currentType);
-            return new ASTCILFuncNode($"_{currentType}_{Method.Name}",
+            var type=compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
+            compilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name,out var coolMethod);
+            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name,coolMethod.Name),
                 Method.Formals.Select(x => new ASTCILParamNode(x.name.Text, x.type.Text))
                     .Append((ASTCILExpressionNode) Method.Body.Accept(this))
             );
@@ -270,7 +271,7 @@ namespace SuperCOOL.CodeGeneration
             {
                 localVariable,
                 new ASTCILAllocateNode(type, localVariable),
-                new ASTCILFuncVirtualCallNode(Functions.Init, Enumerable.Repeat(localVariable, 1))
+                new ASTCILFuncVirtualCallNode(labelIlGenerator.GenerateInit(type), Enumerable.Repeat(localVariable, 1))
             });
         }
 
