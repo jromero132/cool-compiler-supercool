@@ -207,23 +207,19 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
         {
-            var left = new MipsProgram();
-            left.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                        .LoadConstant( MipsRegisterSet.t0, MinusConstantVariable.Left ) );
-
-            var right = MinusConstantVariable.Right.Accept( this );
-            right.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                         .Sub( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
-
-            return left + right;
+            var result = MinusConstantVariable.Right.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadMemory( MipsRegisterSet.t0, MinusConstantVariable.Left )
+                                                           .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 ) );
+            return result;
         }
 
         public MipsProgram VisitMinusTwoConstant( ASTCILMinusTwoConstantNode MinusTwoConstant )
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                          .LoadConstant( MipsRegisterSet.a0, MinusTwoConstant.Left )
-                                                          .Add( MipsRegisterSet.a0, MinusTwoConstant.Right ) );
+                                                           .LoadConstant( MipsRegisterSet.a0, MinusTwoConstant.Left )
+                                                           .Sub( MipsRegisterSet.a0, MinusTwoConstant.Right ) );
             return result;
         }
 
@@ -231,12 +227,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var left = MinusTwoVariables.Left.Accept( this );
             left.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                        .Push( MipsRegisterSet.a0 ) );
+                                                         .Push( MipsRegisterSet.a0 ) );
 
             var right = MinusTwoVariables.Right.Accept( this );
             right.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                         .Pop( MipsRegisterSet.t0 )
-                                                         .Sub( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
+                                                          .Pop( MipsRegisterSet.t0 )
+                                                          .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 ) );
 
             return left + right;
         }
@@ -245,13 +241,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = MinusVariableConstant.Left.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                          .Sub( MipsRegisterSet.a0, MinusVariableConstant.Right ) );
+                                                           .Sub( MipsRegisterSet.a0, MinusVariableConstant.Right ) );
             return result;
         }
 
         public MipsProgram VisitMultiplyConstantVariable( ASTCILMultiplyConstantVariableNode MultiplyConstantVariable )
         {
-            throw new NotImplementedException();
+            var result = MultiplyConstantVariable.Right.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Mul( MipsRegisterSet.a0, MultiplyConstantVariable.Left ) );
+            return result;
         }
 
         public MipsProgram VisitMultiplyTwoConstant( ASTCILMultiplyTwoConstantNode MultiplyTwoConstant )
