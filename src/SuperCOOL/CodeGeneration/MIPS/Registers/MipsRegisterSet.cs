@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SuperCOOL.CodeGeneration.MIPS.Registers
+﻿namespace SuperCOOL.CodeGeneration.MIPS.Registers
 {
     public static class MipsRegisterSet
     {
@@ -18,5 +14,8 @@ namespace SuperCOOL.CodeGeneration.MIPS.Registers
 
         // Value registers
         public static readonly ValueRegister v0 = new ValueRegister( "$v0" );
+
+        // Constant registers
+        public static readonly ConstantRegister zero = new ConstantRegister( "$zero" );
     }
 }

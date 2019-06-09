@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SuperCOOL.CodeGeneration.MIPS.Registers
+﻿namespace SuperCOOL.CodeGeneration.MIPS.Registers
 {
     public class ValueRegister : Register
     {
