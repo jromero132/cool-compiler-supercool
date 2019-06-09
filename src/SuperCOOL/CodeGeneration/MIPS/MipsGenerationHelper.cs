@@ -74,7 +74,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Print
         public MipsGenerationHelper PrintInt() => this.LoadConstant( MipsRegisterSet.v0, print_int )
                                                  .SystemCall();
-        public MipsGenerationHelper PrintInt( object d ) => this.LoadConstant( MipsRegisterSet.a0, d )
+        public MipsGenerationHelper PrintInt( int d ) => this.LoadConstant( MipsRegisterSet.a0, d )
                                                            .PrintInt();
         public MipsGenerationHelper PrintString( string name ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
                                                                  .LoadAddress( MipsRegisterSet.a0, name )
@@ -96,7 +96,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Load
-        public MipsGenerationHelper LoadConstant( Register r, object c ) // r <- c
+        public MipsGenerationHelper LoadConstant( Register r, int c ) // r <- c
         {
             this.body += $"li { r }, { c }{ ENDL }";
             return this;
