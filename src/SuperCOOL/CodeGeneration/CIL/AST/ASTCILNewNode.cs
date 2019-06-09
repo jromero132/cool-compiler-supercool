@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    public class ASTCILNewNode : ASTCILNode
+    public class ASTCILNewNode : ASTCILExpressionNode
     {
-        public string Type { get; }
 
-        public ASTCILNewNode( string type )
+        public ASTCILNewNode( string type ) : base( type )
         {
-            Type = type;
         }
 
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitNew( this );

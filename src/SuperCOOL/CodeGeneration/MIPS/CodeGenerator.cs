@@ -93,11 +93,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitEqual(ASTCILEqualNode Equal)
-        {
-            throw new NotImplementedException();
-        }
-
         public MipsProgram VisitExpression(ASTCILExpressionNode Expression)
         {
             throw new NotImplementedException();

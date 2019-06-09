@@ -22,7 +22,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitDivideTwoConstant( ASTCILDivideTwoConstantNode DivideTwoConstant );
         Result VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables );
         Result VisitDivideVariableConstant( ASTCILDivideVariableConstantNode DivideVariableConstant );
-        Result VisitEqual( ASTCILEqualNode Equal );
         Result VisitExpression( ASTCILExpressionNode Expression );
         Result VisitFunc( ASTCILFuncNode Func );
         Result VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall );
