@@ -129,6 +129,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper PushConstant( int c ) => this.LoadConstant( MipsRegisterSet.a0, c )
                                                             .Push( MipsRegisterSet.a0 );
 
+        // Bitwise operators
+        public MipsGenerationHelper Or( Register r1, Register r2, Register r_out )
+        {
+            this.body += $"or { r_out }, { r1 }, { r2 }{ ENDL }";
+            return this;
+        }
+
+        public MipsGenerationHelper Or( Register r1, Register r2 ) => Or( r1, r2, r1 );
+
+        public MipsGenerationHelper OrConstant( Register r, int c, Register r_out )
+        {
+            this.body += $"ori { r_out }, { r }, { c }{ ENDL }";
+            return this;
+        }
+
+        public MipsGenerationHelper OrConstant( Register r, int c ) => OrConstant( r, c, r );
+
 
         // Add instruction
         public MipsGenerationHelper Add( Register r, object v, Register r_out ) // r_out <- r + v
