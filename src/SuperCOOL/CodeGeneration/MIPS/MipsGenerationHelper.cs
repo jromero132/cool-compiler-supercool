@@ -8,6 +8,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 {
     public class MipsGenerationHelper
     {
+        public const int TRUE = 1, FALSE = 0, NULL = 0;
+
         private static readonly string ENDL = Environment.NewLine;
 
         private string body;
@@ -134,6 +136,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
+        public MipsGenerationHelper BranchOnEquals( Register r, object v, string label )
+        {
+            this.body += $"beq { r }, { v }, { label }{ ENDL }";
+            return this;
+        }
+
 
         // Stack
         public MipsGenerationHelper Push( Register r ) => this.Sub( MipsRegisterSet.sp, 4 )
@@ -145,11 +153,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Boolean operators
-        public MipsGenerationHelper Equals( Register r, object v, string label )
+        public MipsGenerationHelper Not( Register r, Register r_out )
         {
-            this.body += $"beq { r }, { v }, { label }{ ENDL }";
+            this.body += $"nor { r_out }, { r }, { MipsRegisterSet.zero }{ ENDL }";
             return this;
         }
+
+        public MipsGenerationHelper Not( Register r ) => Not( r, r );
 
 
         // Bitwise operators
@@ -176,6 +186,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"add { r_out }, { r }, { v }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper Add( Register r, object v ) => this.Add( r, v, r ); // r <- r + v
 
 
@@ -185,7 +196,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"sub { r_out }, { r }, { v }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper Sub( Register r, object v ) => this.Sub( r, v, r ); // r <- r - v
+
 
         // Mul instruction
         public MipsGenerationHelper Mul( Register r, object v, Register r_out ) // r_out <- r * v
@@ -193,7 +206,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"mul { r_out }, { r }, { v }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper Mul( Register r, object v ) => this.Mul( r, v, r ); // r <- r * v
+
 
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v

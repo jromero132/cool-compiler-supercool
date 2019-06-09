@@ -68,7 +68,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadConstant( MipsRegisterSet.a0, BoolConstant.Value ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+                                                           .LoadConstant( MipsRegisterSet.a0, BoolConstant.Value ? MipsGenerationHelper.TRUE : MipsGenerationHelper.FALSE ) );
             return result;
         }
 
@@ -76,8 +76,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = BoolNot.Expression.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadConstant( MipsRegisterSet.t0, 1 )
-                                                           .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 ) );
+                                                           .Not( MipsRegisterSet.a0 ) );
             return result;
         }
 
@@ -85,7 +84,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = BoolOrConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .OrConstant( MipsRegisterSet.a0, BoolOrConstantVariable.Left ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+                                                           .OrConstant( MipsRegisterSet.a0, BoolOrConstantVariable.Left ? MipsGenerationHelper.TRUE : MipsGenerationHelper.FALSE ) );
             return result;
         }
 
@@ -93,8 +92,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadConstant( MipsRegisterSet.a0, BoolOrTwoConstant.Left ? MipsProgram.TRUE : MipsProgram.FALSE )
-                                                           .OrConstant( MipsRegisterSet.a0, BoolOrTwoConstant.Right ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+                                                           .LoadConstant( MipsRegisterSet.a0, BoolOrTwoConstant.Left ? MipsGenerationHelper.TRUE : MipsGenerationHelper.FALSE )
+                                                           .OrConstant( MipsRegisterSet.a0, BoolOrTwoConstant.Right ? MipsGenerationHelper.TRUE : MipsGenerationHelper.FALSE ) );
             return result;
         }
 
@@ -116,7 +115,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = BoolOrVariableConstant.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .OrConstant( MipsRegisterSet.a0, BoolOrVariableConstant.Right ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+                                                           .OrConstant( MipsRegisterSet.a0, BoolOrVariableConstant.Right ? MipsGenerationHelper.TRUE : MipsGenerationHelper.FALSE ) );
             return result;
         }
 
@@ -205,7 +204,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var @if = If.Condition.Accept( this );
             @if.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                        .Equals( MipsRegisterSet.a0, MipsProgram.FALSE, else_label ) );
+                                                        .BranchOnEquals( MipsRegisterSet.a0, MipsGenerationHelper.FALSE, else_label ) );
 
             var then = If.Then.Accept( this );
             then.SectionCode.Append( MipsGenerationHelper.NewScript()
@@ -250,6 +249,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
+        // TODO hay que hacer esto en IL
         public MipsProgram VisitIsVoid( ASTCILIsVoidNode IsVoid )
         {
             throw new NotImplementedException();
@@ -359,10 +359,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitNode( ASTCILNode Node )
-        {
-            throw new NotImplementedException();
-        }
+        public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
 
         public MipsProgram VisitProgram(ASTCILProgramNode Program)
         {

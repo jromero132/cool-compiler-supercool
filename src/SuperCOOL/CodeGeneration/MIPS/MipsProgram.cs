@@ -6,8 +6,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 {
     public class MipsProgram
     {
-        public const int TRUE = 1, FALSE = 0, NULL = 0;
-
         public StringBuilder SectionCode { get; }
         public StringBuilder SectionData { get; }
         public StringBuilder SectionFunctions { get; }
