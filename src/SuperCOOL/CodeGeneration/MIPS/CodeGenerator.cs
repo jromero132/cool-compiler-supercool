@@ -1,16 +1,19 @@
 ﻿using SuperCOOL.CodeGeneration.CIL;
 using SuperCOOL.CodeGeneration.CIL.AST;
+using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
         public MipsProgram VisitAddConstantVariable(ASTCILAddConstantVariableNode AddConstantVariable)
         {
-            throw new NotImplementedException();
+            var rigth = AddConstantVariable.Right.Accept(this);
+            var add = new MipsProgram();
+            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0,AddConstantVariable.Left,MipsRegisterSet.a0));
+            return rigth + add;
         }
 
         public MipsProgram VisitAddTwoConstant(ASTCILAddTwoConstantNode AddTwoConstant)
@@ -25,7 +28,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitAddVariableConstant(ASTCILAddVariableConstantNode AddVariableConstant)
         {
-            throw new NotImplementedException();
+         
         }
 
         public MipsProgram VisitAllocate(ASTCILAllocateNode Allocate)
