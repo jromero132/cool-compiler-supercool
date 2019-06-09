@@ -70,8 +70,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Read
-        public MipsGenerationHelper ReadInt() => this.LoadConstant( MipsRegisterSet.v0, read_int )
-                                                .SystemCall();
+        public MipsGenerationHelper ReadInt( Register r ) => this.LoadConstant( MipsRegisterSet.v0, read_int )
+                                                                 .SystemCall()
+                                                                 .Move( r, MipsRegisterSet.v0 );
 
 
         // Print
