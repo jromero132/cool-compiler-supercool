@@ -278,7 +278,23 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitProgram(ASTProgramNode Program)
         {
-            return new ASTCILProgramNode(Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this)), Program.SymbolTable);
+            return new ASTCILProgramNode
+            (
+                Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbollInfo>(),
+                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>()))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbollInfo>(),
+                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>()))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO, Enumerable.Empty<SymbollInfo>(),
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.IO),
+                        new ASTCILFuncNode[]
+                        {
+                            new ASTCILIOInIntNode(labelIlGenerator),
+                            new ASTCILIOInStringNode(labelIlGenerator),
+                            new ASTCILIOOutIntNode(labelIlGenerator),
+                            new ASTCILIOOutStringNode(labelIlGenerator)
+                        })), Program.SymbolTable
+            );
         }
 
         public ASTCILNode VisitAtribute(ASTAtributeNode Atribute)
