@@ -187,7 +187,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitGoto( ASTCILGotoNode Goto )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Jump( Goto.Label ) );
+            return result;
         }
 
         public MipsProgram VisitId( ASTCILIdNode Id )

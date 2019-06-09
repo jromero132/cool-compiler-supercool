@@ -32,7 +32,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $".{ section_name }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper DataSection() => Section( "data" );
+
         public MipsGenerationHelper TextSection() => Section( "text" );
 
 
@@ -42,6 +44,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"{ tag_name }:{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper MainTag() => Tag( "main" );
 
 
@@ -81,13 +84,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                  .SystemCall();
 
 
-
         // Move
         public MipsGenerationHelper Move( Register r1, Register r2 ) // r1 <- r2
         {
             this.body += $"move { r1 }, { r2 }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper MoveFromLo( Register r ) // r <- $lo
         {
             this.body += $"mflo { r }{ ENDL }";
@@ -101,11 +104,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"li { r }, { c }{ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper LoadMemory( Register r, object d ) // r <- (d)
         {
             this.body += $"lw { r }, ({ d }){ ENDL }";
             return this;
         }
+
         public MipsGenerationHelper LoadAddress( Register r, string a ) // r <- a
         {
             this.body += $"la { r }, { a }{ ENDL }";
@@ -117,6 +122,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper SaveMemory( Register r, object d ) // (d) <- r
         {
             this.body += $"sw { r }, ({ d }){ ENDL }";
+            return this;
+        }
+
+
+        // Jumps
+        public MipsGenerationHelper Jump( string label )
+        {
+            this.body += $"j { label }{ ENDL }";
             return this;
         }
 
