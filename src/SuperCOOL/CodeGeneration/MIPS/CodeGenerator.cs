@@ -136,7 +136,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitExpression(ASTCILExpressionNode Expression)
         {
-            throw new NotImplementedException();
+            return Expression.Accept( this );
         }
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
