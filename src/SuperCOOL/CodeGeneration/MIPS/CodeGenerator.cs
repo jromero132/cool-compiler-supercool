@@ -2,18 +2,17 @@
 using SuperCOOL.CodeGeneration.CIL.AST;
 using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
-using System.Collections.Generic;
-using System.Text;
+
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
         public MipsProgram VisitAddConstantVariable( ASTCILAddConstantVariableNode AddConstantVariable )
         {
-            var rigth = AddConstantVariable.Right.Accept(this);
-            var add = new MipsProgram();
-            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0,AddConstantVariable.Left,MipsRegisterSet.a0));
-            return rigth + add;
+            var result = AddConstantVariable.Right.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Add( MipsRegisterSet.a0, AddConstantVariable.Left ) );
+            return result;
         }
 
         public MipsProgram VisitAddTwoConstant( ASTCILAddTwoConstantNode AddTwoConstant )
@@ -41,10 +40,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitAddVariableConstant( ASTCILAddVariableConstantNode AddVariableConstant )
         {
-            var left = AddVariableConstant.Left.Accept(this);
-            var add = new MipsProgram();
-            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0, AddVariableConstant.Right, MipsRegisterSet.a0));
-            return left + add;
+            var result = AddVariableConstant.Left.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Add( MipsRegisterSet.a0, AddVariableConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitAllocate( ASTCILAllocateNode Allocate )
@@ -60,8 +59,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitBlock( ASTCILBlockNode Block )
         {
             var result = new MipsProgram();
-            foreach (var item in Block.Expressions)
-                result += item.Accept(this);
+            foreach( var item in Block.Expressions )
+                result += item.Accept( this );
             return result;
         }
 
@@ -278,7 +277,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMultiplyVariableConstant( ASTCILMultiplyVariableConstantNode MultiplyVariableConstant )
         {
-            throw new NotImplementedException();
+            var result = MultiplyVariableConstant.Left.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Mul( MipsRegisterSet.a0, MultiplyVariableConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitNew( ASTCILNewNode New )
