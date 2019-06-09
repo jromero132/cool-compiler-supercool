@@ -11,6 +11,7 @@ namespace SuperCOOL.Constants
         public const int DivisionBy0 = 4;
         public const int SubStringOutOfRange = 5;
         public const int HeapOverflow = 6;
+        public const int ObjectAbort = 7;
 
         public static Dictionary<int, string> GetRuntimeErrorString = typeof(RuntimeErrors).GetFields()
             .Where(x => x.FieldType == typeof(int)).ToDictionary(x => (int)x.GetValue(null), x => x.Name);
