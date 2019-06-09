@@ -221,7 +221,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIntConstant( ASTCILIntConstantNode IntConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.a0, IntConstant.Value ) );
+            return result;
         }
 
         public MipsProgram VisitIOInInt( ASTCILIOInIntNode IOInInt )
