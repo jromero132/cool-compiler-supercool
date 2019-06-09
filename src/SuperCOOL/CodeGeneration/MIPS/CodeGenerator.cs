@@ -28,7 +28,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitAddVariableConstant(ASTCILAddVariableConstantNode AddVariableConstant)
         {
-         
+            var left = AddVariableConstant.Left.Accept(this);
+            var add = new MipsProgram();
+            add.SectionCode.Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.a0, AddVariableConstant.Right, MipsRegisterSet.a0));
+            return left + add;
         }
 
         public MipsProgram VisitAllocate(ASTCILAllocateNode Allocate)
@@ -43,7 +46,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBlock(ASTCILBlockNode Block)
         {
-            throw new NotImplementedException();
+            
         }
 
         public MipsProgram VisitBoolConstant(ASTCILBoolConstantNode BoolConstant)
