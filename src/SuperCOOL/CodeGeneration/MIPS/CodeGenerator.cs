@@ -235,7 +235,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMinusVariableConstant( ASTCILMinusVariableConstantNode MinusVariableConstant )
         {
-            throw new NotImplementedException();
+            var result = MinusVariableConstant.Left.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Sub( MipsRegisterSet.a0, MinusVariableConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitMultiplyConstantVariable( ASTCILMultiplyConstantVariableNode MultiplyConstantVariable )
