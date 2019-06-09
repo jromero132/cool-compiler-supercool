@@ -19,16 +19,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitAddTwoConstant( ASTCILAddTwoConstantNode AddTwoConstant )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadConstant( MipsRegisterSet.a0, AddTwoConstant.Left ).Add( MipsRegisterSet.a0, AddTwoConstant.Right ) );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.a0, AddTwoConstant.Left )
+                                                           .Add( MipsRegisterSet.a0, AddTwoConstant.Right ) );
             return result;
         }
 
         public MipsProgram VisitAddTwoVariables( ASTCILAddTwoVariablesNode AddTwoVariables )
         {
             var left = AddTwoVariables.Left.Accept( this );
-            left.SectionCode.Append( MipsGenerationHelper.NewScript().Push( MipsRegisterSet.a0 ) );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Push( MipsRegisterSet.a0 ) );
+
             var right = AddTwoVariables.Right.Accept( this );
-            right.SectionCode.Append( MipsGenerationHelper.NewScript().Pop( MipsRegisterSet.t0 ).Add( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Pop( MipsRegisterSet.t0 )
+                                                          .Add( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+
             return left + right;
         }
 
@@ -205,7 +212,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMinusTwoConstant( ASTCILMinusTwoConstantNode MinusTwoConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .LoadConstant( MipsRegisterSet.a0, MinusTwoConstant.Left )
+                                                          .Add( MipsRegisterSet.a0, MinusTwoConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitMinusTwoVariables( ASTCILMinusTwoVariablesNode MinusTwoVariables )
