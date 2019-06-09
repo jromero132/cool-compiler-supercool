@@ -10,5 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
             Enumerable.Empty<ASTCILExpressionNode>())
         {
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitIOInInt( this );
     }
 }

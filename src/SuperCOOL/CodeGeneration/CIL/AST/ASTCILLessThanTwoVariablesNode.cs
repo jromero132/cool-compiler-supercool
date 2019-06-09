@@ -10,10 +10,12 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILLessThanTwoVariablesNode(ASTCILExpressionNode left, ASTCILExpressionNode right) : base(Types.Bool)
+        public ASTCILLessThanTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right ) : base( Types.Bool )
         {
             Left = left;
             Right = right;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitLessThanTwoVariables( this );
     }
 }

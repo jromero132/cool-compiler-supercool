@@ -6,9 +6,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public ASTCILExpressionNode Expression { get; }
 
-        public ASTCILIsVoidNode(ASTCILExpressionNode expression) : base(Types.Bool)
+        public ASTCILIsVoidNode( ASTCILExpressionNode expression ) : base( Types.Bool )
         {
             Expression = expression;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitIsVoid( this );
     }
 }

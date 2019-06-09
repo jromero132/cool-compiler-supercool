@@ -4,9 +4,11 @@
     {
         public string Name { get; }
 
-        public ASTCILIdNode(string name)
+        public ASTCILIdNode( string name )
         {
             Name = name;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitId( this );
     }
 }

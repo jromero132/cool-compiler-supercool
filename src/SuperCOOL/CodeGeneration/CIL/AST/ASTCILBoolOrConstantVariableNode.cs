@@ -5,10 +5,12 @@
         public bool Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILBoolOrConstantVariableNode(bool left, ASTCILExpressionNode right)
+        public ASTCILBoolOrConstantVariableNode( bool left, ASTCILExpressionNode right )
         {
             Left = left;
             Right = right;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitBoolOrConstantVariable( this );
     }
 }

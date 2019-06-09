@@ -5,10 +5,12 @@
         public string TypeName { get; }
         public string AttributeName { get; }
 
-        public ASTCILGetAttrNode(string typeName, string attributeName)
+        public ASTCILGetAttrNode( string typeName, string attributeName )
         {
             TypeName = typeName;
             AttributeName = attributeName;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitGetAttr( this );
     }
 }

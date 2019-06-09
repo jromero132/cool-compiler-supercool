@@ -1,6 +1,6 @@
-﻿using SuperCOOL.SemanticCheck.AST;
+﻿using SuperCOOL.CodeGeneration.CIL.AST;
 
-namespace SuperCOOL.CodeGeneration.CIL.AST
+namespace SuperCOOL.CodeGeneration.CIL
 {
     public interface ICILVisitor<Result>
     {
@@ -59,6 +59,6 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         Result VisitSetAttribute( ASTCILSetAttributeNode SetAttribute );
         Result VisitStringConstant( ASTCILStringConstantNode StringConstant );
         Result VisitType( ASTCILTypeNode Type );
-        Result VisitVoidNode( ASTCILVoidNode VoidNode );
+        Result VisitVoid( ASTCILVoidNode Void );
     }
 }

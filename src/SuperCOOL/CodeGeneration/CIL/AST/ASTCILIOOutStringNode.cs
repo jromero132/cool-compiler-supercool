@@ -10,5 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
             new[] {expresion})
         {
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitIOOutString( this );
     }
 }

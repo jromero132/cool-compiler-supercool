@@ -9,9 +9,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public bool Value { get; }
 
-        public ASTCILBoolConstantNode(bool value) : base(Types.Bool)
+        public ASTCILBoolConstantNode( bool value ) : base( Types.Bool )
         {
             Value = value;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitBoolConstant( this );
     }
 }

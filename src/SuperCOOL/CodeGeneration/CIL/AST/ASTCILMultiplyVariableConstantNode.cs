@@ -2,15 +2,17 @@
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-  public class ASTCILMultiplyVariableConstantNode : ASTCILExpressionNode
+    public class ASTCILMultiplyVariableConstantNode : ASTCILExpressionNode
     {
         public ASTCILExpressionNode Left { get; }
         public int Right { get; }
 
-        public ASTCILMultiplyVariableConstantNode(ASTCILExpressionNode left, int right) : base(Types.Int)
+        public ASTCILMultiplyVariableConstantNode( ASTCILExpressionNode left, int right ) : base( Types.Int )
         {
             Left = left;
             Right = right;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitMultiplyVariableConstant( this );
     }
 }

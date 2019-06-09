@@ -12,5 +12,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
             Left = left;
             Right = right;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitAddTwoVariables( this );
     }
 }

@@ -7,10 +7,12 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public IReadOnlyList<ASTCILExpressionNode> Expressions { get; }
 
-        public ASTCILBlockNode(IEnumerable<ASTCILExpressionNode> expressions)
+        public ASTCILBlockNode( IEnumerable<ASTCILExpressionNode> expressions )
         {
             Expressions = expressions.ToList();
             Type = Expressions.Last().Type;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitBlock( this );
     }
 }

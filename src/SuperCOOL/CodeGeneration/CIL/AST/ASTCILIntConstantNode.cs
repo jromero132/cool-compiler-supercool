@@ -6,9 +6,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public int Value { get; }
 
-        public ASTCILIntConstantNode(int value) : base(Types.Int)
+        public ASTCILIntConstantNode( int value ) : base( Types.Int )
         {
             Value = value;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitIntConstant( this );
     }
 }

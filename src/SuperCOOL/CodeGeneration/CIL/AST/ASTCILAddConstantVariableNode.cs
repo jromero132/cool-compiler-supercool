@@ -7,10 +7,12 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public int Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILAddConstantVariableNode(int left, ASTCILExpressionNode right) : base(Types.Int)
+        public ASTCILAddConstantVariableNode( int left, ASTCILExpressionNode right ) : base( Types.Int )
         {
             Left = left;
             Right = right;
         }
+
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitAddConstantVariable( this );
     }
 }
