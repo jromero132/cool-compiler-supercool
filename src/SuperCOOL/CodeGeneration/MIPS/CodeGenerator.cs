@@ -46,7 +46,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBlock(ASTCILBlockNode Block)
         {
-            
+            var result = new MipsProgram();
+            foreach (var item in Block.Expressions)
+                result += item.Accept(this);
+            return result;
         }
 
         public MipsProgram VisitBoolConstant(ASTCILBoolConstantNode BoolConstant)
