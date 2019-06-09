@@ -5,7 +5,7 @@
         public int Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILDivideConstantVariableNode( int left, ASTCILExpressionNode right )
+        public ASTCILDivideConstantVariableNode( int left, ASTCILExpressionNode right, Core.ISymbolTable symbolTable):base(symbolTable)
         {
             Left = left;
             Right = right;

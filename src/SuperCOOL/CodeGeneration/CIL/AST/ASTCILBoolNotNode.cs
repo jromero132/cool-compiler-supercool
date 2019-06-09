@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SuperCOOL.Constants;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
@@ -9,7 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public ASTCILExpressionNode Expression { get; }
 
-        public ASTCILBoolNotNode( ASTCILExpressionNode expression ) : base( Types.Bool )
+        public ASTCILBoolNotNode( ASTCILExpressionNode expression,ISymbolTable symbolTable) : base(symbolTable )
         {
             Expression = expression;
         }

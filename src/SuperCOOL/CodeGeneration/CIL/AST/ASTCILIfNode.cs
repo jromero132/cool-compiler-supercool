@@ -1,4 +1,6 @@
-﻿namespace SuperCOOL.CodeGeneration.CIL.AST
+﻿using SuperCOOL.Core;
+
+namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILIfNode : ASTCILExpressionNode
     {
@@ -9,7 +11,7 @@
         public string ElseLabel { get; }
 
         public ASTCILIfNode( ASTCILExpressionNode condition, ASTCILExpressionNode then, ASTCILExpressionNode @else,
-            (string endLabel, string elseLabel) labels )
+            (string endLabel, string elseLabel) labels, ISymbolTable symbolTable) : base(symbolTable)
         {
             Condition = condition;
             Then = then;

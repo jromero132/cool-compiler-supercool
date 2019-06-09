@@ -192,11 +192,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLocal(ASTCILLocalNode Local)
-        {
-            throw new NotImplementedException();
-        }
-
         public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
         {
             throw new NotImplementedException();

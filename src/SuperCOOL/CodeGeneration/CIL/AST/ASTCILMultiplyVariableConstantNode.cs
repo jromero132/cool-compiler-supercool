@@ -7,7 +7,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILExpressionNode Left { get; }
         public int Right { get; }
 
-        public ASTCILMultiplyVariableConstantNode( ASTCILExpressionNode left, int right ) : base( Types.Int )
+        public ASTCILMultiplyVariableConstantNode( ASTCILExpressionNode left, int right, Core.ISymbolTable symbolTable) : base(symbolTable)
         {
             Left = left;
             Right = right;

@@ -13,7 +13,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public IReadOnlyList<ASTCILFuncNode> Methods { get; }
 
         public ASTCILTypeNode( CoolType type, IEnumerable<SymbollInfo> attributes, IEnumerable<CoolMethod> virtualTable,
-            IEnumerable<ASTCILFuncNode> methods )
+            IEnumerable<ASTCILFuncNode> methods,ISymbolTable symbolTable):base(symbolTable)
         {
             Type = type;
             Methods = methods.ToImmutableList();

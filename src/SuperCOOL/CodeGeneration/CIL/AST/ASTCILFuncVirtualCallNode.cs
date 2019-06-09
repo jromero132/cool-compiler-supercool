@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SuperCOOL.Core;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
@@ -8,7 +9,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public string MethodName { get; }
         public IReadOnlyList<ASTCILExpressionNode> Arguments { get; }
 
-        public ASTCILFuncVirtualCallNode( string methodName, IEnumerable<ASTCILExpressionNode> arguments )
+        public ASTCILFuncVirtualCallNode( string methodName, IEnumerable<ASTCILExpressionNode> arguments,ISymbolTable symbolTable):base (symbolTable)
         {
             MethodName = methodName;
             Arguments = arguments.ToList();
