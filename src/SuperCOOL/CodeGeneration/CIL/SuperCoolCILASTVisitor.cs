@@ -6,6 +6,7 @@ using SuperCOOL.SemanticCheck.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SuperCOOL.Core.Constants;
 
 namespace SuperCOOL.CodeGeneration
 {
@@ -102,8 +103,9 @@ namespace SuperCOOL.CodeGeneration
             var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
-                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName), attributesInit,
-                    Class.SymbolTable));
+                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),
+                    attributesInit.Append(new ASTCILSetAttributeNode(Class.TypeName, Attributes.TypeName,
+                        new ASTCILStringConstantNode(Class.TypeName))), Class.SymbolTable));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
