@@ -91,7 +91,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper PrintInt( int d ) => this.LoadConstant( MipsRegisterSet.a0, d )
                                                            .PrintInt();
         public MipsGenerationHelper PrintString( string name ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
-                                                                 .LoadAddress( MipsRegisterSet.a0, name )
+                                                                 .LoadFromAddress( MipsRegisterSet.a0, name )
                                                                  .SystemCall();
 
 
@@ -116,13 +116,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper LoadMemory( Register r, object d,int offset=0) // r <- (d)
+        public MipsGenerationHelper LoadFromMemory( Register r, object d, int offset = 0 ) // r <- (d)
         {
-            this.body += $"lw { r }, {offset}({ d }){ ENDL }";
+            this.body += $"lw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }";
             return this;
         }
 
-        public MipsGenerationHelper LoadAddress( Register r, string a ) // r <- a
+        public MipsGenerationHelper LoadFromAddress( Register r, string a ) // r <- a
         {
             this.body += $"la { r }, { a }{ ENDL }";
             return this;
@@ -166,7 +166,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Stack
         public MipsGenerationHelper Push( Register r ) => this.Sub( MipsRegisterSet.sp, 4 )
                                                          .SaveMemory( r, MipsRegisterSet.sp );
-        public MipsGenerationHelper Pop( Register r ) => this.LoadMemory( r, MipsRegisterSet.sp )
+        public MipsGenerationHelper Pop( Register r ) => this.LoadFromMemory( r, MipsRegisterSet.sp )
                                                         .Add( MipsRegisterSet.sp, 4 );
         public MipsGenerationHelper PushConstant( int c ) => this.LoadConstant( MipsRegisterSet.a0, c )
                                                             .Push( MipsRegisterSet.a0 );

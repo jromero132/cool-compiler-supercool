@@ -219,7 +219,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             //moving self to a0
             result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
             //moving self.attr to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
             return result;
         }
 
@@ -327,7 +327,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = MinusConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadMemory( MipsRegisterSet.t0, MinusConstantVariable.Left )
+                                                           .LoadFromMemory( MipsRegisterSet.t0, MinusConstantVariable.Left )
                                                            .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 ) );
             return result;
         }
