@@ -187,7 +187,7 @@ namespace SuperCOOL.CodeGeneration
         {
             var type=compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             compilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name,out var coolMethod);
-            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod),
+            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name,coolMethod.Name),
                 Method.Formals.Select(x => new ASTCILParamNode(x.name.Text, x.type.Text))
                     .Append((ASTCILExpressionNode) Method.Body.Accept(this))
             );

@@ -31,9 +31,9 @@ namespace SuperCOOL.NameGenerator
             return (GenerateVariable(), $"_caseEnd_{caseIndex++}");
         }
 
-        public string GenerateFunc(CoolMethod method)
+        public string GenerateFunc(string className,string methodName)
         {
-            return $"{method.Type}_{method.Name}";
+            return $"{className}_{methodName}";
         }
 
         public string GenerateInit(string classTypeName)
