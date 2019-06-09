@@ -142,6 +142,18 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
+        public MipsGenerationHelper BranchLessThan( Register r, object v, string label )
+        {
+            this.body += $"blt { r }, { v }, { label }{ ENDL }";
+            return this;
+        }
+
+        public MipsGenerationHelper BranchLessEqual( Register r, object v, string label )
+        {
+            this.body += $"ble { r }, { v }, { label }{ ENDL }";
+            return this;
+        }
+
 
         // Stack
         public MipsGenerationHelper Push( Register r ) => this.Sub( MipsRegisterSet.sp, 4 )

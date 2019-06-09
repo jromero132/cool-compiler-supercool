@@ -1,12 +1,17 @@
 ﻿using SuperCOOL.CodeGeneration.CIL;
 using SuperCOOL.CodeGeneration.CIL.AST;
 using SuperCOOL.CodeGeneration.MIPS.Registers;
+using SuperCOOL.CodeGeneration.CIL;
 using System;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
+        private ILabelILGenerator labelGenerator;
+        public CodeGenerator( ILabelILGenerator labelGenerator ) => this.labelGenerator = labelGenerator;
+
+
         public MipsProgram VisitAddConstantVariable( ASTCILAddConstantVariableNode AddConstantVariable )
         {
             var result = AddConstantVariable.Right.Accept( this );
@@ -199,21 +204,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIf( ASTCILIfNode If )
         {
-            var else_label = If.Label + "_else";
-            var end_label = If.Label + "_end";
-
             var @if = If.Condition.Accept( this );
             @if.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                        .BranchOnEquals( MipsRegisterSet.a0, MipsGenerationHelper.FALSE, else_label ) );
+                                                        .BranchOnEquals( MipsRegisterSet.a0, MipsGenerationHelper.FALSE, If.ElseLabel ) );
 
             var then = If.Then.Accept( this );
             then.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                         .Jump( end_label )
-                                                         .Tag( else_label ) );
+                                                         .Tag( If.ElseLabel ) );
 
             var @else = If.Else.Accept( this );
             @else.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                          .Tag( end_label ) );
+                                                          .Tag( If.EndLabel ) );
 
             return @if + then + @else;
         }
@@ -257,22 +258,48 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitLessThanConstantVariable( ASTCILLessThanConstantVariableNode LessThanConstantVariable )
         {
-            throw new NotImplementedException();
+            var result = LessThanConstantVariable.Right.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.t0, LessThanConstantVariable.Left )
+                                                           .BranchLessThan( MipsRegisterSet.t0,  ) );
+            return result;
         }
 
         public MipsProgram VisitLessThanTwoConstant( ASTCILLessThanTwoConstantNode LessThanTwoConstant )
         {
-            throw new NotImplementedException();
+            var (endIf, then) = this.labelGenerator.GenerateIf();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.a0, LessThanTwoConstant.Left )
+                                                           .BranchLessThan( MipsRegisterSet.a0, LessThanTwoConstant.Right, then )
+                                                           .LoadConstant( MipsRegisterSet.a0, 0 )
+                                                           .Jump( endIf )
+                                                           .Tag( then )
+                                                           .LoadConstant( MipsRegisterSet.a0, 1 )
+                                                           .Tag( endIf ) );
+            return result;
         }
 
         public MipsProgram VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables )
         {
-            throw new NotImplementedException();
+            var left = AddTwoVariables.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Push( MipsRegisterSet.a0 ) );
+
+            var right = AddTwoVariables.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Pop( MipsRegisterSet.t0 )
+                                                          .Add( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+
+            return left + right;
         }
 
         public MipsProgram VisitLessThanVariableConstant( ASTCILLessThanVariableConstantNode LessThanVariableConstant )
         {
-            throw new NotImplementedException();
+            var result = AddVariableConstant.Left.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Add( MipsRegisterSet.a0, AddVariableConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
