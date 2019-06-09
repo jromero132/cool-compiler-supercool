@@ -98,7 +98,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = DivideConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .Div( MipsRegisterSet.a0, DivideConstantVariable.Left ) );
+                                                           .LoadConstant( MipsRegisterSet.t0, DivideConstantVariable.Left )
+                                                           .Div( MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
             return result;
         }
 
@@ -114,7 +115,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitDivideVariableConstant( ASTCILDivideVariableConstantNode DivideVariableConstant )
         {
-            throw new NotImplementedException();
+            var result = DivideVariableConstant.Left.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Div( MipsRegisterSet.a0, DivideVariableConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitExpression(ASTCILExpressionNode Expression)
