@@ -105,7 +105,7 @@ namespace SuperCOOL.CodeGeneration
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
                 .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),
                     attributesInit.Append(new ASTCILSetAttributeNode(Class.TypeName, Attributes.TypeName,
-                        new ASTCILStringConstantNode(Class.TypeName))), Class.SymbolTable));
+                        new ASTCILStringConstantNode(Class.TypeName, labelIlGenerator.GenerateStringData()))), Class.SymbolTable));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
@@ -295,6 +295,21 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILIOInStringNode(labelIlGenerator),
                             new ASTCILIOOutIntNode(labelIlGenerator),
                             new ASTCILIOOutStringNode(labelIlGenerator)
+                        }))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
+                        Enumerable.Repeat(new SymbollInfo(Attributes.TypeName, Types.String, ObjectKind.Atribute), 1),
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
+                        new ASTCILFuncNode[]
+                        {
+                            new ASTCILObjectAbortNode(labelIlGenerator),
+                            new ASTCILObjectTypeNameNode(labelIlGenerator), 
+                            new ASTCILObjectCopyNode(labelIlGenerator)
+                        }))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String, Enumerable.Empty<SymbollInfo>(),
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
+                        new ASTCILFuncNode[]
+                        {
+
                         })), Program.SymbolTable
             );
         }
