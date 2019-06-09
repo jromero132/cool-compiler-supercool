@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SuperCOOL.Core
 {
@@ -54,6 +55,14 @@ namespace SuperCOOL.Core
                     return true;
             }
             return false;
+        }
+
+        public int GetOffsetForAttribute(string attributeName)
+        {
+            var attrs = SymbolTable.AllDefinedAttributes();
+            SymbolTable.IsDefObject(attributeName, out var attrInfo);
+            var index = attrs.IndexOf(attrInfo);
+            return 4 * index;
         }
     }
 
