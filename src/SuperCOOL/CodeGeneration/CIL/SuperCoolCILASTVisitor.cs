@@ -192,11 +192,11 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
         {
-            var type=compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
-            compilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name,out var coolMethod);
-            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name,coolMethod.Name),
-                    new []{(ASTCILExpressionNode) Method.Body.Accept(this)},
-                    Method.SymbolTable);
+            var type = compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
+            compilationUnit.MethodEnvironment.GetMethodOnIt(type, Method.Name, out var coolMethod);
+            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name, coolMethod.Name),
+                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) },
+                Method.SymbolTable);
         }
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
