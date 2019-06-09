@@ -249,7 +249,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = MultiplyConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                          .Mul( MipsRegisterSet.a0, MultiplyConstantVariable.Left ) );
+                                                           .Mul( MipsRegisterSet.a0, MultiplyConstantVariable.Left ) );
             return result;
         }
 
@@ -257,14 +257,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                          .LoadConstant( MipsRegisterSet.a0, MultiplyTwoConstant.Left )
-                                                          .Mul( MipsRegisterSet.a0, MultiplyTwoConstant.Right ) );
+                                                           .LoadConstant( MipsRegisterSet.a0, MultiplyTwoConstant.Left )
+                                                           .Mul( MipsRegisterSet.a0, MultiplyTwoConstant.Right ) );
             return result;
         }
 
         public MipsProgram VisitMultiplyTwoVariables( ASTCILMultiplyTwoVariablesNode MultiplyTwoVariables )
         {
-            throw new NotImplementedException();
+            var left = MultiplyTwoVariables.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                        .Push( MipsRegisterSet.a0 ) );
+
+            var right = MultiplyTwoVariables.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Pop( MipsRegisterSet.t0 )
+                                                          .Mul( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+
+            return left + right;
         }
 
         public MipsProgram VisitMultiplyVariableConstant( ASTCILMultiplyVariableConstantNode MultiplyVariableConstant )
