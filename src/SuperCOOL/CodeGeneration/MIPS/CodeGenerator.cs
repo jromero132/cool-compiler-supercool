@@ -8,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
-        public MipsProgram VisitAddConstantVariable(ASTCILAddConstantVariableNode AddConstantVariable)
+        public MipsProgram VisitAddConstantVariable( ASTCILAddConstantVariableNode AddConstantVariable )
         {
             var rigth = AddConstantVariable.Right.Accept(this);
             var add = new MipsProgram();
@@ -16,17 +16,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return rigth + add;
         }
 
-        public MipsProgram VisitAddTwoConstant(ASTCILAddTwoConstantNode AddTwoConstant)
+        public MipsProgram VisitAddTwoConstant( ASTCILAddTwoConstantNode AddTwoConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadConstant( MipsRegisterSet.a0, AddTwoConstant.Left ).Add( MipsRegisterSet.a0, AddTwoConstant.Right ) );
+            return result;
         }
 
-        public MipsProgram VisitAddTwoVariables(ASTCILAddTwoVariablesNode AddTwoVariables)
+        public MipsProgram VisitAddTwoVariables( ASTCILAddTwoVariablesNode AddTwoVariables )
         {
-            throw new NotImplementedException();
+            var left = AddTwoVariables.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript().Push( MipsRegisterSet.a0 ) );
+            var right = AddTwoVariables.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript().Pop( MipsRegisterSet.t0 ).Add( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+            return left + right;
         }
 
-        public MipsProgram VisitAddVariableConstant(ASTCILAddVariableConstantNode AddVariableConstant)
+        public MipsProgram VisitAddVariableConstant( ASTCILAddVariableConstantNode AddVariableConstant )
         {
             var left = AddVariableConstant.Left.Accept(this);
             var add = new MipsProgram();
@@ -34,17 +40,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return left + add;
         }
 
-        public MipsProgram VisitAllocate(ASTCILAllocateNode Allocate)
+        public MipsProgram VisitAllocate( ASTCILAllocateNode Allocate )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitAssignment(ASTCILAssignmentNode Assignment)
+        public MipsProgram VisitAssignment( ASTCILAssignmentNode Assignment )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBlock(ASTCILBlockNode Block)
+        public MipsProgram VisitBlock( ASTCILBlockNode Block )
         {
             var result = new MipsProgram();
             foreach (var item in Block.Expressions)
@@ -52,52 +58,52 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitBoolConstant(ASTCILBoolConstantNode BoolConstant)
+        public MipsProgram VisitBoolConstant( ASTCILBoolConstantNode BoolConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBoolNot(ASTCILBoolNotNode BoolNot)
+        public MipsProgram VisitBoolNot( ASTCILBoolNotNode BoolNot )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBoolOrConstantVariable(ASTCILBoolOrConstantVariableNode BoolOrConstantVariable)
+        public MipsProgram VisitBoolOrConstantVariable( ASTCILBoolOrConstantVariableNode BoolOrConstantVariable )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBoolOrTwoConstant(ASTCILBoolOrTwoConstantNode BoolOrTwoConstant)
+        public MipsProgram VisitBoolOrTwoConstant( ASTCILBoolOrTwoConstantNode BoolOrTwoConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBoolOrTwoVariables(ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables)
+        public MipsProgram VisitBoolOrTwoVariables( ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitBoolOrVariableConstant(ASTCILBoolOrVariableConstantNode BoolOrVariableConstant)
+        public MipsProgram VisitBoolOrVariableConstant( ASTCILBoolOrVariableConstantNode BoolOrVariableConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitDivideConstantVariable(ASTCILDivideConstantVariableNode DivideConstantVariable)
+        public MipsProgram VisitDivideConstantVariable( ASTCILDivideConstantVariableNode DivideConstantVariable )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitDivideTwoConstant(ASTCILDivideTwoConstantNode DivideTwoConstant)
+        public MipsProgram VisitDivideTwoConstant( ASTCILDivideTwoConstantNode DivideTwoConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitDivideTwoVariables(ASTCILDivideTwoVariablesNode DivideTwoVariables)
+        public MipsProgram VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitDivideVariableConstant(ASTCILDivideVariableConstantNode DivideVariableConstant)
+        public MipsProgram VisitDivideVariableConstant( ASTCILDivideVariableConstantNode DivideVariableConstant )
         {
             throw new NotImplementedException();
         }
@@ -107,87 +113,87 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitFunc(ASTCILFuncNode Func)
+        public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitFuncStaticCall(ASTCILFuncStaticCallNode FuncStaticCall)
+        public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitFuncVirtualCall(ASTCILFuncVirtualCallNode FuncVirtualCall)
+        public MipsProgram VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitGetAttr(ASTCILGetAttrNode GetAttr)
+        public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitGoto(ASTCILGotoNode Goto)
+        public MipsProgram VisitGoto( ASTCILGotoNode Goto )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitId(ASTCILIdNode Id)
+        public MipsProgram VisitId( ASTCILIdNode Id )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIf(ASTCILIfNode If)
+        public MipsProgram VisitIf( ASTCILIfNode If )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIntConstant(ASTCILIntConstantNode IntConstant)
+        public MipsProgram VisitIntConstant( ASTCILIntConstantNode IntConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIOInInt(ASTCILIOInIntNode IOInInt)
+        public MipsProgram VisitIOInInt( ASTCILIOInIntNode IOInInt )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIOInString(ASTCILIOInStringNode IOInString)
+        public MipsProgram VisitIOInString( ASTCILIOInStringNode IOInString )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIOOutInt(ASTCILIOOutIntNode IOOutInt)
+        public MipsProgram VisitIOOutInt( ASTCILIOOutIntNode IOOutInt )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIOOutString(ASTCILIOOutStringNode IOOutString)
+        public MipsProgram VisitIOOutString( ASTCILIOOutStringNode IOOutString )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitIsVoid(ASTCILIsVoidNode IsVoid)
+        public MipsProgram VisitIsVoid( ASTCILIsVoidNode IsVoid )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLessThanConstantVariable(ASTCILLessThanConstantVariableNode LessThanConstantVariable)
+        public MipsProgram VisitLessThanConstantVariable( ASTCILLessThanConstantVariableNode LessThanConstantVariable )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLessThanTwoConstant(ASTCILLessThanTwoConstantNode LessThanTwoConstant)
+        public MipsProgram VisitLessThanTwoConstant( ASTCILLessThanTwoConstantNode LessThanTwoConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLessThanTwoVariables(ASTCILLessThanTwoVariablesNode LessThanTwoVariables)
+        public MipsProgram VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitLessThanVariableConstant(ASTCILLessThanVariableConstantNode LessThanVariableConstant)
+        public MipsProgram VisitLessThanVariableConstant( ASTCILLessThanVariableConstantNode LessThanVariableConstant )
         {
             throw new NotImplementedException();
         }
@@ -197,47 +203,47 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMinusTwoConstant(ASTCILMinusTwoConstantNode MinusTwoConstant)
+        public MipsProgram VisitMinusTwoConstant( ASTCILMinusTwoConstantNode MinusTwoConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMinusTwoVariables(ASTCILMinusTwoVariablesNode MinusTwoVariables)
+        public MipsProgram VisitMinusTwoVariables( ASTCILMinusTwoVariablesNode MinusTwoVariables )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMinusVariableConstant(ASTCILMinusVariableConstantNode MinusVariableConstant)
+        public MipsProgram VisitMinusVariableConstant( ASTCILMinusVariableConstantNode MinusVariableConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMultiplyConstantVariable(ASTCILMultiplyConstantVariableNode MultiplyConstantVariable)
+        public MipsProgram VisitMultiplyConstantVariable( ASTCILMultiplyConstantVariableNode MultiplyConstantVariable )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMultiplyTwoConstant(ASTCILMultiplyTwoConstantNode MultiplyTwoConstant)
+        public MipsProgram VisitMultiplyTwoConstant( ASTCILMultiplyTwoConstantNode MultiplyTwoConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMultiplyTwoVariables(ASTCILMultiplyTwoVariablesNode MultiplyTwoVariables)
+        public MipsProgram VisitMultiplyTwoVariables( ASTCILMultiplyTwoVariablesNode MultiplyTwoVariables )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMultiplyVariableConstant(ASTCILMultiplyVariableConstantNode MultiplyVariableConstant)
+        public MipsProgram VisitMultiplyVariableConstant( ASTCILMultiplyVariableConstantNode MultiplyVariableConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitNew(ASTCILNewNode New)
+        public MipsProgram VisitNew( ASTCILNewNode New )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitNode(ASTCILNode Node)
+        public MipsProgram VisitNode( ASTCILNode Node )
         {
             throw new NotImplementedException();
         }
@@ -247,32 +253,32 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitRuntimeError(ASTCILRuntimeErrorNode RuntimeError)
+        public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitSelf(ASTCILSelfNode Self)
+        public MipsProgram VisitSelf( ASTCILSelfNode Self )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitSetAttribute(ASTCILSetAttributeNode SetAttribute)
+        public MipsProgram VisitSetAttribute( ASTCILSetAttributeNode SetAttribute )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
+        public MipsProgram VisitStringConstant( ASTCILStringConstantNode StringConstant )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitType(ASTCILTypeNode Type)
+        public MipsProgram VisitType( ASTCILTypeNode Type )
         {
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitVoid(ASTCILVoidNode Void)
+        public MipsProgram VisitVoid( ASTCILVoidNode Void )
         {
             throw new NotImplementedException();
         }

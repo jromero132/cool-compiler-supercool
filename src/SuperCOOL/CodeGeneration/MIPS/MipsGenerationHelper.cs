@@ -138,11 +138,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
         }
         public MipsGenerationHelper Add( Register r, object v ) => this.Add( r, v, r ); // r <- r + v
 
-        public MipsGenerationHelper Add_ConstantConstant( int c1, int c2 ) => this.PushConstant( c1 )
-                                                                             .LoadConstant( MipsRegisterSet.a0, c2 )
-                                                                             .Pop( MipsRegisterSet.t0 )
-                                                                             .Add( MipsRegisterSet.a0, MipsRegisterSet.t0 );
-
 
         // Sub instruction
         public MipsGenerationHelper Sub( Register r, object v, Register r_out ) // r_out <- r - v
@@ -151,10 +146,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
         public MipsGenerationHelper Sub( Register r, object v ) => this.Sub( r, v, r ); // r <- r - v
-        public MipsGenerationHelper Sub_ConstantConstant( int c1, int c2 ) => this.PushConstant( c1 )
-                                                                             .LoadConstant( MipsRegisterSet.a0, c2 )
-                                                                             .Pop( MipsRegisterSet.t0 )
-                                                                             .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 );
 
         // Mul instruction
         public MipsGenerationHelper Mul( Register r, object v, Register r_out ) // r_out <- r * v
@@ -163,10 +154,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
         public MipsGenerationHelper Mul( Register r, object v ) => this.Mul( r, v, r ); // r <- r * v
-        public MipsGenerationHelper Mul_ConstantConstant( int c1, int c2 ) => this.PushConstant( c1 )
-                                                                             .LoadConstant( MipsRegisterSet.a0, c2 )
-                                                                             .Pop( MipsRegisterSet.t0 )
-                                                                             .Mul( MipsRegisterSet.a0, MipsRegisterSet.t0 );
 
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v
@@ -174,9 +161,5 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"div { r }, { v }{ ENDL }";
             return this;
         }
-        public MipsGenerationHelper Div_ConstantConstant( int c1, int c2 ) => this.PushConstant( c1 )
-                                                                             .LoadConstant( MipsRegisterSet.a0, c2 )
-                                                                             .Pop( MipsRegisterSet.t0 )
-                                                                             .Div( MipsRegisterSet.t0, MipsRegisterSet.a0 );
     }
 }

@@ -58,7 +58,8 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             // Code
             Helper.CreateFile( file_name,
                 MipsGenerationHelper.NewScript().TextSection().MainTag()
-               .Add_ConstantConstant( 13, 2 )
+               .LoadConstant( MipsRegisterSet.a0, 13 )
+               .Add( MipsRegisterSet.a0, 2 )
                .PrintInt()
                .Exit()
                 );
