@@ -11,7 +11,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const int TRUE = 1, FALSE = 0, NULL = 0;
 
         private static readonly string ENDL = Environment.NewLine;
-
+        internal static readonly int SelfOffset=4;
         private string body;
 
         private MipsGenerationHelper( string body = "" ) => this.body = body;
@@ -108,9 +108,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper LoadMemory( Register r, object d ) // r <- (d)
+        public MipsGenerationHelper LoadMemory( Register r, object d,int offset=0) // r <- (d)
         {
-            this.body += $"lw { r }, ({ d }){ ENDL }";
+            this.body += $"lw { r }, {offset}({ d }){ ENDL }";
             return this;
         }
 
