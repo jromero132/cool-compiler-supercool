@@ -242,11 +242,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitParam(ASTCILParamNode Param)
-        {
-            throw new NotImplementedException();
-        }
-
         public MipsProgram VisitProgram(ASTCILProgramNode Program)
         {
             throw new NotImplementedException();

@@ -50,7 +50,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitMultiplyVariableConstant( ASTCILMultiplyVariableConstantNode MultiplyVariableConstant );
         Result VisitNew( ASTCILNewNode New );
         Result VisitNode( ASTCILNode Node );
-        Result VisitParam( ASTCILParamNode Param );
         Result VisitProgram( ASTCILProgramNode Program );
         Result VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError );
         Result VisitSetAttribute( ASTCILSetAttributeNode SetAttribute );

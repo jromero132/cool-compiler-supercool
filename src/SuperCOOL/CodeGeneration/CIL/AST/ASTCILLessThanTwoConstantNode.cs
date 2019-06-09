@@ -1,4 +1,5 @@
 ﻿using SuperCOOL.Constants;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
@@ -7,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public int Left { get; }
         public int Right { get; }
 
-        public ASTCILLessThanTwoConstantNode( int left, int right ) : base( Types.Bool )
+        public ASTCILLessThanTwoConstantNode( int left, int right, ISymbolTable symbolTable ) : base( symbolTable )
         {
             Left = left;
             Right = right;
