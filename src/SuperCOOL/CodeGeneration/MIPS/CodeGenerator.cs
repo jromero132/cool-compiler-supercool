@@ -105,7 +105,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitDivideTwoConstant( ASTCILDivideTwoConstantNode DivideTwoConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.a0, DivideTwoConstant.Right )
+                                                           .Div( MipsRegisterSet.a0, DivideTwoConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables )
