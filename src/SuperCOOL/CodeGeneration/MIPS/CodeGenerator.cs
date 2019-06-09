@@ -221,7 +221,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMinusTwoVariables( ASTCILMinusTwoVariablesNode MinusTwoVariables )
         {
-            throw new NotImplementedException();
+            var left = MinusTwoVariables.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                        .Push( MipsRegisterSet.a0 ) );
+
+            var right = MinusTwoVariables.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Pop( MipsRegisterSet.t0 )
+                                                         .Sub( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
+
+            return left + right;
         }
 
         public MipsProgram VisitMinusVariableConstant( ASTCILMinusVariableConstantNode MinusVariableConstant )
