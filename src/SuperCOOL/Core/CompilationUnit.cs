@@ -34,7 +34,7 @@ namespace SuperCOOL.Core
             MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Substr, new List<CoolType>() { TypeEnvironment.Int, TypeEnvironment.Int }, TypeEnvironment.String);
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InInt, new List<CoolType>(), TypeEnvironment.Int);
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutInt, new List<CoolType>() { TypeEnvironment.Int }, new SelfType(TypeEnvironment.IO));
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InInt, new List<CoolType>(), TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InString, new List<CoolType>(), TypeEnvironment.String);
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutString, new List<CoolType>() { TypeEnvironment.String }, new SelfType(TypeEnvironment.IO));
         }
 
