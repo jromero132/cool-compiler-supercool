@@ -220,9 +220,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            //TODO add self
             return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method.Text,
-                OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
+                Enumerable.Repeat(new ASTCILSelfNode(), 1)
+                    .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
         }
 
         public ASTCILNode VisitMinus(ASTMinusNode Minus)
