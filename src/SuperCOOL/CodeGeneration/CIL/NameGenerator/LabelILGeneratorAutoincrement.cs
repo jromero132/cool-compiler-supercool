@@ -11,9 +11,10 @@ namespace SuperCOOL.NameGenerator
         private int ifIndex { get; set; }
         private int caseIndex { get; set; }
         private int variableIndex { get; set; }
+        private int stringData { get; set; }
         public LabelILGeneratorAutoincrement()
         {
-            ifIndex = caseIndex = variableIndex = 0;
+            ifIndex = caseIndex = variableIndex = stringData = 0;
         }
 
         public string GenerateVariable()
@@ -21,9 +22,9 @@ namespace SuperCOOL.NameGenerator
             return $"_var_{variableIndex++}";
         }
 
-        public string GenerateIf()
+        public (string end, string @else) GenerateIf()
         {
-            return $"_if_{ifIndex++}";
+            return ($"_end_if_{ifIndex}", $"_else_if_{ifIndex++}");
         }
 
         public (string varInit, string endOfCase) GenerateCase()
@@ -39,6 +40,16 @@ namespace SuperCOOL.NameGenerator
         public string GenerateInit(string classTypeName)
         {
             return $"{classTypeName}__init";
+        }
+
+        public string GenerateStringData()
+        {
+            return $"_string_{stringData++}";
+        }
+
+        public string GenerateEmptyStringData()
+        {
+            return $"_string_empty";
         }
     }
 }

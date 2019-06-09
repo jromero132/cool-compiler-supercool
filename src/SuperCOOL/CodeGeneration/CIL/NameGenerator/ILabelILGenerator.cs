@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SuperCOOL.Core;
-
-namespace SuperCOOL
+﻿namespace SuperCOOL
 {
     public interface ILabelILGenerator
     {
         string GenerateVariable();
-        string GenerateIf();
+        (string end, string @else) GenerateIf();
         (string varInit, string endOfCase) GenerateCase();
-        string GenerateFunc( string className, string methodName );
-        string GenerateInit( string classTypeName );
+        string GenerateFunc(string className, string methodName);
+        string GenerateInit(string classTypeName);
+        string GenerateStringData();
+        string GenerateEmptyStringData();
     }
 }
