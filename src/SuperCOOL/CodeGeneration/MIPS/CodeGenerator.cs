@@ -96,7 +96,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitDivideConstantVariable( ASTCILDivideConstantVariableNode DivideConstantVariable )
         {
-            throw new NotImplementedException();
+            var result = DivideConstantVariable.Right.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Div( MipsRegisterSet.a0, DivideConstantVariable.Left ) );
+            return result;
         }
 
         public MipsProgram VisitDivideTwoConstant( ASTCILDivideTwoConstantNode DivideTwoConstant )
