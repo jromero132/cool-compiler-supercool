@@ -114,7 +114,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBoolOrVariableConstant( ASTCILBoolOrVariableConstantNode BoolOrVariableConstant )
         {
-            throw new NotImplementedException();
+            var result = BoolOrVariableConstant.Accept( this );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .OrConstant( MipsRegisterSet.a0, BoolOrVariableConstant.Right ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+            return result;
         }
 
         public MipsProgram VisitDivideConstantVariable( ASTCILDivideConstantVariableNode DivideConstantVariable )
