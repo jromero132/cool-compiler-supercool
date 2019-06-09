@@ -298,7 +298,7 @@ namespace SuperCOOL.CodeGeneration
                     new ASTCILIntConstantNode(0));
             if (coolType.Equals(compilationUnit.TypeEnvironment.String))
                 return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
-                    new ASTCILStringConstantNode(""));
+                    new ASTCILStringConstantNode("", labelIlGenerator.GenerateEmptyStringData()));
             if (coolType.Equals(compilationUnit.TypeEnvironment.Bool))
                 return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
                     new ASTCILBoolConstantNode(false));
@@ -307,7 +307,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitStringConstant(ASTStringConstantNode StringConstant)
         {
-            return new ASTCILStringConstantNode(StringConstant.Value);
+            return new ASTCILStringConstantNode(StringConstant.Value, labelIlGenerator.GenerateStringData());
         }
 
         public ASTCILNode VisitWhile(ASTWhileNode While)
@@ -316,7 +316,7 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILIfNode((ASTCILExpressionNode) While.Condition.Accept(this),
                 new ASTCILBlockNode(new[]
                 {
-                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel)
+                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.end)
                 }),
                 new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), ifLabel) { Type = Types.Void };
         }
