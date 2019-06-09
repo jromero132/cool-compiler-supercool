@@ -255,7 +255,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitMultiplyTwoConstant( ASTCILMultiplyTwoConstantNode MultiplyTwoConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .LoadConstant( MipsRegisterSet.a0, MultiplyTwoConstant.Left )
+                                                          .Mul( MipsRegisterSet.a0, MultiplyTwoConstant.Right ) );
+            return result;
         }
 
         public MipsProgram VisitMultiplyTwoVariables( ASTCILMultiplyTwoVariablesNode MultiplyTwoVariables )
