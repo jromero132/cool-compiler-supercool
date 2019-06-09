@@ -70,8 +70,11 @@ namespace SuperCOOL.CodeGeneration
                 foreach (var caseSubExpression in Case.Cases)
                 {
                     caseExpressions.Add(new ASTCILIfNode(
-                        new ASTCILEqualNode(new ASTCILStringConstantNode(caseExpressionType),
-                            new ASTCILStringConstantNode(caseExpression.Type))
+                        (ASTCILExpressionNode) new ASTEqualNode
+                        {
+                            Left = new ASTStringConstantNode { Value = caseExpressionType },
+                            Right = new ASTStringConstantNode { Value = caseExpression.Type }
+                        }.Accept(this)
                         , new ASTCILBlockNode
                         (
                             new[]
