@@ -1,16 +1,21 @@
 ﻿using SuperCOOL.CodeGeneration.CIL;
 using SuperCOOL.CodeGeneration.CIL.AST;
 using SuperCOOL.CodeGeneration.MIPS.Registers;
-using SuperCOOL.CodeGeneration.CIL;
 using System;
+using SuperCOOL.Core;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
         private ILabelILGenerator labelGenerator;
-        public CodeGenerator( ILabelILGenerator labelGenerator ) => this.labelGenerator = labelGenerator;
+        public CompilationUnit CompilationUnit { get; }
 
+        public CodeGenerator(ILabelILGenerator labelGenerator, CompilationUnit compilationUnit)
+        {
+            this.labelGenerator = labelGenerator;
+            this.CompilationUnit = compilationUnit;
+        }
 
         public MipsProgram VisitAddConstantVariable( ASTCILAddConstantVariableNode AddConstantVariable )
         {
@@ -174,6 +179,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
+        //TODO only one call
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
             throw new NotImplementedException();
@@ -186,7 +192,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            //moving self to a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.sp, MipsGenerationHelper.SelfOffset));
+            var type=CompilationUnit.TypeEnvironment.GetContextType(GetAttr.SymbolTable);
+            var attroffset = type.GetOffsetForAttribute(GetAttr.AttributeName);
+            //moving self.attr to a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
+            return result;
         }
 
         public MipsProgram VisitGoto( ASTCILGotoNode Goto )
