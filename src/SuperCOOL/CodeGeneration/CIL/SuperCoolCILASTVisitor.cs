@@ -186,7 +186,7 @@ namespace SuperCOOL.CodeGeneration
             {
                 new ASTCILLocalNode(x.Id.Text, x.Type.Text),
                 new ASTCILAssignmentNode(x.Id.Text, (ASTCILExpressionNode) x.Expression.Accept(this))
-            }).Concat(Enumerable.Repeat((ASTCILExpressionNode) LetIn.LetExp.Accept(this), 1)));
+            }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)));
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
@@ -205,7 +205,7 @@ namespace SuperCOOL.CodeGeneration
                 new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
                 new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncStaticCallNode(
                     MethodCall.MethodName, MethodCall.Type.Text,
-                    Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
+                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
                         .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
                 labelIlGenerator.GenerateIf());
         }
@@ -216,7 +216,7 @@ namespace SuperCOOL.CodeGeneration
                 new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
                 new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(
                     MethodCall.MethodName,
-                    Enumerable.Repeat((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this), 1)
+                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
                         .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
                 labelIlGenerator.GenerateIf());
         }
@@ -224,7 +224,7 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method.Text,
-                Enumerable.Repeat(new ASTCILSelfNode(), 1)
+                    new[] { new ASTCILSelfNode() }
                     .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
         }
 
@@ -271,13 +271,10 @@ namespace SuperCOOL.CodeGeneration
                 type = selftype.ContextType.Name;
             }
 
-            var variableName = labelIlGenerator.GenerateVariable();
-            var localVariable = new ASTCILLocalNode(variableName, type);
             return new ASTCILBlockNode(new ASTCILExpressionNode[]
             {
-                localVariable,
-                new ASTCILAllocateNode(type, localVariable),
-                new ASTCILFuncVirtualCallNode(labelIlGenerator.GenerateInit(type), Enumerable.Repeat(localVariable, 1))
+                new ASTCILAllocateNode(type),
+                new ASTCILFuncVirtualCallNode(labelIlGenerator.GenerateInit(type),Enumerable.Empty<ASTCILExpressionNode>())
             });
         }
 
@@ -318,7 +315,7 @@ namespace SuperCOOL.CodeGeneration
                 {
                     (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.end)
                 }),
-                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), ifLabel) { Type = Types.Void };
+                new ASTCILVoidNode(), ifLabel) { Type = Types.Void };
         }
 
         public ASTCILNode VisitId(ASTIdNode Id)

@@ -2,10 +2,8 @@
 {
     public class ASTCILAllocateNode : ASTCILExpressionNode
     {
-        public ASTCILLocalNode Variable { get; }
-        public ASTCILAllocateNode( string type, ASTCILLocalNode variable ) : base( type )
+        public ASTCILAllocateNode( string type ) : base( type )
         {
-            Variable = variable;
         }
 
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitAllocate( this );
