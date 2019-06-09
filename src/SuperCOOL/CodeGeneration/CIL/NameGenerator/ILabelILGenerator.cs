@@ -5,12 +5,12 @@ using SuperCOOL.Core;
 
 namespace SuperCOOL
 {
-    interface ILabelILGenerator
+    public interface ILabelILGenerator
     {
         string GenerateVariable();
         string GenerateIf();
         (string varInit, string endOfCase) GenerateCase();
-        string GenerateFunc(string className,string methodName);
-        string GenerateInit(string classTypeName);
+        string GenerateFunc( string className, string methodName );
+        string GenerateInit( string classTypeName );
     }
 }

@@ -6,6 +6,7 @@ namespace SuperCOOL.CodeGeneration.CIL
     {
         Result VisitAddConstantVariable( ASTCILAddConstantVariableNode AddConstantVariable );
         Result VisitAddTwoConstant( ASTCILAddTwoConstantNode AddTwoConstant );
+        Result VisitSelf( ASTCILSelfNode Self );
         Result VisitAddTwoVariables( ASTCILAddTwoVariablesNode AddTwoVariables );
         Result VisitAddVariableConstant( ASTCILAddVariableConstantNode AddVariableConstant );
         Result VisitAllocate( ASTCILAllocateNode Allocate );
@@ -17,8 +18,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitBoolOrTwoConstant( ASTCILBoolOrTwoConstantNode BoolOrTwoConstant );
         Result VisitBoolOrTwoVariables( ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables );
         Result VisitBoolOrVariableConstant( ASTCILBoolOrVariableConstantNode BoolOrVariableConstant );
-        Result VisitCode( ASTCILCodeNode Code );
-        Result VisitData( ASTCILDataNode Data );
         Result VisitDivideConstantVariable( ASTCILDivideConstantVariableNode DivideConstantVariable );
         Result VisitDivideTwoConstant( ASTCILDivideTwoConstantNode DivideTwoConstant );
         Result VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables );

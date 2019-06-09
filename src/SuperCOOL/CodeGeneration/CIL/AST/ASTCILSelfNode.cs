@@ -4,7 +4,8 @@ using System.Text;
 
 namespace SuperCOOL.CodeGeneration.CIL.AST
 {
-    class ASTCILSelfNode : ASTCILExpressionNode
+    public class ASTCILSelfNode : ASTCILExpressionNode
     {
+        public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitSelf( this );
     }
 }
