@@ -66,7 +66,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBoolConstant( ASTCILBoolConstantNode BoolConstant )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadConstant( MipsRegisterSet.a0, BoolConstant.Value ? MipsProgram.TRUE : MipsProgram.FALSE ) );
+            return result;
         }
 
         public MipsProgram VisitBoolNot( ASTCILBoolNotNode BoolNot )
