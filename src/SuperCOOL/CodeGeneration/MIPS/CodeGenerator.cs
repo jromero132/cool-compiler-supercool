@@ -100,7 +100,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBoolOrTwoVariables( ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables )
         {
-            throw new NotImplementedException();
+            var left = BoolOrTwoVariables.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Push( MipsRegisterSet.a0 ) );
+
+            var right = BoolOrTwoVariables.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Pop( MipsRegisterSet.t0 )
+                                                          .Or( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+
+            return left + right;
         }
 
         public MipsProgram VisitBoolOrVariableConstant( ASTCILBoolOrVariableConstantNode BoolOrVariableConstant )
