@@ -160,7 +160,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitExpression(ASTCILExpressionNode Expression)
+        public MipsProgram VisitExpression( ASTCILExpressionNode Expression )
         {
             return Expression.Accept( this );
         }
@@ -200,7 +200,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIf( ASTCILIfNode If )
         {
-            throw new NotImplementedException();
+            var else_label = If.Label + "_else";
+            var end_label = If.Label + "_end";
+
+            var @if = If.Condition.Accept( this );
+            @if.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                        .Equals( MipsRegisterSet.a0, MipsProgram.FALSE, else_label ) );
+
+            var then = If.Then.Accept( this );
+            then.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Jump( end_label )
+                                                         .Tag( else_label ) );
+
+            var @else = If.Else.Accept( this );
+            @else.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Tag( end_label ) );
+
+            return @if + then + @else;
         }
 
         public MipsProgram VisitIntConstant( ASTCILIntConstantNode IntConstant )

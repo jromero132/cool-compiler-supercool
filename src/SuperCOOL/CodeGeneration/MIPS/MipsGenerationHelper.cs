@@ -142,6 +142,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper PushConstant( int c ) => this.LoadConstant( MipsRegisterSet.a0, c )
                                                             .Push( MipsRegisterSet.a0 );
 
+
+        // Boolean operators
+        public MipsGenerationHelper Equals( Register r, object v, string label )
+        {
+            this.body += $"beq { r }, { v }, { label }{ ENDL }";
+            return this;
+        }
+
+
         // Bitwise operators
         public MipsGenerationHelper Or( Register r1, Register r2, Register r_out )
         {
