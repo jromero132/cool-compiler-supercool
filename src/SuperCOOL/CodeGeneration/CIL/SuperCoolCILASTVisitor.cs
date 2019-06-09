@@ -36,9 +36,12 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
-            //TODO setattr if is a field and localAssigment if not
-            return new ASTCILAssignmentNode(Assigment.Id.Name,
-                (ASTCILExpressionNode) Assigment.Expresion.Accept(this));
+            Assigment.SymbolTable.IsDefObject(Assigment.Id.Name, out var symbolInfo);
+
+            return symbolInfo.Kind == ObjectKind.Atribute
+                ? (ASTCILNode) new ASTCILSetAttributeNode(symbolInfo.Name, symbolInfo.Type,
+                    (ASTCILExpressionNode) Assigment.Expresion.Accept(this))
+                : new ASTCILAssignmentNode(Assigment.Id.Name, (ASTCILExpressionNode) Assigment.Expresion.Accept(this));
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
@@ -217,9 +220,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            //TODO add self
             return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method.Text,
-                OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
+                Enumerable.Repeat(new ASTCILSelfNode(), 1)
+                    .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
         }
 
         public ASTCILNode VisitMinus(ASTMinusNode Minus)
