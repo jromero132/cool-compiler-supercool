@@ -11,8 +11,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const int TRUE = 1, FALSE = 0, NULL = 0;
 
         private static readonly string ENDL = Environment.NewLine;
+
+        //Variable
         internal static readonly int TypeInfoOffest=-4;
-        internal static readonly int SelfOffset=4;
+
+        //TypeInfo
+        public const int TypeNameOffset=0;
+        public const int SizeOfOffset=4;
+        public const int VirtualTableOffset=8;
+
         private string body;
 
         private MipsGenerationHelper( string body = "" ) => this.body = body;
