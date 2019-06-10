@@ -4,6 +4,7 @@ using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
 using SuperCOOL.Core;
 using System.Linq;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -305,14 +306,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
         {
             var result = new MipsProgram();
+            var label = labelGenerator.GenerateFunc(Types.Object,Functions.Type_Name);
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(label)); 
             //moving self to a0
-            result.SectionFunctions.Append();//TODO put label here 
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
             //moving self.typeInfo to a0
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
             //moving self.typeInfo.Name to a0
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeNameOffset));
-            result.SectionFunctions.Append();//TODO put return here 
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
 
             return result;
         }
