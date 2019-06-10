@@ -27,7 +27,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public override string ToString()
         {
-            return new StringBuilder().Append(".data").Append(SectionData).Append(".text").Append(SectionCode).Append(SectionFunctions).ToString();
+            return new StringBuilder().Append(MipsGenerationHelper.NewScript().DataSection()).Append(SectionData)
+                                        .Append(MipsGenerationHelper.NewScript().TextSection()).Append(SectionCode).Append(SectionFunctions).ToString();
         }
     }
 }
