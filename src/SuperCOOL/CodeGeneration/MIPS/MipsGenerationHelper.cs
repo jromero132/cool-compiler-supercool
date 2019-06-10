@@ -56,7 +56,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Tags
-        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // main:
+        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // { tag_name }:
         {
             this.body += $"{ tag_name }:{ offset }{ ( end_line ? ENDL : "" ) }";
             return this;
@@ -68,7 +68,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Data Types
         public MipsGenerationHelper AddData( string name,IEnumerable<(string type, object value )> args)
         {
-            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( ( x, y ) => $".{ x } { y }" ) ) }{ ENDL }";
+            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( x => $".{ x.type } { x.value }" ) ) }{ ENDL }";
             return this;
         }
 
