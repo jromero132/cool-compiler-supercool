@@ -456,5 +456,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             throw new NotImplementedException();
         }
+
+        public MipsProgram VisitStringConcat(ASTCILStringConcatNode stringConcat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public MipsProgram VisitStringSubStr(ASTCILStringSubStrNode stringSubStr)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

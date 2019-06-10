@@ -314,11 +314,13 @@ namespace SuperCOOL.CodeGeneration
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
                         new []
                         {
+                            //Length function
                             new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.String, Functions.Length), new[]
                             {
-                                //Length function
-                                new ASTCILGetAttrNode(Types.String, Attributes.StringLength, Program.SymbolTable),
+                                new ASTCILGetAttrNode(Types.String, Attributes.StringLength, Program.SymbolTable)
                             }, Program.SymbolTable),
+                            new ASTCILStringConcatNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILStringSubStrNode(labelIlGenerator, Program.SymbolTable),
                         }, Program.SymbolTable)), Program.SymbolTable
             );
         }
