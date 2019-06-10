@@ -298,7 +298,7 @@ namespace SuperCOOL.CodeGeneration
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
                         Enumerable.Empty<SymbollInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
-                        new []
+                        new[]
                         {
                             //Abort function
                             new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.Object, Functions.Abort),
@@ -307,11 +307,16 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable),
                             new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
                         }, Program.SymbolTable))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String, Enumerable.Empty<SymbollInfo>(),
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String,
+                        new[] { new SymbollInfo(Attributes.StringLength, Types.String, ObjectKind.Atribute), },
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
-                        new ASTCILFuncNode[]
+                        new []
                         {
-
+                            new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.String, Functions.Length), new[]
+                            {
+                                //Length function
+                                new ASTCILGetAttrNode(Types.String, Attributes.StringLength, Program.SymbolTable),
+                            }, Program.SymbolTable),
                         }, Program.SymbolTable)), Program.SymbolTable
             );
         }
