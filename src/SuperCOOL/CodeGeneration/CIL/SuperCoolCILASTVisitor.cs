@@ -172,7 +172,7 @@ namespace SuperCOOL.CodeGeneration
             {
                 new ASTCILAssignmentNode(x.Id.Text,
                     (ASTCILExpressionNode) x.Expression?.Accept(this) ??
-                    new ASTCILNewNode(x.Type.Text, LetIn.SymbolTable), LetIn.SymbolTable)
+                    (ASTCILExpressionNode) new ASTNewNode(){Type=x.Type }.Accept(this), LetIn.SymbolTable)
             }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)), LetIn.SymbolTable);
         }
 

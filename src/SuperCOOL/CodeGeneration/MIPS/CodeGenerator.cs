@@ -194,7 +194,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitId( ASTCILIdNode Id )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.
         }
 
         public MipsProgram VisitIf( ASTCILIfNode If )
@@ -281,11 +282,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                           .Mul( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
 
             return left + right;
-        }
-
-        public MipsProgram VisitNew( ASTCILNewNode New )
-        {
-            throw new NotImplementedException();
         }
 
         public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
