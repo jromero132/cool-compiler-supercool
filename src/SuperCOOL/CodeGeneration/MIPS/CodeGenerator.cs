@@ -108,12 +108,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
+            var locals = Func.SymbolTable.GetLocals().Where(x => x.Kind == ObjectKind.Local).Select((x,i)=>x.Offset=4*i);
+            var parameters = Func.SymbolTable.AllDefinedObjects().Where(x => x.Kind == ObjectKind.Parameter).Select((x, i) => x.Offset = 4 * (i+1));
+
             var result = new MipsProgram();
             var body = Func.Accept(this);
             var contextType = CompilationUnit.TypeEnvironment.GetContextType(Func.SymbolTable);
             var tag = labelGenerator.GenerateFunc(contextType.Name, Func.Name);
 
-            var off=Func.SymbolTable.GetLocals().Count*4;
+            var off=locals.Count()*4;
 
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(tag));
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp,off,MipsRegisterSet.sp));
@@ -194,8 +197,21 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitId( ASTCILIdNode Id )
         {
+            var locals=Id.SymbolTable.IsDefObject(Id.Name,out var info);
             var result = new MipsProgram();
-            result.
+            if (info.Kind == ObjectKind.Local)
+            {
+                result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                            .GetLocal(info.Offset)
+                                            );
+            }
+            if (info.Kind == ObjectKind.Parameter)
+            {
+                result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                            .GetParam(info.Offset)
+                                            );
+            }
+            return result;
         }
 
         public MipsProgram VisitIf( ASTCILIfNode If )

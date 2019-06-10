@@ -330,6 +330,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitId(ASTIdNode Id)
         {
+             Id.SymbolTable.IsDefObject(Id.Name, out var info);
+            if (info.Kind == ObjectKind.Atribute)
+                return new ASTCILGetAttrNode(info.Type, info.Name, Id.SymbolTable);
             return new ASTCILIdNode(Id.Name,Id.SymbolTable);
         }
 
