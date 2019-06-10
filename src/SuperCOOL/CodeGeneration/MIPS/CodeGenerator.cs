@@ -110,9 +110,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             var body = Func.Accept(this);
-            result.SectionFunctions.Append();//TODO put label here 
+            var contextType = CompilationUnit.TypeEnvironment.GetContextType(Func.SymbolTable);
+            var tag = labelGenerator.GenerateFunc(contextType.Name, Func.Name);
+
+            var off=Func.SymbolTable.GetLocals().Count*4;
+
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(tag));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp,off,MipsRegisterSet.sp));
             result.SectionFunctions.Append(body.SectionCode);
-            result.SectionFunctions.Append();//TODO put return here 
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
 
             return result;
         }
