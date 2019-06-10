@@ -240,9 +240,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitIOInInt( ASTCILIOInIntNode IOInInt )
         {
             var result = new MipsProgram();
-            result.
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .ReadInt( MipsRegisterSet.a0 ) );
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(IOInInt.Name));
+            result.SectionFunctions.Append( MipsGenerationHelper.NewScript().ReadInt( MipsRegisterSet.a0 ) );
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
             return result;
         }
 
