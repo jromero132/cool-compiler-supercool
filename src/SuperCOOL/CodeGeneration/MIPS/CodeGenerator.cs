@@ -5,6 +5,7 @@ using System;
 using SuperCOOL.Core;
 using System.Linq;
 using SuperCOOL.Constants;
+using System.Collections.Generic;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -301,9 +302,31 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
 
-        public MipsProgram VisitProgram( ASTCILProgramNode Program )
+        public MipsProgram VisitProgram(ASTCILProgramNode Program )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+
+            var bufferlabel = labelGenerator.GetBuffer();
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(bufferlabel));
+            result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(bufferlabel,new[] {MipsGenerationHelper.AddDynamycString(MipsGenerationHelper.BufferSize)}));
+
+            List<string> all = new List<string>(); 
+            foreach (var item in RuntimeErrors.GetRuntimeErrorString)
+            {
+                var exception = labelGenerator.GetException();
+                all.Add(exception);
+                result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(exception));
+                result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(exception, new[] { MipsGenerationHelper.AddStringData(item.Value) }));
+            }
+
+            var exceptions = MipsGenerationHelper.Exceptions;
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(exceptions));
+            result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(exceptions, all.Select(x => MipsGenerationHelper.AddIntData(x))));
+
+            foreach (var item in Program.Types)
+                result += item.Accept(this);
+
+            return result;
         }
 
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
