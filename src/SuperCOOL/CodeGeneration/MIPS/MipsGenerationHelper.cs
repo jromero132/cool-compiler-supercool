@@ -144,7 +144,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsGenerationHelper LoadFromMemory( Register r, object d, int offset = 0 ) // r <- (d)
         {
-            this.body += $"lw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }";
+            return LoadFromMemoryLabel(r,$"({d})",offset);
+        }
+
+        public MipsGenerationHelper LoadFromMemoryLabel(Register r, object d, int offset = 0) // r <- (d)
+        {
+            this.body += $"lw { r }, { (offset == 0 ? "" : offset.ToString()) }{ d }{ ENDL }";
             return this;
         }
 

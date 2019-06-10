@@ -131,12 +131,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 result += arg.Accept(this);//leave in a0 expresion result
                 result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
             }
-            // moving self to a0 not necesary self is already in ao.
-            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
-            //loading self.typeInfo in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
-            //loading typeInfo.virtual_table in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
+            var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable(FuncStaticCall.Type);
+            //loading static virtual_table in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemoryLabel(MipsRegisterSet.a0,virtualTableLabel));
             CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncStaticCall.MethodName,FuncStaticCall.SymbolTable,out var coolType);
             var virtualTable=CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
             var virtualMethod = virtualTable.Single(x => x.Name == FuncStaticCall.MethodName);
@@ -151,7 +148,28 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            foreach (var arg in FuncVirtualCall.Arguments.Reverse())
+            {
+                result += arg.Accept(this);//leave in a0 expresion result
+                result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
+            }
+            // moving self to a0 not necesary self is already in ao.
+            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
+            //loading self.typeInfo in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest));
+            //loading typeInfo.virtual_table in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.VirtualTableOffset));
+            CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncVirtualCall.MethodName, FuncVirtualCall.SymbolTable, out var coolType);
+            var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
+            var virtualMethod = virtualTable.Single(x => x.Name == FuncVirtualCall.MethodName);
+            int index = virtualTable.IndexOf(virtualMethod);
+            int offset = 4 * index;
+            //loading virtual_table.f in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, offset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Call(MipsRegisterSet.a0));
+
+            return result;
         }
 
         public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
