@@ -149,12 +149,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             }
 
             var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable( FuncStaticCall.Type );
-
-            // loading static virtual_table in a0
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromMemoryLabel( MipsRegisterSet.a0, virtualTableLabel ) );
-
-            CompilationUnit.TypeEnvironment.GetTypeDefinition( FuncStaticCall.MethodName, FuncStaticCall.SymbolTable, out var coolType );
+            //loading static virtual_table in a0
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemoryLabel( MipsRegisterSet.a0, virtualTableLabel ) );
+            CompilationUnit.TypeEnvironment.GetTypeDefinition( FuncStaticCall.Type, FuncStaticCall.SymbolTable, out var coolType );
             var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable( coolType );
             var virtualMethod = virtualTable.Single( x => x.Name == FuncStaticCall.MethodName );
             int index = virtualTable.IndexOf( virtualMethod );
@@ -181,16 +178,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
             // moving self to a0 not necesary self is already in ao.
             //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
             //loading self.typeInfo in a0
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest ) );
-
-            // loading typeInfo.virtual_table in a0
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.VirtualTableOffset ) );
-
-            CompilationUnit.TypeEnvironment.GetTypeDefinition( FuncVirtualCall.MethodName, FuncVirtualCall.SymbolTable, out var coolType );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest ) );
+            //loading typeInfo.virtual_table in a0
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.VirtualTableOffset ) );
+            var coolType=CompilationUnit.TypeEnvironment.GetContextType( FuncVirtualCall.SymbolTable);
             var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable( coolType );
-            var virtualMethod = virtualTable.Single( x => x.Name == FuncVirtualCall.MethodName );
+            var virtualMethod = virtualTable.Single( x => labelGenerator.GenerateFunc(coolType.Name,x.Name) == FuncVirtualCall.MethodName);
             int index = virtualTable.IndexOf( virtualMethod );
             int offset = 4 * index;
 
