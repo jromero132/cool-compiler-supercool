@@ -107,7 +107,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            var body = Func.Accept(this);
+            result.SectionFunctions.Append();//TODO put label here 
+            result.SectionFunctions.Append(body.SectionCode);
+            result.SectionFunctions.Append();//TODO put return here 
+
+            return result;
         }
 
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
@@ -300,11 +306,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = new MipsProgram();
             //moving self to a0
             result.SectionFunctions.Append();//TODO put label here 
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
             //moving self.typeInfo to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
             //moving self.typeInfo.Name to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeNameOffset));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeNameOffset));
             result.SectionFunctions.Append();//TODO put return here 
 
             return result;
