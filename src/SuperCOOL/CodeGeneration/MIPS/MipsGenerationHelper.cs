@@ -11,6 +11,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const int TRUE = 1, FALSE = 0, NULL = 0;
 
         private static readonly string ENDL = Environment.NewLine;
+        internal static readonly int TypeInfoOffest=-4;
         internal static readonly int SelfOffset=4;
         private string body;
 
