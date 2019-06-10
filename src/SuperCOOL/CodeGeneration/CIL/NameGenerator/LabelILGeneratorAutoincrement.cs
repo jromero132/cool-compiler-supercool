@@ -1,81 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SuperCOOL.Constants;
-using SuperCOOL.Core;
-
-namespace SuperCOOL.NameGenerator
+﻿namespace SuperCOOL.NameGenerator
 {
     public class LabelILGeneratorAutoincrement : ILabelILGenerator
     {
-        private int ifIndex { get; set; }
-        private int exceptionIndex { get; set; }
-        private int caseIndex { get; set; }
-        private int variableIndex { get; set; }
-        private int stringData { get; set; }
-        public LabelILGeneratorAutoincrement()
-        {
-            ifIndex = caseIndex = variableIndex = stringData = 0;
-        }
+        private int ifIndex;
+        private int exceptionIndex;
+        private int caseIndex;
+        private int variableIndex;
+        private int stringData;
 
-        public string GenerateVariable()
-        {
-            return $"_var_{variableIndex++}";
-        }
+        public LabelILGeneratorAutoincrement() => this.ifIndex = this.caseIndex = this.variableIndex = this.stringData = 1;
 
-        public (string end, string @else) GenerateIf()
-        {
-            return ($"_end_if_{ifIndex}", $"_else_if_{ifIndex++}");
-        }
+        public string GenerateVariable() => $"_var_{ variableIndex++ }";
 
-        public (string varInit, string endOfCase) GenerateCase()
-        {
-            return (GenerateVariable(), $"_caseEnd_{caseIndex++}");
-        }
+        public (string end, string @else) GenerateIf() => ($"_end_if_{ this.ifIndex }", $"_else_if_{ this.ifIndex++ }");
 
-        public string GenerateFunc(string className,string methodName)
-        {
-            return $"{className}_{methodName}";
-        }
+        public (string varInit, string endOfCase) GenerateCase() => (GenerateVariable(), $"_caseEnd_{ this.caseIndex++ }");
 
-        public string GenerateInit(string classTypeName)
-        {
-            return $"{classTypeName}__init";
-        }
+        public string GenerateFunc( string className, string methodName ) => $"{ className }_{ methodName }";
 
-        public string GenerateStringData()
-        {
-            return $"_string_{stringData++}";
-        }
+        public string GenerateInit( string classTypeName ) => $"{ classTypeName }__init";
 
-        public string GenerateEmptyStringData()
-        {
-            return $"_string_empty";
-        }
+        public string GenerateStringData() => $"_string_{ stringData++ }";
 
-        public string GenerateLabelTypeName(string name)
-        {
-            return $"__{name}";
-        }
+        public string GenerateEmptyStringData() => $"_string_empty";
 
-        public string GenerateLabelTypeInfo(string name)
-        {
-            return $"___type_info_{name}";
-        }
+        public string GenerateLabelTypeName( string name ) => $"__{ name }";
 
-        public string GenerateLabelVirtualTable(string name)
-        {
-            return $"____virtual_table_{name}";
-        }
+        public string GenerateLabelTypeInfo( string name ) => $"___type_info_{ name }";
 
-        public string GetBuffer()
-        {
-            return $"_____buffer";
-        }
+        public string GenerateLabelVirtualTable( string name ) => $"____virtual_table_{ name }";
 
-        public string GetException()
-        {
-            return $"____exception{exceptionIndex++}";
-        }
+        public string GetBuffer() => $"_____buffer";
+
+        public string GetException() => $"____exception{ exceptionIndex++ }";
     }
 }
