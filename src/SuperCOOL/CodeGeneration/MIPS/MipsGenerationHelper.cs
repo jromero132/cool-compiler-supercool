@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 
 using SuperCOOL.CodeGeneration.MIPS.Registers;
 
@@ -17,12 +16,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const string Exceptions="____exceptions";
 
         //Variable
-        public static readonly int TypeInfoOffest=-4;
+        internal static readonly int TypeInfoOffest = -4;
 
         //TypeInfo
-        public const int TypeNameOffset=0;
-        public const int SizeOfOffset=4;
-        public const int VirtualTableOffset=8;
+        public const int TypeNameOffset = 0;
+        public const int SizeOfOffset = 4;
+        public const int VirtualTableOffset = 8;
 
         private string body;
 
@@ -66,13 +65,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Data Types
-        public MipsGenerationHelper AddData( string name,IEnumerable<(string type, object value )> args)
+        public MipsGenerationHelper AddData( string name, IEnumerable<(string type, object value)> args )
         {
             this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( x => $".{ x.type } { x.value }" ) ) }{ ENDL }";
             return this;
         }
 
-        public static (string, object) AddStringData( string value ) => ( "asciiz", value );
+        public static (string, object) AddStringData( string value ) => ("asciiz", value);
 
         public static (string, object) AddIntData( object value ) => ( "word", value );
         public static (string, object) AddDynamycString( int space) => ( "space", space );
@@ -152,12 +151,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsGenerationHelper LoadFromMemory( Register r, object d, int offset = 0 ) // r <- (d)
         {
-            return LoadFromMemoryLabel(r,$"({d})",offset);
+            return LoadFromMemoryLabel( r, $"({d})", offset );
         }
 
-        public MipsGenerationHelper LoadFromMemoryLabel(Register r, object d, int offset = 0) // r <- (d)
+        public MipsGenerationHelper LoadFromMemoryLabel( Register r, object d, int offset = 0 ) // r <- (d)
         {
-            this.body += $"lw { r }, { (offset == 0 ? "" : offset.ToString()) }{ d }{ ENDL }";
+            this.body += $"lw { r }, { ( offset == 0 ? "" : offset.ToString() ) }{ d }{ ENDL }";
             return this;
         }
 
