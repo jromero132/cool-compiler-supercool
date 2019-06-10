@@ -443,5 +443,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             throw new NotImplementedException();
         }
+
+        public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public MipsProgram VisitObjectCopy(ASTCILObjectCopyNode objectCopy)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
