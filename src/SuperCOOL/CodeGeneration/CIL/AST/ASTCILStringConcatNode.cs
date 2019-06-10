@@ -11,5 +11,10 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
             symbolTable)
         {
         }
+
+        public override Result Accept<Result>(ICILVisitor<Result> Visitor)
+        {
+            return Visitor.VisitStringConcat(this);
+        }
     }
 }
