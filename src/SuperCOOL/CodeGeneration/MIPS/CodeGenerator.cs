@@ -124,7 +124,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var parameters = Func.SymbolTable.AllDefinedObjects().Where( x => x.Kind == ObjectKind.Parameter ).Select( ( x, i ) => x.Offset = 4 * ( i + 1 ) );
 
             var result = new MipsProgram();
-            var body = Func.Accept( this );
+            var body = new MipsProgram();
+            foreach (var item in Func.Body)
+                body += item.Accept(this);
 
             var off = locals.Count() * 4;
 
@@ -272,16 +274,27 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIOInString( ASTCILIOInStringNode IOInString )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(IOInString.Name)
+                                                                .Return());
+            return result;
         }
 
         public MipsProgram VisitIOOutInt( ASTCILIOOutIntNode IOOutInt )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(IOOutInt.Name)
+                                                                .Return());
+            return result;
         }
 
         public MipsProgram VisitIOOutString( ASTCILIOOutStringNode IOOutString )
         {
+            //TODO: falta
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Name )
@@ -374,7 +387,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var entryPoint = new ASTCILBlockNode(new ASTCILExpressionNode[] {
                                                     new ASTCILAllocateNode(main.Name,main.SymbolTable),
                                                     new ASTCILFuncVirtualCallNode(labelGenerator.GenerateInit(main.Name),new ASTCILExpressionNode[]{ },main.SymbolTable),
-                                                    new ASTCILFuncVirtualCallNode("main",new ASTCILExpressionNode[]{ },main.SymbolTable),
+                                                    new ASTCILFuncVirtualCallNode("Main_main",new ASTCILExpressionNode[]{ },main.SymbolTable),
                                                     }, Program.SymbolTable);
 
             result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
@@ -387,7 +400,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            return result;
         }
 
         public MipsProgram VisitSelf( ASTCILSelfNode Self )
@@ -469,17 +484,38 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitObjectCopy( ASTCILObjectCopyNode objectCopy )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(objectCopy.Name)
+                                                                .GetParam(4)
+                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .Return());
+            return result;
         }
 
         public MipsProgram VisitStringConcat( ASTCILStringConcatNode stringConcat )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(stringConcat.Name)
+                                                                .GetParam(4)
+                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .Return());
+            return result;
         }
 
         public MipsProgram VisitStringSubStr( ASTCILStringSubStrNode stringSubStr )
         {
-            throw new NotImplementedException();
+            //TODO: falta
+            var result = new MipsProgram();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(stringSubStr.Name)
+                                                                .GetParam(4)
+                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .Return());
+            return result;
         }
     }
 }
