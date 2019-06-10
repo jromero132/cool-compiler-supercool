@@ -130,9 +130,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Save
-        public MipsGenerationHelper SaveMemory( Register r, object d ) // (d) <- r
+        public MipsGenerationHelper SaveToMemory( Register r, object d, int offset = 0 ) // (d) <- r
         {
-            this.body += $"sw { r }, ({ d }){ ENDL }";
+            this.body += $"sw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }";
             return this;
         }
 
@@ -165,7 +165,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         // Stack
         public MipsGenerationHelper Push( Register r ) => this.Sub( MipsRegisterSet.sp, 4 )
-                                                         .SaveMemory( r, MipsRegisterSet.sp );
+                                                         .SaveToMemory( r, MipsRegisterSet.sp );
         public MipsGenerationHelper Pop( Register r ) => this.LoadFromMemory( r, MipsRegisterSet.sp )
                                                         .Add( MipsRegisterSet.sp, 4 );
         public MipsGenerationHelper PushConstant( int c ) => this.LoadConstant( MipsRegisterSet.a0, c )

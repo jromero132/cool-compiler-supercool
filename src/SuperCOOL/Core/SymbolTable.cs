@@ -30,7 +30,7 @@ namespace SuperCOOL.Core
         public string Name { get; set; }
         public string Type { get; set; }
         public ObjectKind Kind { get; set; }
-        public string RenamedSymbol { get; set; }
+        public int Offset { get; set; }
     }
     public enum ObjectKind
     {
