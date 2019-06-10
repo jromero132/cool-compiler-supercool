@@ -367,8 +367,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
 
-            foreach (var item in Program.Types)
-                result += item.Accept(this);
+            foreach( var item in Program.Types )
+                result += item.Accept( this );
 
             return result;
         }
