@@ -15,7 +15,7 @@ namespace SuperCOOL.Core
         public void AddMethod(CoolType type, string method, List<CoolType> formals, CoolType returnType)
         {
             if (!Methods.ContainsKey(type))
-                Methods[type] = new List<CoolMethod>(){new CoolMethod(type,"_init",new List<CoolType>(),type)};
+                Methods[type] = new List<CoolMethod>();
             Methods[type].Add(new CoolMethod(type,method, formals, returnType));
         }
         public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
@@ -47,17 +47,19 @@ namespace SuperCOOL.Core
                 return currentVirtualTable;
 
             var parentVirtualTable = GetVirtualTable(type.Parent);
-            foreach (var (method, i) in parentVirtualTable.Select((x, i) => (x, i)))
+            for (int i = 0; i < parentVirtualTable.Count; i++)
             {
                 int index;
-                if ((index = currentVirtualTable.IndexOf(method)) < 0) continue;
+                for (index = 0; index < currentVirtualTable.Count; index++)
+                    if (currentVirtualTable[index].Name == parentVirtualTable[i].Name)
+                        break;
+                if (index == currentVirtualTable.Count)
+                    continue;
                 parentVirtualTable[i] = currentVirtualTable[index];
                 currentVirtualTable.RemoveAt(index);
             }
 
-            parentVirtualTable.ToList().AddRange(currentVirtualTable);
-
-            return parentVirtualTable;
+            return parentVirtualTable.Concat(currentVirtualTable).ToList();
         }
     }
 
