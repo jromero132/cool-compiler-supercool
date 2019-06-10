@@ -284,11 +284,11 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILProgramNode
             (
                 Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbollInfo>(),
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbolInfo>(),
                         Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbollInfo>(),
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbolInfo>(),
                         Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO, Enumerable.Empty<SymbollInfo>(),
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO, Enumerable.Empty<SymbolInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.IO),
                         new ASTCILFuncNode[]
                         {

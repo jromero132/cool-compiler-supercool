@@ -12,7 +12,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         private ILabelILGenerator labelGenerator;
         public CompilationUnit CompilationUnit { get; }
 
-        public CodeGenerator(ILabelILGenerator labelGenerator, CompilationUnit compilationUnit)
+        public CodeGenerator( ILabelILGenerator labelGenerator, CompilationUnit compilationUnit )
         {
             this.labelGenerator = labelGenerator;
             this.CompilationUnit = compilationUnit;
@@ -219,7 +219,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             //moving self to a0
             result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
             //moving self.attr to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset ) );
             return result;
         }
 
@@ -291,11 +291,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitLessThanConstantVariable( ASTCILLessThanConstantVariableNode LessThanConstantVariable )
         {
-            var result = LessThanConstantVariable.Right.Accept( this );
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadConstant( MipsRegisterSet.t0, LessThanConstantVariable.Left )
-                                                           .BranchLessThan( MipsRegisterSet.t0,  ) );
-            return result;
+            throw new NotImplementedException();
         }
 
         public MipsProgram VisitLessThanTwoConstant( ASTCILLessThanTwoConstantNode LessThanTwoConstant )
@@ -323,7 +319,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
+        public MipsProgram VisitMinusConstantVariable( ASTCILMinusConstantVariableNode MinusConstantVariable )
         {
             var result = MinusConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
@@ -409,7 +405,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
 
-        public MipsProgram VisitProgram(ASTCILProgramNode Program)
+        public MipsProgram VisitProgram( ASTCILProgramNode Program )
         {
             throw new NotImplementedException();
         }
