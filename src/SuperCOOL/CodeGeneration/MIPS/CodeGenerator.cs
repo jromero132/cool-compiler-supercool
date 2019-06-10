@@ -297,10 +297,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitType( ASTCILTypeNode Type )
+        public MipsProgram VisitType(ASTCILTypeNode Type)
         {
             var result = new MipsProgram();
-            result.SectionData.Append(MipsGenerationHelper.NewScript());
+            foreach (var method in Type.Methods)
+                result += method.Accept(this);
+
+            var typeName = CompilationUnit.TypeEnvironment.GetContextType(Type.SymbolTable).Name;
+            var label_type_name = labelGenerator.GenerateLabelTypeName(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(label_type_name).AddData(label_type_name,new[] { MipsGenerationHelper.AddStringData(typeName) }));
+
+            var label_virtual_table = labelGenerator.GenerateLabelVirtualTable(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(label_virtual_table).AddData(label_virtual_table,Type.VirtualTable.Select(x=>MipsGenerationHelper.AddIntData(labelGenerator.GenerateFunc(x.Type.Name,x.Name)))));
+
+            var typeInfo_label = labelGenerator.GenerateLabelTypeInfo(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(typeInfo_label).AddData(typeInfo_label, new[] {MipsGenerationHelper.AddIntData(label_type_name), MipsGenerationHelper.AddIntData(Type.AllocateSize), MipsGenerationHelper.AddIntData(label_virtual_table)}));
+
+            return result;
         }
 
         public MipsProgram VisitVoid( ASTCILVoidNode Void )

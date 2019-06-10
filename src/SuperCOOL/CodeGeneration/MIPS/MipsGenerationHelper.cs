@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -62,12 +63,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Data Types
-        public MipsGenerationHelper AddData( string name, string type, object value ) => this.Tag( name, false, " " )
-                                                                                        .Section( type, $" { value }" );
+        public MipsGenerationHelper AddData( string name,IEnumerable<(string type, object value )> args)
+        {
+            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( ( x, y ) => $".{ x } { y }" ) ) }{ ENDL }";
+            return this;
+        }
 
-        public MipsGenerationHelper AddStringType( string name, string value ) => AddData( name, "asciiz", value );
+        public static (string, object) AddStringData( string value ) => ( "asciiz", value );
 
-        public MipsGenerationHelper AddWordType( string name, object value ) => AddData( name, "word", value );
+        public static (string, object) AddIntData( object value ) => ( "word", value );
 
 
         // Exit

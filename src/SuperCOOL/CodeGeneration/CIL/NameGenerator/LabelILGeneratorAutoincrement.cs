@@ -51,5 +51,20 @@ namespace SuperCOOL.NameGenerator
         {
             return $"_string_empty";
         }
+
+        public string GenerateLabelTypeName(string name)
+        {
+            return $"__{name}";
+        }
+
+        public string GenerateLabelTypeInfo(string name)
+        {
+            return $"___type_info_{name}";
+        }
+
+        public string GenerateLabelVirtualTable(string name)
+        {
+            return $"____virtual_table_{name}";
+        }
     }
 }
