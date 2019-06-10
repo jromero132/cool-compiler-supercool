@@ -56,5 +56,7 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitStringConstant( ASTCILStringConstantNode StringConstant );
         Result VisitType( ASTCILTypeNode Type );
         Result VisitVoid( ASTCILVoidNode Void );
+        Result VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName);
+        Result VisitObjectCopy(ASTCILObjectCopyNode objectCopy);
     }
 }

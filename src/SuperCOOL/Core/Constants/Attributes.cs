@@ -2,6 +2,6 @@
 {
     public static class Attributes
     {
-        public const string TypeName = "_name";
+        public const string StringLength = "_length";
     }
 }
