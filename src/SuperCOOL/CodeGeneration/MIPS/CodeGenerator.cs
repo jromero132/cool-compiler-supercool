@@ -138,8 +138,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             int offset = 4 * index;
             //loading virtual_table.f in a0
             result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
-
-            //TODO: call
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Call(MipsRegisterSet.a0));
 
             return result;
         }
