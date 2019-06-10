@@ -113,12 +113,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var result = new MipsProgram();
             var body = Func.Accept(this);
-            var contextType = CompilationUnit.TypeEnvironment.GetContextType(Func.SymbolTable);
-            var tag = labelGenerator.GenerateFunc(contextType.Name, Func.Name);
 
             var off=locals.Count()*4;
 
-            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(tag));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(Func.Name));
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp,off,MipsRegisterSet.sp));
             result.SectionFunctions.Append(body.SectionCode);
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
@@ -242,6 +240,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitIOInInt( ASTCILIOInIntNode IOInInt )
         {
             var result = new MipsProgram();
+            result.
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                            .ReadInt( MipsRegisterSet.a0 ) );
             return result;
@@ -354,8 +353,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
         {
             var result = new MipsProgram();
-            var label = labelGenerator.GenerateFunc(Types.Object,Functions.Type_Name);
-            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(label)); 
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(objectTypeName.Name)); 
             //moving self to a0
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
             //moving self.typeInfo to a0
