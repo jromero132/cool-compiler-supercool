@@ -3,6 +3,7 @@ using SuperCOOL.CodeGeneration.CIL.AST;
 using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
 using SuperCOOL.Core;
+using System.Linq;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -63,7 +64,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitAssignment( ASTCILAssignmentNode Assignment )
         {
-            throw new NotImplementedException();
         }
 
         public MipsProgram VisitBlock( ASTCILBlockNode Block )
@@ -179,10 +179,31 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        //TODO only one call
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            foreach (var arg in FuncStaticCall.Arguments.Reverse())
+            {
+                result += arg.Accept(this);//leave in a0 expresion result
+                result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
+            }
+            // moving self to a0 not necesary self is already in ao.
+            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
+            //loading self.typeInfo in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            //loading typeInfo.virtual_table in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
+            CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncStaticCall.MethodName,FuncStaticCall.SymbolTable,out var coolType);
+            var virtualTable=CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
+            var virtualMethod = virtualTable.Single(x => x.Name == FuncStaticCall.MethodName);
+            int index = virtualTable.IndexOf(virtualMethod);
+            int offset = 4 * index;
+            //loading virtual_table.f in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
+
+            //TODO: call
+
+            return result;
         }
 
         public MipsProgram VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall )
@@ -192,11 +213,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
         {
-            var result = new MipsProgram();
-            //moving self to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.sp, MipsGenerationHelper.SelfOffset));
             var type=CompilationUnit.TypeEnvironment.GetContextType(GetAttr.SymbolTable);
             var attroffset = type.GetOffsetForAttribute(GetAttr.AttributeName);
+            var result = new MipsProgram();
+            //moving self to a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
             //moving self.attr to a0
             result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
             return result;
@@ -263,10 +284,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        // TODO hay que hacer esto en IL
         public MipsProgram VisitIsVoid( ASTCILIsVoidNode IsVoid )
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();// TODO hay que hacer esto en IL
         }
 
         public MipsProgram VisitLessThanConstantVariable( ASTCILLessThanConstantVariableNode LessThanConstantVariable )
