@@ -68,7 +68,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Data Types
         public MipsGenerationHelper AddData( string name,IEnumerable<(string type, object value )> args)
         {
-            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( ( x, y ) => $".{ x } { y }" ) ) }{ ENDL }";
+            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( x => $".{ x.type } { x.value }" ) ) }{ ENDL }";
             return this;
         }
 
