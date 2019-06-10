@@ -9,5 +9,8 @@
         string GenerateInit(string classTypeName);
         string GenerateStringData();
         string GenerateEmptyStringData();
+        string GenerateLabelTypeName(string name);
+        string GenerateLabelTypeInfo(string name);
+        string GenerateLabelVirtualTable(string name);
     }
 }

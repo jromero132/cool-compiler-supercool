@@ -4,6 +4,7 @@ using SuperCOOL.CodeGeneration.MIPS.Registers;
 using System;
 using SuperCOOL.Core;
 using System.Linq;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -107,7 +108,19 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            var body = Func.Accept(this);
+            var contextType = CompilationUnit.TypeEnvironment.GetContextType(Func.SymbolTable);
+            var tag = labelGenerator.GenerateFunc(contextType.Name, Func.Name);
+
+            var off=Func.SymbolTable.GetLocals().Count*4;
+
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(tag));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp,off,MipsRegisterSet.sp));
+            result.SectionFunctions.Append(body.SectionCode);
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
+
+            return result;
         }
 
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
@@ -118,12 +131,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 result += arg.Accept(this);//leave in a0 expresion result
                 result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
             }
-            // moving self to a0 not necesary self is already in ao.
-            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
-            //loading self.typeInfo in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
-            //loading typeInfo.virtual_table in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
+            var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable(FuncStaticCall.Type);
+            //loading static virtual_table in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemoryLabel(MipsRegisterSet.a0,virtualTableLabel));
             CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncStaticCall.MethodName,FuncStaticCall.SymbolTable,out var coolType);
             var virtualTable=CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
             var virtualMethod = virtualTable.Single(x => x.Name == FuncStaticCall.MethodName);
@@ -131,15 +141,35 @@ namespace SuperCOOL.CodeGeneration.MIPS
             int offset = 4 * index;
             //loading virtual_table.f in a0
             result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
-
-            //TODO: call
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Call(MipsRegisterSet.a0));
 
             return result;
         }
 
         public MipsProgram VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            foreach (var arg in FuncVirtualCall.Arguments.Reverse())
+            {
+                result += arg.Accept(this);//leave in a0 expresion result
+                result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
+            }
+            // moving self to a0 not necesary self is already in ao.
+            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
+            //loading self.typeInfo in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest));
+            //loading typeInfo.virtual_table in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.VirtualTableOffset));
+            CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncVirtualCall.MethodName, FuncVirtualCall.SymbolTable, out var coolType);
+            var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
+            var virtualMethod = virtualTable.Single(x => x.Name == FuncVirtualCall.MethodName);
+            int index = virtualTable.IndexOf(virtualMethod);
+            int offset = 4 * index;
+            //loading virtual_table.f in a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, offset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Call(MipsRegisterSet.a0));
+
+            return result;
         }
 
         public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
@@ -285,9 +315,23 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitType( ASTCILTypeNode Type )
+        public MipsProgram VisitType(ASTCILTypeNode Type)
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            foreach (var method in Type.Methods)
+                result += method.Accept(this);
+
+            var typeName = CompilationUnit.TypeEnvironment.GetContextType(Type.SymbolTable).Name;
+            var label_type_name = labelGenerator.GenerateLabelTypeName(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(label_type_name).AddData(label_type_name,new[] { MipsGenerationHelper.AddStringData(typeName) }));
+
+            var label_virtual_table = labelGenerator.GenerateLabelVirtualTable(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(label_virtual_table).AddData(label_virtual_table,Type.VirtualTable.Select(x=>MipsGenerationHelper.AddIntData(labelGenerator.GenerateFunc(x.Type.Name,x.Name)))));
+
+            var typeInfo_label = labelGenerator.GenerateLabelTypeInfo(typeName);
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(typeInfo_label).AddData(typeInfo_label, new[] {MipsGenerationHelper.AddIntData(label_type_name), MipsGenerationHelper.AddIntData(Type.AllocateSize), MipsGenerationHelper.AddIntData(label_virtual_table)}));
+
+            return result;
         }
 
         public MipsProgram VisitVoid( ASTCILVoidNode Void )
@@ -297,7 +341,18 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            var label = labelGenerator.GenerateFunc(Types.Object,Functions.Type_Name);
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(label)); 
+            //moving self to a0
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
+            //moving self.typeInfo to a0
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            //moving self.typeInfo.Name to a0
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeNameOffset));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
+
+            return result;
         }
 
         public MipsProgram VisitObjectCopy(ASTCILObjectCopyNode objectCopy)
