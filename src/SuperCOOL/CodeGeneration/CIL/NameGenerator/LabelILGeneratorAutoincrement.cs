@@ -6,7 +6,7 @@ using SuperCOOL.Core;
 
 namespace SuperCOOL.NameGenerator
 {
-    class LabelILGeneratorAutoincrement : ILabelILGenerator
+    public class LabelILGeneratorAutoincrement : ILabelILGenerator
     {
         private int ifIndex { get; set; }
         private int exceptionIndex { get; set; }

@@ -13,7 +13,7 @@ namespace SuperCOOL.Tests.CoolTest
     {
         private void Check(string[] files)
         {
-            var output = Compiler.Compile(files);
+            var output = Compiler.Compile(files,out var _);
             Helper.RunCoolCompilerFrontend(files, "semantic.txt");
             string out_file = File.ReadAllText("semantic.txt");
             Helper.DeleteFile("semantic.txt");
@@ -52,98 +52,98 @@ namespace SuperCOOL.Tests.CoolTest
         [Fact]
         public void Cells()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/cells.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/cells.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Complex()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/complex.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/complex.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Cool()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/cool.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/cool.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Graph()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/graph.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/graph.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void HairScary()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/hair_scary.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/hair_scary.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void HelloWorld()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/hello_world.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/hello_world.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Io()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/io.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/io.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Lam()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/lam.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/lam.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Life()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/life.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/life.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void List()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/list.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/list.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void NewComplex()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/new_complex.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/new_complex.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Palindrome()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/palindrome.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/palindrome.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void Primes()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/palindrome.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/palindrome.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 
         [Fact]
         public void SortList()
         {
-            var output = Compiler.Compile(new string[] { "Examples/Cool/sort_list.cl" });
+            var output = Compiler.Compile(new string[] { "Examples/Cool/sort_list.cl" }, out var _);
             Assert.Equal(new List<Error>(), output);
         }
 

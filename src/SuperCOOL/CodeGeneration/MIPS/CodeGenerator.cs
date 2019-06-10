@@ -343,6 +343,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(exceptions));
             result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(exceptions, all.Select(x => MipsGenerationHelper.AddIntData(x))));
 
+            CompilationUnit.TypeEnvironment.GetTypeDefinition("Main", Program.SymbolTable, out var main);
+            var entryPoint = new ASTCILBlockNode(new ASTCILExpressionNode[] {
+                                                    new ASTCILAllocateNode(main.Name,main.SymbolTable),
+                                                    new ASTCILFuncVirtualCallNode(labelGenerator.GenerateInit(main.Name),new ASTCILExpressionNode[]{ },main.SymbolTable),
+                                                    new ASTCILFuncVirtualCallNode("main",new ASTCILExpressionNode[]{ },main.SymbolTable),
+                                                    }, Program.SymbolTable);
+
+            result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
+
             foreach (var item in Program.Types)
                 result += item.Accept(this);
 

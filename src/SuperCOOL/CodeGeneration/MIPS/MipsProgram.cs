@@ -28,9 +28,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public override string ToString()
         {
-            //TODO:
-            //generate el program
-            throw new Exception( "Aleluya" );
+            return new StringBuilder().Append(".data").Append(SectionData).Append(".text").Append(SectionCode).Append(SectionFunctions).ToString();
         }
     }
 }

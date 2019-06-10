@@ -1,7 +1,9 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using SuperCOOL.ANTLR;
+using SuperCOOL.CodeGeneration;
 using SuperCOOL.Core;
+using SuperCOOL.NameGenerator;
 using SuperCOOL.SemanticCheck;
 using SuperCOOL.SemanticCheck.AST;
 using System;
@@ -20,36 +22,18 @@ namespace SuperCOOL
             Console.WriteLine( "SuperCool Compiler Platform" );
             Console.WriteLine( "Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved." );
 
-            var examples = Directory.GetCurrentDirectory() + "/../../../" + "/Examples/";
-            args = new[] {
-                examples+"arith.cl",
-                examples + "atoi_test.cl",
-                examples + "atoi.cl",
-                examples + "book_list.cl",
-                examples + "cells.cl",
-                examples + "complex.cl",
-                examples + "cool.cl",
-                examples + "graph.cl", // Error Atributes are not inherited
-                examples + "hair_scary.cl", // Error Atributes are not inherited
-                examples + "hello_world.cl",
-                examples + "io.cl", // Error Atributes are not inherited
-                examples + "lam.cl",
-                examples + "life.cl", // Error Atributes are not inherited
-                examples + "list.cl",
-                examples + "new_complex.cl",
-                examples + "palindrome.cl",
-                examples + "primes.cl",
-                examples + "sort_list.cl",
-            };
-
-            var Errors = Compile( args );
+            var Errors = Compile( args ,out var Code);
             //PrintErrors
             foreach( var item in Errors )
                 Console.WriteLine( item );
+
+            if (Errors.Count == 0)
+                File.WriteAllText("out.mips", Code);
         }
 
-        public static List<Error> Compile( string[] args )
+        public static List<Error> Compile( string[] args,out string Code)
         {
+            Code = null;
             string program = ProcessInput( args, out var Errors );
             //Lexer TODO: Lexer Errors
             SuperCOOLLexer superCOOLLexer = new SuperCOOLLexer( new AntlrInputStream( program ) );
@@ -66,6 +50,13 @@ namespace SuperCOOL
             //Type Check
             ast.Accept( new SuperCoolTypeCheckVisitor( compilationUnit ) );
             Errors.AddRange( ast.SemanticCheckResult.Errors );
+            if (Errors.Count > 0)
+                return Errors;
+            //Code Generation 
+            var labelgen = new LabelILGeneratorAutoincrement();
+            var astIl = ast.Accept(new SuperCoolCILASTVisitor(labelgen, compilationUnit));
+            var mips = astIl.Accept(new CodeGeneration.MIPS.CodeGenerator(labelgen, compilationUnit));
+            Code = mips.ToString();
 
             return Errors;
         }
