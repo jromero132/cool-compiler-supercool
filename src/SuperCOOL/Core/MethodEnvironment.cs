@@ -15,7 +15,7 @@ namespace SuperCOOL.Core
         public void AddMethod(CoolType type, string method, List<CoolType> formals, CoolType returnType)
         {
             if (!Methods.ContainsKey(type))
-                Methods[type] = new List<CoolMethod>();
+                Methods[type] = new List<CoolMethod>(){new CoolMethod(type,"_init",new List<CoolType>(),type)};
             Methods[type].Add(new CoolMethod(type,method, formals, returnType));
         }
         public bool GetMethod(CoolType type, string method, out CoolMethod CoolMethod)
