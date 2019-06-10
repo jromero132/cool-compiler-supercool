@@ -4,6 +4,8 @@
     {
         // Stack pointer
         public static readonly StackPointer sp = new StackPointer( "$sp" );
+        // Frame pointer
+        public static readonly StackPointer fp = new StackPointer( "$fp" );
 
         // Temporary registers
         public static readonly TemporaryRegister t0 = new TemporaryRegister( "$t0" );
