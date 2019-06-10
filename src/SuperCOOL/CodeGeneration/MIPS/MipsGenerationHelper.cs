@@ -12,8 +12,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         private static readonly string ENDL = Environment.NewLine;
 
-        public const int BufferSize=4096;
-        public const string Exceptions="____exceptions";
+        public const int BufferSize = 4096;
+        public const string Exceptions = "____exceptions";
 
         //Variable
         internal static readonly int TypeInfoOffest = -4;
@@ -73,8 +73,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public static (string, object) AddStringData( string value ) => ("asciiz", value);
 
-        public static (string, object) AddIntData( object value ) => ( "word", value );
-        public static (string, object) AddDynamycString( int space) => ( "space", space );
+        public static (string, object) AddIntData( object value ) => ("word", value);
+
+        public static (string, object) AddDynamycString( int space ) => ("space", space);
 
 
         // Exit
