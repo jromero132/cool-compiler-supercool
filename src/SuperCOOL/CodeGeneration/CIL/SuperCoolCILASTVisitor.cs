@@ -185,8 +185,10 @@ namespace SuperCOOL.CodeGeneration
         {
             return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => new ASTCILExpressionNode[]
             {
-                new ASTCILAssignmentNode(x.Id.Text, (ASTCILExpressionNode) x.Expression.Accept(this),LetIn.SymbolTable)
-            }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)),LetIn.SymbolTable);
+                new ASTCILAssignmentNode(x.Id.Text,
+                    (ASTCILExpressionNode) x.Expression?.Accept(this) ??
+                    new ASTCILNewNode(x.Type.Text, LetIn.SymbolTable), LetIn.SymbolTable)
+            }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)), LetIn.SymbolTable);
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
