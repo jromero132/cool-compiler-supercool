@@ -211,7 +211,7 @@ namespace SuperCOOL.Tests.MipsGenerationTests
             // Code
             Helper.CreateFile( file_name,
                 MipsGenerationHelper.NewScript().DataSection()
-               .StringType( "newline", "\\n" )
+               .AddStringType( "newline", "\"\\n\"" )
                .TextSection().MainTag()
                .ReadInt( MipsRegisterSet.t0 )
                .ReadInt( MipsRegisterSet.t1 )
