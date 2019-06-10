@@ -124,6 +124,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                  .LoadFromAddress( MipsRegisterSet.a0, name )
                                                                  .SystemCall();
 
+        public MipsGenerationHelper PrintString( Register r ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
+                                                                .LoadFromMemory( MipsRegisterSet.a0, r )
+                                                                .SystemCall();
+
 
         // Move
         public MipsGenerationHelper Move( Register r1, Register r2 ) // r1 <- r2
@@ -173,9 +177,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Dynamic saving
-        public MipsGenerationHelper Allocate( int n ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
-                                                        .LoadConstant( MipsRegisterSet.a0, n << 2 )
-                                                        .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
+        public MipsGenerationHelper Allocate( Register r ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
+                                                             .Move( MipsRegisterSet.a0, r )
+                                                             .SystemCall()
+                                                             .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
 
 
         // Jumps
