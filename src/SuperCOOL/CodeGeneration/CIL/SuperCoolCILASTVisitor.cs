@@ -172,7 +172,7 @@ namespace SuperCOOL.CodeGeneration
             {
                 new ASTCILAssignmentNode(x.Id.Text,
                     (ASTCILExpressionNode) x.Expression?.Accept(this) ??
-                    new ASTCILNewNode(x.Type.Text, LetIn.SymbolTable), LetIn.SymbolTable)
+                    (ASTCILExpressionNode) new ASTNewNode(){Type=x.Type }.Accept(this), LetIn.SymbolTable)
             }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)), LetIn.SymbolTable);
         }
 
@@ -330,6 +330,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitId(ASTIdNode Id)
         {
+             Id.SymbolTable.IsDefObject(Id.Name, out var info);
+            if (info.Kind == ObjectKind.Atribute)
+                return new ASTCILGetAttrNode(info.Type, info.Name, Id.SymbolTable);
             return new ASTCILIdNode(Id.Name,Id.SymbolTable);
         }
 

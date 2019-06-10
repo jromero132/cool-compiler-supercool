@@ -30,7 +30,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables );
         Result VisitMinusTwoVariables( ASTCILMinusTwoVariablesNode MinusTwoVariables );
         Result VisitMultiplyTwoVariables( ASTCILMultiplyTwoVariablesNode MultiplyTwoVariables );
-        Result VisitNew( ASTCILNewNode New );
         Result VisitNode( ASTCILNode Node );
         Result VisitProgram( ASTCILProgramNode Program );
         Result VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError );

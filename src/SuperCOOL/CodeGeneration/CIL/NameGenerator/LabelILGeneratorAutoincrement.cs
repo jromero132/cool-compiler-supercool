@@ -9,6 +9,7 @@ namespace SuperCOOL.NameGenerator
     class LabelILGeneratorAutoincrement : ILabelILGenerator
     {
         private int ifIndex { get; set; }
+        private int exceptionIndex { get; set; }
         private int caseIndex { get; set; }
         private int variableIndex { get; set; }
         private int stringData { get; set; }
@@ -65,6 +66,16 @@ namespace SuperCOOL.NameGenerator
         public string GenerateLabelVirtualTable(string name)
         {
             return $"____virtual_table_{name}";
+        }
+
+        public string GetBuffer()
+        {
+            return $"_____buffer";
+        }
+
+        public string GetException()
+        {
+            return $"____exception{exceptionIndex++}";
         }
     }
 }

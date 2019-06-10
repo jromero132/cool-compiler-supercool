@@ -5,6 +5,7 @@ using System;
 using SuperCOOL.Core;
 using System.Linq;
 using SuperCOOL.Constants;
+using System.Collections.Generic;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -108,14 +109,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
+            var locals = Func.SymbolTable.GetLocals().Where(x => x.Kind == ObjectKind.Local).Select((x,i)=>x.Offset=4*i);
+            var parameters = Func.SymbolTable.AllDefinedObjects().Where(x => x.Kind == ObjectKind.Parameter).Select((x, i) => x.Offset = 4 * (i+1));
+
             var result = new MipsProgram();
             var body = Func.Accept(this);
-            var contextType = CompilationUnit.TypeEnvironment.GetContextType(Func.SymbolTable);
-            var tag = labelGenerator.GenerateFunc(contextType.Name, Func.Name);
 
-            var off=Func.SymbolTable.GetLocals().Count*4;
+            var off=locals.Count()*4;
 
-            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(tag));
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(Func.Name));
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp,off,MipsRegisterSet.sp));
             result.SectionFunctions.Append(body.SectionCode);
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
@@ -194,7 +196,21 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitId( ASTCILIdNode Id )
         {
-            throw new NotImplementedException();
+            var locals=Id.SymbolTable.IsDefObject(Id.Name,out var info);
+            var result = new MipsProgram();
+            if (info.Kind == ObjectKind.Local)
+            {
+                result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                            .GetLocal(info.Offset)
+                                            );
+            }
+            if (info.Kind == ObjectKind.Parameter)
+            {
+                result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                            .GetParam(info.Offset)
+                                            );
+            }
+            return result;
         }
 
         public MipsProgram VisitIf( ASTCILIfNode If )
@@ -225,8 +241,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitIOInInt( ASTCILIOInIntNode IOInInt )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .ReadInt( MipsRegisterSet.a0 ) );
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(IOInInt.Name));
+            result.SectionFunctions.Append( MipsGenerationHelper.NewScript().ReadInt( MipsRegisterSet.a0 ) );
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return());
             return result;
         }
 
@@ -283,16 +300,33 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return left + right;
         }
 
-        public MipsProgram VisitNew( ASTCILNewNode New )
-        {
-            throw new NotImplementedException();
-        }
-
         public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
 
-        public MipsProgram VisitProgram( ASTCILProgramNode Program )
+        public MipsProgram VisitProgram(ASTCILProgramNode Program )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+
+            var bufferlabel = labelGenerator.GetBuffer();
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(bufferlabel));
+            result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(bufferlabel,new[] {MipsGenerationHelper.AddDynamycString(MipsGenerationHelper.BufferSize)}));
+
+            List<string> all = new List<string>(); 
+            foreach (var item in RuntimeErrors.GetRuntimeErrorString)
+            {
+                var exception = labelGenerator.GetException();
+                all.Add(exception);
+                result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(exception));
+                result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(exception, new[] { MipsGenerationHelper.AddStringData(item.Value) }));
+            }
+
+            var exceptions = MipsGenerationHelper.Exceptions;
+            result.SectionData.Append(MipsGenerationHelper.NewScript().GlobalSection(exceptions));
+            result.SectionData.Append(MipsGenerationHelper.NewScript().AddData(exceptions, all.Select(x => MipsGenerationHelper.AddIntData(x))));
+
+            foreach (var item in Program.Types)
+                result += item.Accept(this);
+
+            return result;
         }
 
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
@@ -342,8 +376,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
         {
             var result = new MipsProgram();
-            var label = labelGenerator.GenerateFunc(Types.Object,Functions.Type_Name);
-            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(label)); 
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(objectTypeName.Name)); 
             //moving self to a0
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
             //moving self.typeInfo to a0
