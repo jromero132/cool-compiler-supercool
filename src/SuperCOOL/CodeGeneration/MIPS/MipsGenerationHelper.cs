@@ -56,7 +56,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Tags
-        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // main:
+        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // { tag_name }:
         {
             this.body += $"{ tag_name }:{ offset }{ ( end_line ? ENDL : "" ) }";
             return this;

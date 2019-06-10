@@ -128,10 +128,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
             var result = new MipsProgram();
-            foreach (var arg in FuncStaticCall.Arguments.Reverse())
+            foreach( var arg in FuncStaticCall.Arguments.Reverse() )
             {
-                result += arg.Accept(this);//leave in a0 expresion result
-                result.SectionCode.Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0));
+                result += arg.Accept( this );//leave in a0 expresion result
+                result.SectionCode.Append( MipsGenerationHelper.NewScript().Push( MipsRegisterSet.a0 ) );
             }
             var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable(FuncStaticCall.Type);
             //loading static virtual_table in a0
@@ -176,13 +176,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitGetAttr( ASTCILGetAttrNode GetAttr )
         {
-            var type=CompilationUnit.TypeEnvironment.GetContextType(GetAttr.SymbolTable);
-            var attroffset = type.GetOffsetForAttribute(GetAttr.AttributeName);
+            var type = this.CompilationUnit.TypeEnvironment.GetContextType( GetAttr.SymbolTable );
+            var attr_offset = type.GetOffsetForAttribute( GetAttr.AttributeName );
+
             var result = new MipsProgram();
-            //moving self to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
-            //moving self.attr to a0
-            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset ) );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .GetParam( 0 )
+                                                           .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attr_offset ) );
             return result;
         }
 
@@ -336,7 +336,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitSelf( ASTCILSelfNode Self )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .GetParam( 0 ) );
+            return result;
         }
 
         public MipsProgram VisitSetAttribute( ASTCILSetAttributeNode SetAttribute )
@@ -373,7 +376,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
+        public MipsProgram VisitObjectTypeName( ASTCILObjectTypeNameNode objectTypeName )
         {
             var result = new MipsProgram();
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Tag(objectTypeName.Name)); 
@@ -388,7 +391,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitObjectCopy(ASTCILObjectCopyNode objectCopy)
+        public MipsProgram VisitObjectCopy( ASTCILObjectCopyNode objectCopy )
         {
             throw new NotImplementedException();
         }
