@@ -293,7 +293,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitType( ASTCILTypeNode Type )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionData.Append(MipsGenerationHelper.NewScript());
         }
 
         public MipsProgram VisitVoid( ASTCILVoidNode Void )
