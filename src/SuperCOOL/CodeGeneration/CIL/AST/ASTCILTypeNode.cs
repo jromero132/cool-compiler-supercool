@@ -8,11 +8,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public int AllocateSize => Attributes.Count * 4;
         public CoolType Type { get; }
-        public IReadOnlyList<SymbollInfo> Attributes { get; }
+        public IReadOnlyList<SymbolInfo> Attributes { get; }
         public IReadOnlyList<CoolMethod> VirtualTable { get; }
         public IReadOnlyList<ASTCILFuncNode> Methods { get; }
 
-        public ASTCILTypeNode( CoolType type, IEnumerable<SymbollInfo> attributes, IEnumerable<CoolMethod> virtualTable,
+        public ASTCILTypeNode( CoolType type, IEnumerable<SymbolInfo> attributes, IEnumerable<CoolMethod> virtualTable,
             IEnumerable<ASTCILFuncNode> methods,ISymbolTable symbolTable):base(symbolTable)
         {
             Type = type;

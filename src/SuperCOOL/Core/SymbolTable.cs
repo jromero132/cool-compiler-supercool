@@ -6,21 +6,21 @@ using SuperCOOL.SemanticCheck;
 
 namespace SuperCOOL.Core
 {
-    public class SymbolInfoNameComparer : IEqualityComparer<SymbollInfo>
+    public class SymbolInfoNameComparer : IEqualityComparer<SymbolInfo>
     {
-        public bool Equals(SymbollInfo x, SymbollInfo y)
+        public bool Equals(SymbolInfo x, SymbolInfo y)
         {
             return x.Name == y.Name;
         }
 
-        public int GetHashCode(SymbollInfo obj)
+        public int GetHashCode(SymbolInfo obj)
         {
             return obj.Name.GetHashCode();
         }
     }
-    public class SymbollInfo 
+    public class SymbolInfo 
     {
-        public SymbollInfo(string name, string type, ObjectKind kind)
+        public SymbolInfo(string name, string type, ObjectKind kind)
         {
             Name = name;
             Type = type;
@@ -30,7 +30,7 @@ namespace SuperCOOL.Core
         public string Name { get; set; }
         public string Type { get; set; }
         public ObjectKind Kind { get; set; }
-        public string RenamedSymbol { get; set; }
+        public int Offset { get; set; }
     }
     public enum ObjectKind
     {
@@ -43,21 +43,21 @@ namespace SuperCOOL.Core
     public interface ISymbolTable
     {
         void DefObject(string name, string type, ObjectKind kind);
-        bool IsDefObject(string name,out SymbollInfo Info);
-        bool IsDefObjectOnThis(string name, out SymbollInfo Info);
+        bool IsDefObject(string name,out SymbolInfo Info);
+        bool IsDefObjectOnThis(string name, out SymbolInfo Info);
         ISymbolTable EnterScope();
         ISymbolTable ExitScope();
         void InheritsFrom(ISymbolTable parent);
-        IList<SymbollInfo> AllDefinedObjects();
-        IList<SymbollInfo> AllDefinedAttributes();
-        IList<SymbollInfo> GetLocals();
+        IList<SymbolInfo> AllDefinedObjects();
+        IList<SymbolInfo> AllDefinedAttributes();
+        IList<SymbolInfo> GetLocals();
     }
 
     public class SymbolTable : ISymbolTable
     {
         SymbolTable Parent;
-        Dictionary<string, SymbollInfo> Objects;
-        List<SymbollInfo> Locals;
+        Dictionary<string, SymbolInfo> Objects;
+        List<SymbolInfo> Locals;
 
         public SymbolTable(SymbolTable parent):this()
         {
@@ -65,13 +65,13 @@ namespace SuperCOOL.Core
         }
         public SymbolTable()
         {
-            Locals = new List<SymbollInfo>();
-            Objects = new Dictionary<string,SymbollInfo>();
+            Locals = new List<SymbolInfo>();
+            Objects = new Dictionary<string,SymbolInfo>();
         }
 
         public void DefObject(string name, string type,ObjectKind kind)
         {
-            Objects.Add(name,new SymbollInfo(name,type,kind));
+            Objects.Add(name,new SymbolInfo(name,type,kind));
         }
 
         public ISymbolTable EnterScope()
@@ -87,14 +87,14 @@ namespace SuperCOOL.Core
             return Parent;
         }
 
-        public bool IsDefObject(string name, out SymbollInfo Info)
+        public bool IsDefObject(string name, out SymbolInfo Info)
         {
             if (IsDefObjectOnThis(name,out Info))
                 return true;
             return Parent?.IsDefObject(name,out Info)??false;
         }
 
-        public bool IsDefObjectOnThis(string name, out SymbollInfo Info)
+        public bool IsDefObjectOnThis(string name, out SymbolInfo Info)
         {
             return Objects.TryGetValue(name,out Info);
         }
@@ -104,7 +104,7 @@ namespace SuperCOOL.Core
             Parent =(SymbolTable)parent;
         }
 
-        public IList<SymbollInfo> AllDefinedObjects()
+        public IList<SymbolInfo> AllDefinedObjects()
         {
             if(Parent==null)
                 return Objects.Values.ToList();
@@ -112,7 +112,7 @@ namespace SuperCOOL.Core
             return Objects.Values.Concat(Parent.AllDefinedObjects()).Distinct(new SymbolInfoNameComparer()).ToList();
         }
 
-        public IList<SymbollInfo> AllDefinedAttributes()
+        public IList<SymbolInfo> AllDefinedAttributes()
         {
             var myAttributes = Objects.Values.Where(x => x.Kind == ObjectKind.Atribute);
             if (Parent == null)
@@ -121,7 +121,7 @@ namespace SuperCOOL.Core
             return Parent.AllDefinedAttributes().Concat(myAttributes).ToList();
         }
 
-        public IList<SymbollInfo> GetLocals()
+        public IList<SymbolInfo> GetLocals()
         {
             return Locals;
         }

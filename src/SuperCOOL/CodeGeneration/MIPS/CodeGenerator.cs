@@ -12,7 +12,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         private ILabelILGenerator labelGenerator;
         public CompilationUnit CompilationUnit { get; }
 
-        public CodeGenerator(ILabelILGenerator labelGenerator, CompilationUnit compilationUnit)
+        public CodeGenerator( ILabelILGenerator labelGenerator, CompilationUnit compilationUnit )
         {
             this.labelGenerator = labelGenerator;
             this.CompilationUnit = compilationUnit;
@@ -62,8 +62,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
+        // TODO
         public MipsProgram VisitAssignment( ASTCILAssignmentNode Assignment )
         {
+            var result = Assignment.Expresion.Accept( this );
+
+            Assignment.SymbolTable.IsDefObject( Assignment.Identifier, out var symbolInfo );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .SaveToMemory( MipsRegisterSet.a0, symbolInfo.Offset ) );
+            throw new NotImplementedException();
         }
 
         public MipsProgram VisitBlock( ASTCILBlockNode Block )
@@ -190,16 +197,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
             // moving self to a0 not necesary self is already in ao.
             //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
             //loading self.typeInfo in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
             //loading typeInfo.virtual_table in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
             CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncStaticCall.MethodName,FuncStaticCall.SymbolTable,out var coolType);
             var virtualTable=CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
             var virtualMethod = virtualTable.Single(x => x.Name == FuncStaticCall.MethodName);
             int index = virtualTable.IndexOf(virtualMethod);
             int offset = 4 * index;
             //loading virtual_table.f in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
 
             //TODO: call
 
@@ -217,9 +224,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var attroffset = type.GetOffsetForAttribute(GetAttr.AttributeName);
             var result = new MipsProgram();
             //moving self to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
             //moving self.attr to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset ) );
             return result;
         }
 
@@ -227,7 +234,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .Jump( Goto.Label ) );
+                                                           .JumpToLabel( Goto.Label ) );
             return result;
         }
 
@@ -291,11 +298,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitLessThanConstantVariable( ASTCILLessThanConstantVariableNode LessThanConstantVariable )
         {
-            var result = LessThanConstantVariable.Right.Accept( this );
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadConstant( MipsRegisterSet.t0, LessThanConstantVariable.Left )
-                                                           .BranchLessThan( MipsRegisterSet.t0,  ) );
-            return result;
+            throw new NotImplementedException();
         }
 
         public MipsProgram VisitLessThanTwoConstant( ASTCILLessThanTwoConstantNode LessThanTwoConstant )
@@ -306,7 +309,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                            .LoadConstant( MipsRegisterSet.a0, LessThanTwoConstant.Left )
                                                            .BranchLessThan( MipsRegisterSet.a0, LessThanTwoConstant.Right, then )
                                                            .LoadConstant( MipsRegisterSet.a0, 0 )
-                                                           .Jump( endIf )
+                                                           .JumpToLabel( endIf )
                                                            .Tag( then )
                                                            .LoadConstant( MipsRegisterSet.a0, 1 )
                                                            .Tag( endIf ) );
@@ -323,11 +326,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
-        public MipsProgram VisitMinusConstantVariable(ASTCILMinusConstantVariableNode MinusConstantVariable)
+        public MipsProgram VisitMinusConstantVariable( ASTCILMinusConstantVariableNode MinusConstantVariable )
         {
             var result = MinusConstantVariable.Right.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadMemory( MipsRegisterSet.t0, MinusConstantVariable.Left )
+                                                           .LoadFromMemory( MipsRegisterSet.t0, MinusConstantVariable.Left )
                                                            .Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 ) );
             return result;
         }
@@ -409,7 +412,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitNode( ASTCILNode Node ) => throw new NotImplementedException();
 
-        public MipsProgram VisitProgram(ASTCILProgramNode Program)
+        public MipsProgram VisitProgram( ASTCILProgramNode Program )
         {
             throw new NotImplementedException();
         }
