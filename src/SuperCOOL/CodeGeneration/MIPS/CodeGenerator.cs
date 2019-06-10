@@ -62,8 +62,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
             throw new NotImplementedException();
         }
 
+        // TODO
         public MipsProgram VisitAssignment( ASTCILAssignmentNode Assignment )
         {
+            var result = Assignment.Expresion.Accept( this );
+
+            Assignment.SymbolTable.IsDefObject( Assignment.Identifier, out var symbolInfo );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .SaveToMemory( MipsRegisterSet.a0, symbolInfo.Offset ) );
+            throw new NotImplementedException();
         }
 
         public MipsProgram VisitBlock( ASTCILBlockNode Block )
@@ -227,7 +234,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .Jump( Goto.Label ) );
+                                                           .JumpToLabel( Goto.Label ) );
             return result;
         }
 
@@ -302,7 +309,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                            .LoadConstant( MipsRegisterSet.a0, LessThanTwoConstant.Left )
                                                            .BranchLessThan( MipsRegisterSet.a0, LessThanTwoConstant.Right, then )
                                                            .LoadConstant( MipsRegisterSet.a0, 0 )
-                                                           .Jump( endIf )
+                                                           .JumpToLabel( endIf )
                                                            .Tag( then )
                                                            .LoadConstant( MipsRegisterSet.a0, 1 )
                                                            .Tag( endIf ) );

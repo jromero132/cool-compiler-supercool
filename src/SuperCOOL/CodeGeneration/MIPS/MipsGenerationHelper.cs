@@ -33,13 +33,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
         private const int print_int = 1;
         private const int print_string = 4;
         private const int read_int = 5;
+        private const int allocate = 9;
         private const int exit = 10;
 
 
         // Sections
-        public MipsGenerationHelper Section( string section_name ) // .data
+        public MipsGenerationHelper Section( string section_name, string arg = "" ) // .{ section_name } arg
         {
-            this.body += $".{ section_name }{ ENDL }";
+            this.body += $".{ section_name }{ ( arg == "" ? "" : " " + arg ) }{ ENDL }";
             return this;
         }
 
@@ -47,23 +48,26 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsGenerationHelper TextSection() => Section( "text" );
 
+        public MipsGenerationHelper GlobalSection( string label ) => Section( "globl", label );
+
 
         // Tags
-        public MipsGenerationHelper Tag( string tag_name ) // main:
+        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // main:
         {
-            this.body += $"{ tag_name }:{ ENDL }";
+            this.body += $"{ tag_name }:{ offset }{ ( end_line ? ENDL : "" ) }";
             return this;
         }
 
         public MipsGenerationHelper MainTag() => Tag( "main" );
 
 
-        // Data
-        public MipsGenerationHelper StringType( string name, string value )
-        {
-            this.body += $"{ name }: .ascii \"{ value }\"{ ENDL }";
-            return this;
-        }
+        // Data Types
+        public MipsGenerationHelper AddData( string name, string type, object value ) => this.Tag( name, false, " " )
+                                                                                        .Section( type, $" { value }" );
+
+        public MipsGenerationHelper AddStringType( string name, string value ) => AddData( name, "asciiz", value );
+
+        public MipsGenerationHelper AddWordType( string name, object value ) => AddData( name, "word", value );
 
 
         // Exit
@@ -77,6 +81,24 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body += $"syscall{ ENDL }";
             return this;
         }
+
+
+        // Functions Call
+        // When changing stack in this method check correctness with return method.
+        public MipsGenerationHelper Call( Register r ) => this.Push( MipsRegisterSet.ip )
+                                                         .Push( MipsRegisterSet.bp )
+                                                         .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
+                                                         .JumpRegister( r );
+
+        public MipsGenerationHelper Return() => this.Pop( MipsRegisterSet.bp )
+                                               .Pop( MipsRegisterSet.t0 )
+                                               .JumpRegister( MipsRegisterSet.t0 );
+
+
+        // Getting args and variables in functions
+        public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
+
+        public MipsGenerationHelper GetLocal( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, -offset - 8 );
 
 
         // Read
@@ -137,10 +159,22 @@ namespace SuperCOOL.CodeGeneration.MIPS
         }
 
 
+        // Dynamic saving
+        public MipsGenerationHelper Allocate( int n ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
+                                                        .LoadConstant( MipsRegisterSet.a0, n << 2 )
+                                                        .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
+
+
         // Jumps
-        public MipsGenerationHelper Jump( string label )
+        public MipsGenerationHelper JumpToLabel( string label )
         {
             this.body += $"j { label }{ ENDL }";
+            return this;
+        }
+
+        public MipsGenerationHelper JumpRegister( Register r )
+        {
+            this.body += $"jr { r }{ ENDL }";
             return this;
         }
 
