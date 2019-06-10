@@ -81,6 +81,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
+        public static (string, object) AddStringData( string value ) => ( "asciiz", $"\"{ value }\"" );
 
         // Newline
         public MipsGenerationHelper NewLine()
