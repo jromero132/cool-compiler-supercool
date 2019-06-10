@@ -104,9 +104,7 @@ namespace SuperCOOL.CodeGeneration
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
                 .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),
-                    attributesInit.Append(new ASTCILSetAttributeNode(Class.TypeName, Attributes.TypeName,
-                        new ASTCILStringConstantNode(Class.TypeName, Class.SymbolTable,
-                            labelIlGenerator.GenerateStringData()), Class.SymbolTable)), Class.SymbolTable));
+                    attributesInit, Class.SymbolTable));
 
             var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
@@ -298,12 +296,15 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
-                        Enumerable.Repeat(new SymbollInfo(Attributes.TypeName, Types.String, ObjectKind.Atribute), 1),
+                        Enumerable.Empty<SymbollInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
-                        new ASTCILFuncNode[]
+                        new []
                         {
-                            new ASTCILObjectAbortNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable), 
+                            //Abort function
+                            new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.Object, Functions.Abort),
+                                new[] { new ASTCILRuntimeErrorNode(RuntimeErrors.ObjectAbort, Program.SymbolTable) },
+                                Program.SymbolTable),
+                            new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable),
                             new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String, Enumerable.Empty<SymbollInfo>(),
