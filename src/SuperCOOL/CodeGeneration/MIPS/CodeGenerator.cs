@@ -297,7 +297,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitObjectTypeName(ASTCILObjectTypeNameNode objectTypeName)
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            //moving self to a0
+            result.SectionFunctions.Append();//TODO put label here 
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
+            //moving self.typeInfo to a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            //moving self.typeInfo.Name to a0
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,MipsGenerationHelper.TypeNameOffset));
+            result.SectionFunctions.Append();//TODO put return here 
+
+            return result;
         }
 
         public MipsProgram VisitObjectCopy(ASTCILObjectCopyNode objectCopy)
