@@ -298,7 +298,7 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
-                        Enumerable.Empty<SymbollInfo>(),
+                        Enumerable.Empty<SymbolInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
                         new[]
                         {
@@ -310,7 +310,7 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String,
-                        new[] { new SymbollInfo(Attributes.StringLength, Types.String, ObjectKind.Atribute), },
+                        new[] { new SymbolInfo(Attributes.StringLength, Types.String, ObjectKind.Atribute), },
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
                         new []
                         {

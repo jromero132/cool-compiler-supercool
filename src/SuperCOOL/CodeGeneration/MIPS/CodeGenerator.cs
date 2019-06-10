@@ -197,16 +197,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
             // moving self to a0 not necesary self is already in ao.
             //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
             //loading self.typeInfo in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest));
             //loading typeInfo.virtual_table in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0,MipsRegisterSet.a0,MipsGenerationHelper.VirtualTableOffset));
             CompilationUnit.TypeEnvironment.GetTypeDefinition(FuncStaticCall.MethodName,FuncStaticCall.SymbolTable,out var coolType);
             var virtualTable=CompilationUnit.MethodEnvironment.GetVirtualTable(coolType);
             var virtualMethod = virtualTable.Single(x => x.Name == FuncStaticCall.MethodName);
             int index = virtualTable.IndexOf(virtualMethod);
             int offset = 4 * index;
             //loading virtual_table.f in a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0,offset));
 
             //TODO: call
 
@@ -224,7 +224,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var attroffset = type.GetOffsetForAttribute(GetAttr.AttributeName);
             var result = new MipsProgram();
             //moving self to a0
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.bp));
             //moving self.attr to a0
             result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attroffset ) );
             return result;
