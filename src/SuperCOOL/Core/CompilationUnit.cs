@@ -36,9 +36,9 @@ namespace SuperCOOL.Core
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutInt, new List<CoolType>() { TypeEnvironment.Int }, new SelfType(TypeEnvironment.IO));
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.InString, new List<CoolType>(), TypeEnvironment.String);
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.OutString, new List<CoolType>() { TypeEnvironment.String }, new SelfType(TypeEnvironment.IO));
-            MethodEnvironment.AddMethod(TypeEnvironment.Object, Functions.Init, new List<CoolType>(), new SelfType(TypeEnvironment.Object));
-            MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Init, new List<CoolType>(), new SelfType(TypeEnvironment.String));
-            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.Init, new List<CoolType>(), new SelfType(TypeEnvironment.IO));
+            MethodEnvironment.AddMethod(TypeEnvironment.Object, Functions.Init, new List<CoolType>(), TypeEnvironment.Object);
+            MethodEnvironment.AddMethod(TypeEnvironment.String, Functions.Init, new List<CoolType>(), TypeEnvironment.String);
+            MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.Init, new List<CoolType>(), TypeEnvironment.IO);
         }
 
         public bool HasEntryPoint()
