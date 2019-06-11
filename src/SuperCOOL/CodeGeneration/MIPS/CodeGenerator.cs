@@ -185,7 +185,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.VirtualTableOffset ) );
             var coolType=CompilationUnit.TypeEnvironment.GetContextType( FuncVirtualCall.SymbolTable);
             var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable( coolType );
-            var virtualMethod = virtualTable.Single( x => labelGenerator.GenerateFunc(coolType.Name,x.Name) == FuncVirtualCall.MethodName);
+            var virtualMethod = virtualTable.Single( x => x.Name == FuncVirtualCall.MethodName);
             int index = virtualTable.IndexOf( virtualMethod );
             int offset = 4 * index;
 
@@ -386,8 +386,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
             CompilationUnit.TypeEnvironment.GetTypeDefinition("Main", Program.SymbolTable, out var main);
             var entryPoint = new ASTCILBlockNode(new ASTCILExpressionNode[] {
                                                     new ASTCILAllocateNode(main.Name,main.SymbolTable),
-                                                    new ASTCILFuncVirtualCallNode(labelGenerator.GenerateInit(main.Name),new ASTCILExpressionNode[]{ },main.SymbolTable),
-                                                    new ASTCILFuncVirtualCallNode("Main_main",new ASTCILExpressionNode[]{ },main.SymbolTable),
+                                                    new ASTCILFuncVirtualCallNode("_init",new ASTCILExpressionNode[]{ },main.SymbolTable),
+                                                    new ASTCILFuncVirtualCallNode("main",new ASTCILExpressionNode[]{ },main.SymbolTable),
                                                     }, Program.SymbolTable);
 
             result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
