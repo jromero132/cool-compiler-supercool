@@ -42,11 +42,11 @@ namespace SuperCOOL.Core
 
         public IList<CoolMethod> GetVirtualTable(CoolType type)
         {
-            var currentVirtualTable = Methods[type];
+            var currentVirtualTable = Methods[type].ToList();
             if (type.Parent == null)
                 return currentVirtualTable;
 
-            var parentVirtualTable = GetVirtualTable(type.Parent);
+            var parentVirtualTable = GetVirtualTable(type.Parent).ToList();
             for (int i = 0; i < parentVirtualTable.Count; i++)
             {
                 int index;
