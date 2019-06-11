@@ -251,7 +251,7 @@ namespace SuperCOOL.CodeGeneration
         {
             return new ASTCILProgramNode
             (
-                Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this))
+                Program.Clases.Select(x => (ASTCILTypeNode)x.Accept(this))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbolInfo>(),
                         Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbolInfo>(),
@@ -263,7 +263,10 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILIOInIntNode(labelIlGenerator, Program.SymbolTable),
                             new ASTCILIOInStringNode(labelIlGenerator, Program.SymbolTable),
                             new ASTCILIOOutIntNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable)
+                            new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.IO.Name),
+                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>(),Program.SymbolTable)},
+                                                Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
                         Enumerable.Empty<SymbolInfo>(),
@@ -275,7 +278,10 @@ namespace SuperCOOL.CodeGeneration
                                 new[] { new ASTCILRuntimeErrorNode(RuntimeErrors.ObjectAbort, Program.SymbolTable) },
                                 Program.SymbolTable),
                             new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
+                            new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.Object.Name),
+                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>(),Program.SymbolTable)},
+                                                Program.SymbolTable)
                         }, Program.SymbolTable))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String,
                         new[] { new SymbolInfo(Attributes.StringLength, Types.String, ObjectKind.Atribute), },
@@ -289,6 +295,9 @@ namespace SuperCOOL.CodeGeneration
                             }, Program.SymbolTable),
                             new ASTCILStringConcatNode(labelIlGenerator, Program.SymbolTable),
                             new ASTCILStringSubStrNode(labelIlGenerator, Program.SymbolTable),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.String.Name),
+                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>(),Program.SymbolTable)},
+                                                Program.SymbolTable)
                         }, Program.SymbolTable)), Program.SymbolTable
             );
         }
