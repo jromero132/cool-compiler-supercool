@@ -1,15 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using SuperCOOL.CodeGeneration.MIPS.Registers;
 
-using SuperCOOL.CodeGeneration.MIPS.Registers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     public class MipsGenerationHelper
     {
+        // Constants
         public const int TRUE = 1, FALSE = 0, NULL = 0;
 
+        public static readonly string TAB = "\t";
         private static readonly string ENDL = Environment.NewLine;
 
         public const int BufferSize = 4096;
@@ -23,13 +26,20 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const int SizeOfOffset = 4;
         public const int VirtualTableOffset = 8;
 
-        private string body;
 
-        private MipsGenerationHelper( string body = "" ) => this.body = body;
+        private StringBuilder body;
+
+        private MipsGenerationHelper( StringBuilder body = null ) => this.body = new StringBuilder().Append( body ?? new StringBuilder() );
 
         public static MipsGenerationHelper NewScript() => new MipsGenerationHelper();
 
-        public static implicit operator string( MipsGenerationHelper a ) => a.body;
+        public static implicit operator string( MipsGenerationHelper a ) => a.body.ToString();
+
+        public static MipsGenerationHelper operator +( MipsGenerationHelper a, StringBuilder b ) =>
+            new MipsGenerationHelper( new StringBuilder().Append( a ).Append( b ) );
+
+        public static MipsGenerationHelper operator +( StringBuilder a, MipsGenerationHelper b ) =>
+            new MipsGenerationHelper( new StringBuilder().Append( a ).Append( b ) );
 
 
         // System call codes
@@ -43,33 +53,45 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Sections
         public MipsGenerationHelper Section( string section_name, string arg = "" ) // .{ section_name } arg
         {
-            this.body += $".{ section_name }{ ( arg == "" ? "" : " " + arg ) }{ ENDL }";
+            this.body.Append( $".{ section_name }{ ( arg == "" ? "" : " " + arg ) }{ ENDL }" );
             return this;
         }
 
-        public MipsGenerationHelper DataSection() => Section( "data" );
+        public MipsGenerationHelper DataSection() => Section( "data" ); // .data
 
-        public MipsGenerationHelper TextSection() => Section( "text" );
+        public MipsGenerationHelper TextSection() => Section( "text" ); // .text
 
-        public MipsGenerationHelper GlobalSection( string label ) => Section( "globl", label );
+        public MipsGenerationHelper GlobalSection( string label ) => Section( "globl", label ); // .globl { label }
 
 
         // Tags
-        public MipsGenerationHelper Tag( string tag_name, bool end_line = true, string offset = "" ) // { tag_name }:
+        public MipsGenerationHelper Tag( string tag_name ) // { tag_name }:
         {
-            this.body += $"{ tag_name }:{ offset }{ ( end_line ? ENDL : "" ) }";
+            this.body.Append( $"{ tag_name }:{ ENDL }" );
             return this;
         }
 
-        public MipsGenerationHelper MainTag() => Tag( "main" );
+        public MipsGenerationHelper MainTag() => Tag( "main" ); // main:
+
+
+        // Comments
+        public MipsGenerationHelper Comment( string comment )
+        {
+            this.body.Append( $"# { comment }{ ENDL }" );
+            return this;
+        }
+
+
+        // Newline
+        public MipsGenerationHelper NewLine()
+        {
+            this.body.Append( ENDL );
+            return this;
+        }
 
 
         // Data Types
-        public MipsGenerationHelper AddData( string name, IEnumerable<(string type, object value)> args )
-        {
-            this.body += $"{ name }: { string.Join( $"{ ENDL }", args.Select( x => $".{ x.type } { x.value }" ) ) }{ ENDL }";
-            return this;
-        }
+        public MipsGenerationHelper AddData( string name, IEnumerable<(string type, object value)> args ) => this.Tag( name ) + new StringBuilder( args.Select( x => $"{ TAB }.{ x.type } { x.value }{ ENDL }" ).Aggregate( ( x, y ) => x.ToString() + y.ToString() ) );
 
         public static (string, object) AddStringData( string value ) => ("asciiz", value);
 
@@ -80,13 +102,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         // Exit
         public MipsGenerationHelper Exit() => this.LoadConstant( MipsRegisterSet.v0, exit )
-                                             .SystemCall();
+                                                  .SystemCall();
 
 
         // System call
         public MipsGenerationHelper SystemCall() // syscall
         {
-            this.body += $"syscall{ ENDL }";
+            this.body.Append( $"syscall{ ENDL }" );
             return this;
         }
 
@@ -94,13 +116,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Functions Call
         // When changing stack in this method check correctness with return method.
         public MipsGenerationHelper Call( Register r ) => this.Push( MipsRegisterSet.ip )
-                                                         .Push( MipsRegisterSet.bp )
-                                                         .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
-                                                         .JumpRegister( r );
+                                                              .Push( MipsRegisterSet.bp )
+                                                              .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
+                                                              .JumpRegister( r );
 
         public MipsGenerationHelper Return() => this.Pop( MipsRegisterSet.bp )
-                                               .Pop( MipsRegisterSet.t0 )
-                                               .JumpRegister( MipsRegisterSet.t0 );
+                                                    .Pop( MipsRegisterSet.t0 )
+                                                    .JumpRegister( MipsRegisterSet.t0 );
 
 
         // Getting args and variables in functions
@@ -110,35 +132,45 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Read
-        public MipsGenerationHelper ReadInt( Register r ) => this.LoadConstant( MipsRegisterSet.v0, read_int )
-                                                                 .SystemCall()
-                                                                 .Move( r, MipsRegisterSet.v0 );
+        public MipsGenerationHelper ReadInt( Register r )
+        {
+            this.LoadConstant( MipsRegisterSet.v0, read_int )
+                .SystemCall();
+
+            if( r != MipsRegisterSet.v0 )
+                this.Move( r, MipsRegisterSet.v0 );
+
+            return this;
+        }
 
 
         // Print
         public MipsGenerationHelper PrintInt() => this.LoadConstant( MipsRegisterSet.v0, print_int )
-                                                 .SystemCall();
+                                                      .SystemCall();
+
         public MipsGenerationHelper PrintInt( int d ) => this.LoadConstant( MipsRegisterSet.a0, d )
-                                                           .PrintInt();
+                                                             .PrintInt();
+
         public MipsGenerationHelper PrintString( string name ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
-                                                                 .LoadFromAddress( MipsRegisterSet.a0, name )
-                                                                 .SystemCall();
+                                                                      .LoadFromAddress( MipsRegisterSet.a0, name )
+                                                                      .SystemCall();
 
         public MipsGenerationHelper PrintString( Register r ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
-                                                                .LoadFromMemory( MipsRegisterSet.a0, r )
-                                                                .SystemCall();
+                                                                     .LoadFromMemory( MipsRegisterSet.a0, r )
+                                                                     .SystemCall();
 
 
         // Move
         public MipsGenerationHelper Move( Register r1, Register r2 ) // r1 <- r2
         {
-            this.body += $"move { r1 }, { r2 }{ ENDL }";
+            if( r1 != r2 )
+                this.body.Append( $"move { r1 }, { r2 }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper MoveFromLo( Register r ) // r <- $lo
         {
-            this.body += $"mflo { r }{ ENDL }";
+            this.body.Append( $"mflo { r }{ ENDL }" );
             return this;
         }
 
@@ -146,88 +178,102 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Load
         public MipsGenerationHelper LoadConstant( Register r, int c ) // r <- c
         {
-            this.body += $"li { r }, { c }{ ENDL }";
+            this.body.Append( $"li { r }, { c }{ ENDL }" );
             return this;
         }
 
-        public MipsGenerationHelper LoadFromMemory( Register r, object d, int offset = 0 ) // r <- (d)
-        {
-            return LoadFromMemoryLabel( r, $"({d})", offset );
-        }
+        public MipsGenerationHelper LoadFromMemory( Register r, object d, int offset = 0 ) => LoadFromMemoryLabel( r, $"({d})", offset ); // r <- (d) 
 
-        public MipsGenerationHelper LoadFromMemoryLabel( Register r, object d, int offset = 0 ) // r <- (d)
+        public MipsGenerationHelper LoadFromMemoryLabel( Register r, object d, int offset = 0 ) // r <- (d + offset)
         {
-            this.body += $"lw { r }, { ( offset == 0 ? "" : offset.ToString() ) }{ d }{ ENDL }";
+            this.body.Append( $"lw { r }, { ( offset == 0 ? "" : offset.ToString() ) }{ d }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper LoadFromAddress( Register r, string a ) // r <- a
         {
-            this.body += $"la { r }, { a }{ ENDL }";
+            this.body.Append( $"la { r }, { a }{ ENDL }" );
             return this;
         }
 
 
         // Save
-        public MipsGenerationHelper SaveToMemory( Register r, object d, int offset = 0 ) // (d) <- r
+        public MipsGenerationHelper SaveToMemory( Register r, object d, int offset = 0 ) // (d + offset) <- r
         {
-            this.body += $"sw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }";
+            this.body.Append( $"sw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }" );
             return this;
         }
 
 
         // Dynamic saving
-        public MipsGenerationHelper Allocate( Register r ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
-                                                             .Move( MipsRegisterSet.a0, r )
-                                                             .SystemCall()
-                                                             .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
+        public MipsGenerationHelper Allocate( Register r )
+        {
+            this.LoadConstant( MipsRegisterSet.v0, allocate );
+
+            if( MipsRegisterSet.a0 != r )
+                this.Move( MipsRegisterSet.a0, r );
+
+            return this.SystemCall()
+                .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
+        }
 
 
         // Jumps
         public MipsGenerationHelper JumpToLabel( string label )
         {
-            this.body += $"j { label }{ ENDL }";
+            this.body.Append( $"j { label }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper JumpRegister( Register r )
         {
-            this.body += $"jr { r }{ ENDL }";
+            this.body.Append( $"jr { r }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper BranchOnEquals( Register r, object v, string label )
         {
-            this.body += $"beq { r }, { v }, { label }{ ENDL }";
+            if( r == v )
+                return this.JumpToLabel( label );
+
+            this.body.Append( $"beq { r }, { v }, { label }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper BranchLessThan( Register r, object v, string label )
         {
-            this.body += $"blt { r }, { v }, { label }{ ENDL }";
+            if( r == v )
+                return this;
+
+            this.body.Append( $"blt { r }, { v }, { label }{ ENDL }" );
             return this;
         }
 
         public MipsGenerationHelper BranchLessEqual( Register r, object v, string label )
         {
-            this.body += $"ble { r }, { v }, { label }{ ENDL }";
+            if( r == v )
+                return this.JumpToLabel( label );
+
+            this.body.Append( $"ble { r }, { v }, { label }{ ENDL }" );
             return this;
         }
 
 
         // Stack
         public MipsGenerationHelper Push( Register r ) => this.Sub( MipsRegisterSet.sp, 4 )
-                                                         .SaveToMemory( r, MipsRegisterSet.sp );
+                                                              .SaveToMemory( r, MipsRegisterSet.sp );
+
         public MipsGenerationHelper Pop( Register r ) => this.LoadFromMemory( r, MipsRegisterSet.sp )
-                                                        .Add( MipsRegisterSet.sp, 4 );
-        public MipsGenerationHelper PushConstant( int c ) => this.LoadConstant( MipsRegisterSet.a0, c )
-                                                            .Push( MipsRegisterSet.a0 );
+                                                             .Add( MipsRegisterSet.sp, 4 );
+
+        public MipsGenerationHelper PushConstant( int c ) => this.Sub( MipsRegisterSet.sp, 4 )
+                                                                 .LoadConstant( MipsRegisterSet.sp, c );
 
 
         // Boolean operators
         public MipsGenerationHelper Not( Register r, Register r_out )
         {
-            this.body += $"nor { r_out }, { r }, { MipsRegisterSet.zero }{ ENDL }";
+            this.body.Append( $"nor { r_out }, { r }, { MipsRegisterSet.zero }{ ENDL }" );
             return this;
         }
 
@@ -237,7 +283,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Bitwise operators
         public MipsGenerationHelper Or( Register r1, Register r2, Register r_out )
         {
-            this.body += $"or { r_out }, { r1 }, { r2 }{ ENDL }";
+            if( r1 == r2 || r1 == MipsRegisterSet.zero || r2 == MipsRegisterSet.zero )
+                return this.Move( r_out, r1 == MipsRegisterSet.zero ? r2 : r1 );
+
+            this.body.Append( $"or { r_out }, { r1 }, { r2 }{ ENDL }" );
             return this;
         }
 
@@ -245,7 +294,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsGenerationHelper OrConstant( Register r, int c, Register r_out )
         {
-            this.body += $"ori { r_out }, { r }, { c }{ ENDL }";
+            if( c == 0 )
+                return this.Move( r_out, r );
+
+            this.body.Append( $"ori { r_out }, { r }, { c }{ ENDL }" );
             return this;
         }
 
@@ -255,7 +307,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Add instruction
         public MipsGenerationHelper Add( Register r, object v, Register r_out ) // r_out <- r + v
         {
-            this.body += $"add { r_out }, { r }, { v }{ ENDL }";
+            this.body.Append( $"add { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
 
@@ -265,7 +317,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Sub instruction
         public MipsGenerationHelper Sub( Register r, object v, Register r_out ) // r_out <- r - v
         {
-            this.body += $"sub { r_out }, { r }, { v }{ ENDL }";
+            this.body.Append( $"sub { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
 
@@ -275,7 +327,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Mul instruction
         public MipsGenerationHelper Mul( Register r, object v, Register r_out ) // r_out <- r * v
         {
-            this.body += $"mul { r_out }, { r }, { v }{ ENDL }";
+            this.body.Append( $"mul { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
 
@@ -285,7 +337,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v
         {
-            this.body += $"div { r }, { v }{ ENDL }";
+            this.body.Append( $"div { r }, { v }{ ENDL }" );
             return this;
         }
     }

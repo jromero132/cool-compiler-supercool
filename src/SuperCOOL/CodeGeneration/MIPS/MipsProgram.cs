@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
     public class MipsProgram
     {
-        public StringBuilder SectionCode { get; }
-        public StringBuilder SectionData { get; }
-        public StringBuilder SectionFunctions { get; }
+        public StringBuilder SectionCode { get; private set; }
+        public StringBuilder SectionData { get; private set; }
+        public StringBuilder SectionFunctions { get; private set; }
 
         public MipsProgram()
         {
-            SectionCode = new StringBuilder();
-            SectionData = new StringBuilder();
-            SectionFunctions = new StringBuilder();
+            this.SectionCode = new StringBuilder();
+            this.SectionData = new StringBuilder();
+            this.SectionFunctions = new StringBuilder();
         }
 
         public static MipsProgram operator +( MipsProgram left, MipsProgram right )
