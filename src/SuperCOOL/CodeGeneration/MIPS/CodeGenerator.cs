@@ -137,6 +137,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Return() );
 
+            result.SectionData.Append(body.SectionData);
             return result;
         }
 
