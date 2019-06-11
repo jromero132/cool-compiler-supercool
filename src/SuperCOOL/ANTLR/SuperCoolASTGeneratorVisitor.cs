@@ -416,7 +416,7 @@ namespace SuperCOOL.ANTLR
 
         public override ASTNode VisitString([NotNull] SuperCOOLParser.StringContext context)
         {
-            return new ASTStringConstantNode() { Value = context.STRING().Symbol.Text };
+            return new ASTStringConstantNode() { Value = context.STRING().Symbol.Text.Trim('"') };
         }
 
         public override ASTNode VisitTrue([NotNull] SuperCOOLParser.TrueContext context)
