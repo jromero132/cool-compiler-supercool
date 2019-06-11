@@ -438,15 +438,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitType( ASTCILTypeNode Type )
         {
-            var typeName = CompilationUnit.TypeEnvironment.GetContextType( Type.SymbolTable ).Name;
-            var label_type_name = labelGenerator.GenerateLabelTypeName( typeName );
+            var result = new MipsProgram();
+            foreach( var method in Type.Methods )
+                result += method.Accept( this );
 
-            var result = Type.Methods.Select( x => x.Accept( this ) ).Aggregate( ( x, y ) => x + y );
-            result.SectionData.Append( MipsGenerationHelper.NewScript()
-                                                           .GlobalSection( label_type_name )
-                                                           .AddData( label_type_name, new[] {
-                                                                                        MipsGenerationHelper.AddStringData( typeName )
-                                                                                      } ) );
+            var typeName = Type.Type.Name;
+            var label_type_name = labelGenerator.GenerateLabelTypeName( typeName );
+            result.SectionData.Append( MipsGenerationHelper.NewScript().GlobalSection( label_type_name ).AddData( label_type_name, new[] { MipsGenerationHelper.AddStringData( typeName ) } ) );
 
             var label_virtual_table = labelGenerator.GenerateLabelVirtualTable( typeName );
             result.SectionData.Append( MipsGenerationHelper.NewScript()
