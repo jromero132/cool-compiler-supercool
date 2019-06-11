@@ -391,7 +391,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                     new ASTCILFuncVirtualCallNode("main",new ASTCILExpressionNode[]{ },main.SymbolTable),
                                                     }, Program.SymbolTable);
 
-            result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint.Accept(this).SectionCode);
 
             foreach( var item in Program.Types )
                 result += item.Accept( this );
