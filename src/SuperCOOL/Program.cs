@@ -1,26 +1,31 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
 using SuperCOOL.ANTLR;
 using SuperCOOL.CodeGeneration;
 using SuperCOOL.Core;
 using SuperCOOL.NameGenerator;
 using SuperCOOL.SemanticCheck;
 using SuperCOOL.SemanticCheck.AST;
+
+using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace SuperCOOL
 {
     public class Compiler
     {
         const string COOL_EXTENSION = "cl";
+
         public static void Main( string[] args )
         {
-            Console.WriteLine( "SuperCool Compiler Platform" );
-            Console.WriteLine( "Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved." );
+            ConsoleExtended.WriteLineWithDelay( "SuperCool Compiler Platform" );
+            ConsoleExtended.WriteLineWithDelay( "Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved." );
+            Console.WriteLine();
 
             var Errors = Compile( args ,out var Code);
             //PrintErrors
@@ -84,5 +89,19 @@ namespace SuperCOOL
             }
             return program.ToString();
         }
+    }
+
+    public static class ConsoleExtended
+    {
+        public static void WriteWithDelay( object o, int milliseconds = 100 )
+        {
+            foreach( char c in o.ToString() )
+            {
+                Console.Write( c );
+                Thread.Sleep( milliseconds );
+            }
+        }
+
+        public static void WriteLineWithDelay( object o, int milliseconds = 100 ) => WriteWithDelay( o + Environment.NewLine, milliseconds );
     }
 }
