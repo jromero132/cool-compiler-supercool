@@ -17,7 +17,9 @@
         public const string Length = "length";
         public const string Concat = "concat";
         public const string Substr = "substr";
-        
+
+        //Init
+        public const string Init = "_init";
 
     }
 }

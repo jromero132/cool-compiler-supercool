@@ -6,9 +6,8 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILStringConcatNode : ASTCILFuncNode
     {
-        public ASTCILStringConcatNode(ILabelILGenerator labelIlGenerator, ISymbolTable symbolTable) : base(
-            labelIlGenerator.GenerateFunc(Types.String, Functions.Concat), Enumerable.Empty<ASTCILExpressionNode>(),
-            symbolTable)
+        public ASTCILStringConcatNode(CoolMethod method,ILabelILGenerator labelIlGenerator) : base(
+            labelIlGenerator.GenerateFunc(Types.String, Functions.Concat),method, Enumerable.Empty<ASTCILExpressionNode>())
         {
         }
 

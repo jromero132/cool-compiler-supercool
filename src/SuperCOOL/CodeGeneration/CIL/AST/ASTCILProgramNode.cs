@@ -8,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public IReadOnlyList<ASTCILTypeNode> Types { get; }
 
-        public ASTCILProgramNode( IEnumerable<ASTCILTypeNode> types, ISymbolTable symbolTable) : base(symbolTable)
+        public ASTCILProgramNode( IEnumerable<ASTCILTypeNode> types) : base()
         {
             Types = types.ToImmutableList();
         }

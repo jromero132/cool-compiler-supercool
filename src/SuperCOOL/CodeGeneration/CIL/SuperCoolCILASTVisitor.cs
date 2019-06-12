@@ -24,7 +24,7 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitAdd(ASTAddNode Add)
         {
             return new ASTCILAddTwoVariablesNode((ASTCILExpressionNode) Add.Left.Accept(this),
-                (ASTCILExpressionNode) Add.Right.Accept(this),Add.SymbolTable);
+                (ASTCILExpressionNode) Add.Right.Accept(this));
         }
 
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
@@ -32,28 +32,28 @@ namespace SuperCOOL.CodeGeneration
             Assigment.SymbolTable.IsDefObject(Assigment.Id.Name, out var symbolInfo);
 
             return symbolInfo.Kind == ObjectKind.Atribute
-                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo.Name, symbolInfo.Type,
-                    (ASTCILExpressionNode)Assigment.Expresion.Accept(this), Assigment.SymbolTable)
-                : new ASTCILAssignmentNode(Assigment.Id.Name, (ASTCILExpressionNode) Assigment.Expresion.Accept(this),Assigment.SymbolTable);
+                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,
+                    (ASTCILExpressionNode)Assigment.Expresion.Accept(this))
+                : new ASTCILAssignmentNode(symbolInfo, (ASTCILExpressionNode) Assigment.Expresion.Accept(this));
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
         {
-            return new ASTCILBlockNode(Block.Expresions.Select(x => (ASTCILExpressionNode) x.Accept(this)),Block.SymbolTable);
+            return new ASTCILBlockNode(Block.Expresions.Select(x => (ASTCILExpressionNode) x.Accept(this)));
         }
 
         public ASTCILNode VisitBoolNot(ASTBoolNotNode BoolNot)
         {
-            return new ASTCILBoolNotNode((ASTCILExpressionNode) BoolNot.Accept(this),BoolNot.SymbolTable);
+            return new ASTCILBoolNotNode((ASTCILExpressionNode) BoolNot.Accept(this));
         }
 
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
             var caseExpression = (ASTCILExpressionNode) Case.ExpressionCase.Accept(this);
             var caseLabels = labelIlGenerator.GenerateCase();
-            var caseExpressionCheckVoid = new ASTCILIfNode(new ASTCILIsVoidNode(caseExpression,Case.SymbolTable),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.CaseVoidRuntimeError, Case.SymbolTable),
-                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>(),Case.SymbolTable), labelIlGenerator.GenerateIf(),Case.SymbolTable);
+            var caseExpressionCheckVoid = new ASTCILIfNode(new ASTCILIsVoidNode(caseExpression),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.CaseVoidRuntimeError),
+                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), labelIlGenerator.GenerateIf());
             var caseExpressionType = Case.ExpressionCase.SemanticCheckResult.Type.Name;
             var caseExpressions = new List<ASTCILExpressionNode>
                 { caseExpression, caseExpressionCheckVoid };
@@ -62,6 +62,7 @@ namespace SuperCOOL.CodeGeneration
 
                 foreach (var caseSubExpression in Case.Cases)
                 {
+                    var idInfo=Case.SymbolTable.GetObject(caseSubExpression.Name.Text);
                     caseExpressions.Add(new ASTCILIfNode(
                         (ASTCILExpressionNode) new ASTEqualNode
                         {
@@ -72,36 +73,36 @@ namespace SuperCOOL.CodeGeneration
                         (
                             new[]
                             {
-                                new ASTCILAssignmentNode(caseSubExpression.Name.Text,
-                                    caseExpression,Case.SymbolTable),
+                                new ASTCILAssignmentNode(idInfo,
+                                    caseExpression),
                                 (ASTCILExpressionNode) caseSubExpression.Branch.Accept(this),
-                                new ASTCILGotoNode(caseLabels.endOfCase,Case.SymbolTable),
-                            },Case.SymbolTable
-                        ), new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>(),Case.SymbolTable),
-                        labelIlGenerator.GenerateIf(),Case.SymbolTable));
+                                new ASTCILGotoNode(caseLabels.endOfCase),
+                            }), new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()),
+                        labelIlGenerator.GenerateIf()));
                 }
 
                 compilationUnit.TypeEnvironment.GetTypeDefinition(caseExpressionType, Case.SymbolTable, out var type);
-                caseExpressionType = type.Parent.Name;
+                caseExpressionType = type.Parent?.Name;
             }
 
-            caseExpressions.Add(new ASTCILRuntimeErrorNode(RuntimeErrors.CaseWithoutMatching, Case.SymbolTable));
+            caseExpressions.Add(new ASTCILRuntimeErrorNode(RuntimeErrors.CaseWithoutMatching));
 
-            return new ASTCILBlockNode(caseExpressions,Case.SymbolTable);
+            return new ASTCILBlockNode(caseExpressions);
         }
 
         public ASTCILNode VisitClass(ASTClassNode Class)
         {
-            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
+            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this)).Append(new ASTCILSelfNode());
+            
+            compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName,Class.SymbolTable, out var type);
+            compilationUnit.MethodEnvironment.GetMethodIfDef(type, Functions.Init,out var methodInit);
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
-                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),
-                    attributesInit, Class.SymbolTable));
+                .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),methodInit,
+                    attributesInit));
 
-            var attributesInfo = Class.SymbolTable.AllDefinedAttributes();
-            compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var type);
             var virtualTable = compilationUnit.MethodEnvironment.GetVirtualTable(type);
-            return new ASTCILTypeNode(type, attributesInfo, virtualTable, methods, Class.SymbolTable);
+            return new ASTCILTypeNode(type,virtualTable, methods);
         }
 
         public ASTCILNode VisitDivision(ASTDivideNode Division)
@@ -113,40 +114,38 @@ namespace SuperCOOL.CodeGeneration
                         Left = Division.Right,
                         Right = new ASTIntConstantNode { Value = 0, SymbolTable = Division.SymbolTable },
                         SymbolTable = Division.SymbolTable
-                    }.Accept(this), new ASTCILRuntimeErrorNode(RuntimeErrors.DivisionBy0, Division.SymbolTable),
-                    (ASTCILExpressionNode) Division.Right.Accept(this), labelIlGenerator.GenerateIf(),
-                    Division.SymbolTable),
-                Division.SymbolTable);
+                    }.Accept(this), new ASTCILRuntimeErrorNode(RuntimeErrors.DivisionBy0),
+                    (ASTCILExpressionNode) Division.Right.Accept(this), labelIlGenerator.GenerateIf()));
         }
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
         {
             return new ASTCILIfNode(
                 (ASTCILExpressionNode) VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),
-                new ASTCILBoolConstantNode(true,Equal.SymbolTable), new ASTCILBoolConstantNode(false,Equal.SymbolTable),
-                labelIlGenerator.GenerateIf(),Equal.SymbolTable);
+                new ASTCILBoolConstantNode(true), new ASTCILBoolConstantNode(false),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitBoolConstant(ASTBoolConstantNode BoolConstant)
         {
-            return new ASTCILBoolConstantNode(BoolConstant.Value,BoolConstant.SymbolTable);
+            return new ASTCILBoolConstantNode(BoolConstant.Value);
         }
 
         public ASTCILNode VisitIf(ASTIfNode If)
         {
             return new ASTCILIfNode((ASTCILExpressionNode) If.Condition.Accept(this),
                 (ASTCILExpressionNode) If.Then.Accept(this), (ASTCILExpressionNode) If.Else.Accept(this),
-                labelIlGenerator.GenerateIf(),If.SymbolTable);
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitIntConstant(ASTIntConstantNode Int)
         {
-            return new ASTCILIntConstantNode(Int.Value,Int.SymbolTable);
+            return new ASTCILIntConstantNode(Int.Value);
         }
 
         public ASTCILNode VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            return new ASTCILIsVoidNode((ASTCILExpressionNode) IsVoid.Expression.Accept(this),IsVoid.SymbolTable);
+            return new ASTCILIsVoidNode((ASTCILExpressionNode) IsVoid.Expression.Accept(this));
         }
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
@@ -156,141 +155,152 @@ namespace SuperCOOL.CodeGeneration
                     (ASTCILExpressionNode) (new ASTLessThanNode
                         { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this),
                     (ASTCILExpressionNode) (new ASTEqualNode
-                        { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this),LessEqual.SymbolTable), new ASTCILIntConstantNode(1,LessEqual.SymbolTable),
-                new ASTCILIntConstantNode(0,LessEqual.SymbolTable), labelIlGenerator.GenerateIf(),LessEqual.SymbolTable);
+                        { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this)),
+                new ASTCILIntConstantNode(1),
+                new ASTCILIntConstantNode(0), labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitLessThan(ASTLessThanNode LessThan)
         {
             return new ASTCILLessThanTwoVariablesNode((ASTCILExpressionNode) LessThan.Left.Accept(this),
-                (ASTCILExpressionNode) LessThan.Right.Accept(this), LessThan.SymbolTable);
+                (ASTCILExpressionNode) LessThan.Right.Accept(this));
         }
 
         public ASTCILNode VisitLetIn(ASTLetInNode LetIn)
         {
-            return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => new ASTCILExpressionNode[]
-            {
-                new ASTCILAssignmentNode(x.Id.Text,
-                    (ASTCILExpressionNode) x.Expression?.Accept(this) ??
-                    (ASTCILExpressionNode) new ASTNewNode(){Type=x.Type }.Accept(this), LetIn.SymbolTable)
-            }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)), LetIn.SymbolTable);
+            return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => {
+                return new ASTCILExpressionNode[]{
+                                new ASTCILAssignmentNode(x.Id,
+                                    x.Expression!=null?(ASTCILExpressionNode) x.Expression?.Accept(this) :
+                                    x.Type==compilationUnit.TypeEnvironment.Bool? new ASTCILBoolConstantNode(false):
+                                    x.Type==compilationUnit.TypeEnvironment.Int? new ASTCILIntConstantNode(0):
+                                    (ASTCILExpressionNode)new ASTCILVoidNode()
+                                    )};
+            }).Append((ASTCILExpressionNode)LetIn.LetExp.Accept(this))); 
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
         {
             var type = compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             compilationUnit.MethodEnvironment.GetMethodOnIt(type, Method.Name, out var coolMethod);
-            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name, coolMethod.Name),
-                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) },
-                Method.SymbolTable);
+            return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name, coolMethod.Name), coolMethod,
+                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) });
         }
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
+            compilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.MethodName, null, out var type);
             return new ASTCILIfNode(
-                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this),MethodCall.SymbolTable),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid, MethodCall.SymbolTable), new ASTCILFuncStaticCallNode(
-                    MethodCall.MethodName, MethodCall.Type.Text,
+                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncStaticCallNode(
+                    MethodCall.MethodName,type,
                     new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this)}
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))), MethodCall.SymbolTable),
-                labelIlGenerator.GenerateIf(),MethodCall.SymbolTable);
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
             return new ASTCILIfNode(
-                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this),MethodCall.SymbolTable),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid, MethodCall.SymbolTable), new ASTCILFuncVirtualCallNode(
+                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(compilationUnit.TypeEnvironment.GetContextType(MethodCall.SymbolTable),
                     MethodCall.MethodName,
                     new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))),MethodCall.SymbolTable),
-                labelIlGenerator.GenerateIf(),MethodCall.SymbolTable);
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
+                labelIlGenerator.GenerateIf());
         }
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
-            return new ASTCILFuncVirtualCallNode(OwnMethodCall.Method.Text,
-                    new[] { new ASTCILSelfNode(OwnMethodCall.SymbolTable) }
-                    .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))),OwnMethodCall.SymbolTable);
+            var self=compilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable);
+            return new ASTCILFuncVirtualCallNode(compilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable),
+                    OwnMethodCall.Method.Text,
+                    new[] { new ASTCILSelfNode() }
+                    .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
         }
 
         public ASTCILNode VisitMinus(ASTMinusNode Minus)
         {
             return new ASTCILMinusTwoVariablesNode((ASTCILExpressionNode) Minus.Left.Accept(this),
-                (ASTCILExpressionNode) Minus.Right.Accept(this),Minus.SymbolTable);
+                (ASTCILExpressionNode) Minus.Right.Accept(this));
         }
 
         public ASTCILNode VisitMultiply(ASTMultiplyNode Multiply)
         {
             return new ASTCILMultiplyTwoVariablesNode((ASTCILExpressionNode) Multiply.Left.Accept(this),
-                (ASTCILExpressionNode) Multiply.Right.Accept(this),Multiply.SymbolTable);
+                (ASTCILExpressionNode) Multiply.Right.Accept(this));
         }
 
         public ASTCILNode VisitNegative(ASTNegativeNode Negative)
         {
-            return new ASTCILMultiplyTwoVariablesNode((ASTCILExpressionNode) Negative.Accept(this),
-                new ASTCILIntConstantNode(-1, Negative.SymbolTable), Negative.SymbolTable);
+            return new ASTCILMultiplyTwoVariablesNode((ASTCILExpressionNode) Negative.Expression.Accept(this),
+                new ASTCILIntConstantNode(-1));
         }
 
         public ASTCILNode VisitNew(ASTNewNode context)
         {
-            var type = context.SemanticCheckResult.Type.Name;
+            var type = context.SemanticCheckResult.Type;
             if (context.SemanticCheckResult.Type is SelfType selftype)
-            {
-                type = selftype.ContextType.Name;
-            }
+                type = selftype.ContextType;
 
             return new ASTCILBlockNode(new ASTCILExpressionNode[]
             {
-                new ASTCILAllocateNode(type,context.SymbolTable),
-                new ASTCILFuncVirtualCallNode(labelIlGenerator.GenerateInit(type),Enumerable.Empty<ASTCILExpressionNode>(),context.SymbolTable)
-            },context.SymbolTable);
+                new ASTCILAllocateNode(type),
+                new ASTCILFuncVirtualCallNode(type,labelIlGenerator.GenerateInit(type.Name),Enumerable.Empty<ASTCILExpressionNode>())
+            });
         }
 
         public ASTCILNode VisitProgram(ASTProgramNode Program)
         {
             return new ASTCILProgramNode
             (
-                Program.Clases.Select(x => (ASTCILTypeNode) x.Accept(this))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int, Enumerable.Empty<SymbolInfo>(),
-                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool, Enumerable.Empty<SymbolInfo>(),
-                        Enumerable.Empty<CoolMethod>(), Enumerable.Empty<ASTCILFuncNode>(), Program.SymbolTable))
-                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO, Enumerable.Empty<SymbolInfo>(),
+                Program.Clases.Select(x => (ASTCILTypeNode)x.Accept(this))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int,
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Int), Enumerable.Empty<ASTCILFuncNode>()))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool,
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Bool), Enumerable.Empty<ASTCILFuncNode>()))
+                    .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO,
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.IO),
                         new ASTCILFuncNode[]
                         {
-                            new ASTCILIOInIntNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILIOInStringNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILIOOutIntNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILIOOutStringNode(labelIlGenerator, Program.SymbolTable)
-                        }, Program.SymbolTable))
+                            new ASTCILIOInIntNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.InInt), labelIlGenerator),
+                            new ASTCILIOInStringNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.InString),labelIlGenerator),
+                            new ASTCILIOOutIntNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.OutInt),labelIlGenerator),
+                            new ASTCILIOOutStringNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.OutString),labelIlGenerator),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.IO.Name),compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.Init),
+                                                new[]{new ASTCILSelfNode()})
+                        }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
-                        Enumerable.Empty<SymbolInfo>(),
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
                         new[]
                         {
                             //Abort function
                             new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.Object, Functions.Abort),
-                                new[] { new ASTCILRuntimeErrorNode(RuntimeErrors.ObjectAbort, Program.SymbolTable) },
-                                Program.SymbolTable),
-                            new ASTCILObjectTypeNameNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILObjectCopyNode(labelIlGenerator, Program.SymbolTable)
-                        }, Program.SymbolTable))
+                                        compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Abort),
+                                new[] { new ASTCILRuntimeErrorNode(RuntimeErrors.ObjectAbort)}),
+                            new ASTCILObjectTypeNameNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Type_Name),labelIlGenerator),
+                            new ASTCILObjectCopyNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Copy),labelIlGenerator),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.Object.Name),
+                                                compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Init),
+                                                new[]{new ASTCILSelfNode() })
+                        }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String,
-                        new[] { new SymbolInfo(Attributes.StringLength, Types.String, ObjectKind.Atribute), },
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
                         new []
                         {
                             //Length function
-                            new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.String, Functions.Length), new[]
+                            new ASTCILFuncNode(labelIlGenerator.GenerateFunc(Types.String, Functions.Length),
+                            compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Length),
+                            new[]
                             {
-                                new ASTCILGetAttrNode(Types.String, Attributes.StringLength, Program.SymbolTable)
-                            }, Program.SymbolTable),
-                            new ASTCILStringConcatNode(labelIlGenerator, Program.SymbolTable),
-                            new ASTCILStringSubStrNode(labelIlGenerator, Program.SymbolTable),
-                        }, Program.SymbolTable)), Program.SymbolTable
-            );
+                                new ASTCILGetAttrNode(compilationUnit.TypeEnvironment.String.SymbolTable.GetObject( Attributes.StringLength))
+                            }),
+                            new ASTCILStringConcatNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Concat),labelIlGenerator),
+                            new ASTCILStringSubStrNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Substr),labelIlGenerator),
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.String.Name),
+                                                compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Init),
+                                                new[]{new ASTCILSelfNode() })
+                        })));
         }
 
         public ASTCILNode VisitAtribute(ASTAtributeNode Atribute)
@@ -298,23 +308,22 @@ namespace SuperCOOL.CodeGeneration
             if (Atribute.HasInit)
                 return Atribute.Init.Accept(this);
 
-            compilationUnit.TypeEnvironment.GetTypeForObject(Atribute.SymbolTable, Atribute.AttributeName,
-                out var coolType);
-            if (coolType.Equals(compilationUnit.TypeEnvironment.Int))
-                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
-                    new ASTCILIntConstantNode(0,Atribute.SymbolTable),Atribute.SymbolTable);
-            if (coolType.Equals(compilationUnit.TypeEnvironment.String))
-                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
-                    new ASTCILStringConstantNode("",Atribute.SymbolTable, labelIlGenerator.GenerateEmptyStringData()),Atribute.SymbolTable);
-            if (coolType.Equals(compilationUnit.TypeEnvironment.Bool))
-                return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName,
-                    new ASTCILBoolConstantNode(false,Atribute.SymbolTable),Atribute.SymbolTable);
-            return new ASTCILSetAttributeNode(Atribute.TypeName, Atribute.AttributeName, new ASTCILVoidNode(Atribute.SymbolTable),Atribute.SymbolTable);
+            var atribute=Atribute.SymbolTable.GetObject(Atribute.AttributeName);
+            if (atribute.Type.Equals(compilationUnit.TypeEnvironment.Int.Name))
+                return new ASTCILSetAttributeNode(atribute,
+                    new ASTCILIntConstantNode(0));
+            if (atribute.Equals(compilationUnit.TypeEnvironment.String.Name))
+                return new ASTCILSetAttributeNode(atribute,
+                    new ASTCILStringConstantNode("", labelIlGenerator.GenerateEmptyStringData()));
+            if (atribute.Equals(compilationUnit.TypeEnvironment.Bool.Name))
+                return new ASTCILSetAttributeNode(atribute,
+                    new ASTCILBoolConstantNode(false));
+            return new ASTCILSetAttributeNode(atribute, new ASTCILVoidNode());
         }
 
         public ASTCILNode VisitStringConstant(ASTStringConstantNode StringConstant)
         {
-            return new ASTCILStringConstantNode(StringConstant.Value,StringConstant.SymbolTable, labelIlGenerator.GenerateStringData());
+            return new ASTCILStringConstantNode(StringConstant.Value, labelIlGenerator.GenerateStringData());
         }
 
         public ASTCILNode VisitWhile(ASTWhileNode While)
@@ -323,17 +332,17 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILIfNode((ASTCILExpressionNode) While.Condition.Accept(this),
                 new ASTCILBlockNode(new[]
                 {
-                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.end,While.SymbolTable)
-                },While.SymbolTable),
-                new ASTCILVoidNode(While.SymbolTable), ifLabel,While.SymbolTable);
+                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.end)
+                }),
+                new ASTCILVoidNode(), ifLabel);
         }
 
         public ASTCILNode VisitId(ASTIdNode Id)
         {
              Id.SymbolTable.IsDefObject(Id.Name, out var info);
             if (info.Kind == ObjectKind.Atribute)
-                return new ASTCILGetAttrNode(info.Type, info.Name, Id.SymbolTable);
-            return new ASTCILIdNode(Id.Name,Id.SymbolTable);
+                return new ASTCILGetAttrNode(info);
+            return new ASTCILIdNode(info);
         }
 
         public ASTCILNode Visit(ASTNode Node)

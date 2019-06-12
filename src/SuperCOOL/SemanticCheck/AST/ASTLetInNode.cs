@@ -5,7 +5,7 @@ namespace SuperCOOL.SemanticCheck.AST
 {
     public class ASTLetInNode : ASTExpressionNode
     {
-        public (IToken Id, IToken Type, ASTExpressionNode Expression)[] Declarations { get; internal set; }
+        public (SymbolInfo Id, IToken Type, ASTExpressionNode Expression)[] Declarations { get; internal set; }
         public ASTExpressionNode LetExp { get; internal set; }
         public override Result Accept<Result>(ISuperCoolASTVisitor<Result> Visitor)
         {

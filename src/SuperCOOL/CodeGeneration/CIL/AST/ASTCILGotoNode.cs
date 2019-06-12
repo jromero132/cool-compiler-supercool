@@ -8,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     public class ASTCILGotoNode : ASTCILExpressionNode
     {
         public string Label { get; }
-        public ASTCILGotoNode( string label,ISymbolTable symbolTable):base(symbolTable)
+        public ASTCILGotoNode( string label):base()
         {
             Label = label;
         }

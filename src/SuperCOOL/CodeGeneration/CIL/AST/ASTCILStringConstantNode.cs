@@ -7,7 +7,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public string Value { get; }
         public string DataLabel { get; }
 
-        public ASTCILStringConstantNode( string value, Core.ISymbolTable symbolTable, string dataLabel) : base(symbolTable )
+        public ASTCILStringConstantNode( string value,string dataLabel) : base()
         {
             Value = value;
             DataLabel = dataLabel;

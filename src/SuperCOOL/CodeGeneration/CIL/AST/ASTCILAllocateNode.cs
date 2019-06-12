@@ -4,9 +4,9 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILAllocateNode : ASTCILExpressionNode
     {
-        public string Type { get; }
+        public CoolType Type { get; }
 
-        public ASTCILAllocateNode(string type,ISymbolTable symbolTable) : base( symbolTable )
+        public ASTCILAllocateNode(CoolType type) : base( )
         {
             this.Type = type;
         }

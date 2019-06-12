@@ -4,14 +4,12 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILSetAttributeNode : ASTCILExpressionNode
     {
-        public string TypeName { get; }
-        public string AttributeName { get; }
+        public SymbolInfo Atribute { get; set; }
         public ASTCILExpressionNode Expression { get; }
 
-        public ASTCILSetAttributeNode( string typeName, string attributeName, ASTCILExpressionNode expression,ISymbolTable symbolTable):base(symbolTable)
+        public ASTCILSetAttributeNode(SymbolInfo Atribute, ASTCILExpressionNode expression):base()
         {
-            TypeName = typeName;
-            AttributeName = attributeName;
+            this.Atribute = Atribute;
             Expression = expression;
         }
 

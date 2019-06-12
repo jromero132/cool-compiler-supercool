@@ -226,7 +226,7 @@ namespace SuperCOOL.SemanticCheck
                 MethodCall.SemanticCheckResult.Ensure(onResult, onResult.Type.IsIt(staticType),
                     new Lazy<Error>(()=>new Error($"Type {onResult.Type} does not inherot from type {staticType}.",ErrorKind.TypeError,MethodCall.Type.Line,MethodCall.Type.Line)));
 
-            var isMetDef = CompilationUnit.MethodEnvironment.GetMethod(staticType, MethodCall.MethodName,out var method);
+            var isMetDef = CompilationUnit.MethodEnvironment.GetMethodIfDef(staticType, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isMetDef, 
                 new Lazy<Error>(()=>new Error($"Missing declaration of method {MethodCall.MethodName} on type {MethodCall.TypeName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column)));
             if (isMetDef)
@@ -298,7 +298,7 @@ namespace SuperCOOL.SemanticCheck
         public override SemanticCheckResult VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             var selfcooltype = CompilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable);
-            var isdef = CompilationUnit.MethodEnvironment.GetMethod(selfcooltype,OwnMethodCall.MethodName,out var method);
+            var isdef = CompilationUnit.MethodEnvironment.GetMethodIfDef(selfcooltype,OwnMethodCall.MethodName,out var method);
             OwnMethodCall.SemanticCheckResult.Ensure(isdef,
                 new Lazy<Error>(()=>new Error($"Missing declaration for method {OwnMethodCall.MethodName} on type {CompilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable)}.",
                 ErrorKind.MethodError,OwnMethodCall.Method.Line,OwnMethodCall.Method.Column)));
@@ -372,7 +372,7 @@ namespace SuperCOOL.SemanticCheck
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
             MethodCall.SemanticCheckResult.Ensure(onResult);
 
-            var isdef = CompilationUnit.MethodEnvironment.GetMethod(onResult.Type, MethodCall.MethodName,out var method);
+            var isdef = CompilationUnit.MethodEnvironment.GetMethodIfDef(onResult.Type, MethodCall.MethodName,out var method);
             MethodCall.SemanticCheckResult.Ensure(isdef, 
                 new Lazy<Error>(()=>new Error($"Missing declaration for method {MethodCall.MethodName}.",ErrorKind.MethodError,MethodCall.Method.Line,MethodCall.Method.Column)));
             if (isdef)

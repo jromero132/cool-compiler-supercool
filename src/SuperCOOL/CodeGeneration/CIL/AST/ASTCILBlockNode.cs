@@ -8,7 +8,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public IReadOnlyList<ASTCILExpressionNode> Expressions { get; }
 
-        public ASTCILBlockNode( IEnumerable<ASTCILExpressionNode> expressions, ISymbolTable symbolTable) :base(symbolTable)
+        public ASTCILBlockNode( IEnumerable<ASTCILExpressionNode> expressions) :base()
         {
             Expressions = expressions.ToList();
         }

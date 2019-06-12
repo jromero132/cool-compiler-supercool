@@ -6,8 +6,8 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILIOInIntNode : ASTCILFuncNode
     {
-        public ASTCILIOInIntNode( ILabelILGenerator labelgenerator, ISymbolTable symbolTable ) : base( labelgenerator.GenerateFunc( Types.IO, Functions.InInt ),
-            Enumerable.Empty<ASTCILExpressionNode>(), symbolTable )
+        public ASTCILIOInIntNode(CoolMethod coolMethod ,ILabelILGenerator labelgenerator ) : base( labelgenerator.GenerateFunc( Types.IO, Functions.InInt ), coolMethod,
+            Enumerable.Empty<ASTCILExpressionNode>())
         {
         }
 
