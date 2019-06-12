@@ -120,15 +120,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                               .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
                                                               .JumpRegister( r );
 
-        public MipsGenerationHelper Return() => this.Pop( MipsRegisterSet.bp )
-                                                    .Pop( MipsRegisterSet.t0 )
-                                                    .JumpRegister( MipsRegisterSet.t0 );
+        public MipsGenerationHelper Return() => this
+                                                 .Move(MipsRegisterSet.sp, MipsRegisterSet.bp)
+                                                 .Pop( MipsRegisterSet.bp )
+                                                 .Pop( MipsRegisterSet.t0 )
+                                                 .JumpRegister( MipsRegisterSet.t0 );
 
 
         // Getting args and variables in functions
         public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
 
-        public MipsGenerationHelper GetLocal( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, -offset - 8 );
+        public MipsGenerationHelper GetLocal( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, -offset );
 
 
         // Read
