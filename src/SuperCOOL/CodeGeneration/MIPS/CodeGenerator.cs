@@ -69,7 +69,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitBlock( ASTCILBlockNode Block ) => Block.Expressions.Select( x => x.Accept( this ) ).Aggregate( ( x, y ) => x + y );
+        public MipsProgram VisitBlock(ASTCILBlockNode Block)
+        {
+            var result = new MipsProgram();
+            foreach (var e in Block.Expressions)
+                result += e.Accept(this);
+
+            return result;
+        }
 
         public MipsProgram VisitBoolConstant( ASTCILBoolConstantNode BoolConstant )
         {
