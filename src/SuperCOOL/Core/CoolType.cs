@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SuperCOOL.Core
 {
@@ -8,7 +9,10 @@ namespace SuperCOOL.Core
         public string Name { get; private set; }
         public CoolType Parent { get; set; }
         public List<CoolType> Childs { get; set; }
+
         public ISymbolTable SymbolTable { get; set; }
+        public IEnumerable<SymbolInfo> Atributes{ get; private set; }
+        public int AllocateSize => 4 * Atributes.Count();
 
         public CoolType(string Name) {
             this.Name = Name;
@@ -57,13 +61,11 @@ namespace SuperCOOL.Core
             return false;
         }
 
-        public int GetOffsetForAttribute(string attributeName)
+        public void SetAttributes()
         {
-            var attrs = SymbolTable.AllDefinedAttributes();
-            SymbolTable.IsDefObject(attributeName, out var attrInfo);
-            var index = attrs.IndexOf(attrInfo);
-            return 4 * index;
+            this.Atributes = SymbolTable.AllDefinedObjects().Where(x=>x.Kind==ObjectKind.Atribute).Select((x,i)=> { x.Offset = 4 * i;return x; });
         }
+
     }
 
     public class SelfType : CoolType
