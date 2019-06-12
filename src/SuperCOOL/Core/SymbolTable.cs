@@ -44,34 +44,34 @@ namespace SuperCOOL.Core
     {
         void DefObject(string name, string type, ObjectKind kind);
         bool IsDefObject(string name,out SymbolInfo Info);
+        SymbolInfo GetObject(string stringLength);
         bool IsDefObjectOnThis(string name, out SymbolInfo Info);
         ISymbolTable EnterScope();
         ISymbolTable ExitScope();
         void InheritsFrom(ISymbolTable parent);
-        IList<SymbolInfo> AllDefinedObjects();
-        IList<SymbolInfo> AllDefinedAttributes();
-        IList<SymbolInfo> GetLocals();
+        IEnumerable<SymbolInfo> GetInSubScopes();
+        IEnumerable<SymbolInfo> AllDefinedObjects();
     }
 
     public class SymbolTable : ISymbolTable
     {
         SymbolTable Parent;
         Dictionary<string, SymbolInfo> Objects;
-        List<SymbolInfo> Locals;
+        List<SymbolInfo> Subscopes;
 
-        public SymbolTable(SymbolTable parent):this()
+        public SymbolTable(ISymbolTable parent) : this()
         {
-            this.Parent=parent;
+            this.Parent = (SymbolTable)parent;
         }
         public SymbolTable()
         {
-            Locals = new List<SymbolInfo>();
-            Objects = new Dictionary<string,SymbolInfo>();
+            Subscopes = new List<SymbolInfo>();
+            Objects = new Dictionary<string, SymbolInfo>();
         }
 
-        public void DefObject(string name, string type,ObjectKind kind)
+        public void DefObject(string name, string type, ObjectKind kind)
         {
-            Objects.Add(name,new SymbolInfo(name,type,kind));
+            Objects.Add(name, new SymbolInfo(name, type, kind));
         }
 
         public ISymbolTable EnterScope()
@@ -81,22 +81,28 @@ namespace SuperCOOL.Core
 
         public ISymbolTable ExitScope()
         {
-            var locals= Objects.Values.Where(x=>x.Kind==ObjectKind.Local).ToList();
+            var locals = Objects.Values.ToList();
             if (locals.Count > 0)
-                Parent.Locals.AddRange(locals);
+                Parent.Subscopes.AddRange(locals);
             return Parent;
         }
 
         public bool IsDefObject(string name, out SymbolInfo Info)
         {
-            if (IsDefObjectOnThis(name,out Info))
+            if (IsDefObjectOnThis(name, out Info))
                 return true;
-            return Parent?.IsDefObject(name,out Info)??false;
+            return Parent?.IsDefObject(name, out Info) ?? false;
         }
 
         public bool IsDefObjectOnThis(string name, out SymbolInfo Info)
         {
-            return Objects.TryGetValue(name,out Info);
+            return Objects.TryGetValue(name, out Info);
+        }
+
+        public SymbolInfo GetObject(string name)
+        {
+            IsDefObject(name, out var result);
+            return result;
         }
 
         public void InheritsFrom(ISymbolTable parent)
@@ -104,26 +110,17 @@ namespace SuperCOOL.Core
             Parent =(SymbolTable)parent;
         }
 
-        public IList<SymbolInfo> AllDefinedObjects()
+        public IEnumerable<SymbolInfo> AllDefinedObjects()
         {
-            if(Parent==null)
-                return Objects.Values.ToList();
-            
-            return Objects.Values.Concat(Parent.AllDefinedObjects()).Distinct(new SymbolInfoNameComparer()).ToList();
+            var mine = Objects.Values;
+            if (Parent==null)
+                return mine;
+            return Parent.AllDefinedObjects().Concat(Objects.Values);
         }
 
-        public IList<SymbolInfo> AllDefinedAttributes()
+        public IEnumerable<SymbolInfo> GetInSubScopes()
         {
-            var myAttributes = Objects.Values.Where(x => x.Kind == ObjectKind.Atribute);
-            if (Parent == null)
-                return myAttributes.ToList();
-
-            return Parent.AllDefinedAttributes().Concat(myAttributes).ToList();
-        }
-
-        public IList<SymbolInfo> GetLocals()
-        {
-            return Locals;
+            return Subscopes;
         }
     }
 }
