@@ -102,6 +102,6 @@ namespace SuperCOOL
             }
         }
 
-        public static void WriteLineWithDelay( object o, int milliseconds = 100 ) => WriteWithDelay( o + Environment.NewLine );
+        public static void WriteLineWithDelay( object o, int milliseconds = 100 ) => WriteWithDelay( o + Environment.NewLine, milliseconds );
     }
 }
