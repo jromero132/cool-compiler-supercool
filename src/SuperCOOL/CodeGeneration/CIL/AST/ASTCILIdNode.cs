@@ -4,11 +4,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILIdNode : ASTCILExpressionNode
     {
-        public string Name { get; }
+        public SymbolInfo Name { get; }
 
-        public ASTCILIdNode( string name,ISymbolTable symbolTable):base(symbolTable)
+        public ASTCILIdNode(SymbolInfo Name) :base()
         {
-            Name = name;
+            this.Name = Name;
         }
 
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitId( this );

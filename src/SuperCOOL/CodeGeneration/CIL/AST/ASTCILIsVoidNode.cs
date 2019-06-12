@@ -6,7 +6,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public ASTCILExpressionNode Expression { get; }
 
-        public ASTCILIsVoidNode( ASTCILExpressionNode expression, Core.ISymbolTable symbolTable) : base(symbolTable)
+        public ASTCILIsVoidNode( ASTCILExpressionNode expression) : base()
         {
             Expression = expression;
         }

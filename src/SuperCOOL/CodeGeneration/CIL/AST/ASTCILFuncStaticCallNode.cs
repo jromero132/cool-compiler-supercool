@@ -6,11 +6,11 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILFuncStaticCallNode : ASTCILExpressionNode
     {
-        public string Type { get; }
+        public CoolType Type { get; }
         public string MethodName { get; }
         public IReadOnlyList<ASTCILExpressionNode> Arguments { get; }
 
-        public ASTCILFuncStaticCallNode( string methodName, string type, IEnumerable<ASTCILExpressionNode> arguments,ISymbolTable symbolTable) : base(symbolTable )
+        public ASTCILFuncStaticCallNode( string methodName, CoolType type, IEnumerable<ASTCILExpressionNode> arguments) : base()
         {
             this.Type= type;
             MethodName = methodName;
