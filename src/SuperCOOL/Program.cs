@@ -27,6 +27,8 @@ namespace SuperCOOL
             ConsoleExtended.WriteLineWithDelay( "Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved." );
             Console.WriteLine();
 
+            args = new[] { "..\\..\\..\\..\\..\\tests\\SuperCOOL.Tests\\Examples\\Cool\\hello_world.cl" };
+
             var Errors = Compile( args ,out var Code);
             //PrintErrors
             foreach( var item in Errors )

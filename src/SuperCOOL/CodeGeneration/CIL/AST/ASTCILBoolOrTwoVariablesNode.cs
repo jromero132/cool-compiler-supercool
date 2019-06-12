@@ -7,7 +7,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILBoolOrTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right,ISymbolTable symbolTable):base(symbolTable)
+        public ASTCILBoolOrTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right):base()
         {
             Left = left;
             Right = right;

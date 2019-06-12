@@ -6,12 +6,14 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILFuncNode : ASTCILNode
     {
-        public string Name { get; }
+        public string Tag { get; }
+        public CoolMethod Method { get; }
         public IReadOnlyList<ASTCILExpressionNode> Body { get; }
-
-        public ASTCILFuncNode( string name, IEnumerable<ASTCILExpressionNode> body, ISymbolTable symbolTable ) : base(symbolTable)
+        
+        public ASTCILFuncNode(string Tag, CoolMethod method, IEnumerable<ASTCILExpressionNode> body) : base()
         {
-            Name = name;
+            this.Tag = Tag;
+            Method = method;
             Body = body.ToList();
         }
 

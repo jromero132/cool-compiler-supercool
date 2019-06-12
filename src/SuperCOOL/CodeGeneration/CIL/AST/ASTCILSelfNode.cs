@@ -9,7 +9,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public override Result Accept<Result>( ICILVisitor<Result> Visitor ) => Visitor.VisitSelf( this );
 
-        public ASTCILSelfNode(ISymbolTable symbolTable) : base(symbolTable)
+        public ASTCILSelfNode() : base()
         {
         }
     }

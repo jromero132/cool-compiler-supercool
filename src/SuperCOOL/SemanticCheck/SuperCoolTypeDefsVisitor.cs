@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SuperCOOL.Constants;
 using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 
@@ -23,7 +24,14 @@ namespace SuperCOOL.SemanticCheck
                 Program.SemanticCheckResult.Ensure(!exist, 
                     new Lazy<Error>(()=>new Error($"Multiple Definitions for class {type.TypeName}", ErrorKind.TypeError,type.Type.Line,type.Type.Column)));
                 if (!exist)
+                {
                     CompilationUnit.TypeEnvironment.AddType(type.SymbolTable);
+                    CompilationUnit.TypeEnvironment.GetTypeDefinition(type.TypeName, Program.SymbolTable, out var coolType);
+                    coolType.SetAttributes();
+                    CompilationUnit.MethodEnvironment.AddMethod(coolType,Functions.Init, new List<CoolType>(), coolType,new SymbolTable(coolType.SymbolTable));//TODO change init cableado
+                    var init=CompilationUnit.MethodEnvironment.GetMethod(coolType, Functions.Init);
+                    init.AssignParametersAndLocals();
+                }
             }
 
             //Inheritance

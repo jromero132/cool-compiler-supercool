@@ -11,7 +11,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public string ElseLabel { get; }
 
         public ASTCILIfNode( ASTCILExpressionNode condition, ASTCILExpressionNode then, ASTCILExpressionNode @else,
-            (string endLabel, string elseLabel) labels, ISymbolTable symbolTable) : base(symbolTable)
+            (string endLabel, string elseLabel) labels) : base()
         {
             Condition = condition;
             Then = then;

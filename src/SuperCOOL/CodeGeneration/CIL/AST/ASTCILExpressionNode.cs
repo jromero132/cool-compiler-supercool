@@ -4,7 +4,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public abstract class ASTCILExpressionNode : ASTCILNode
     {
-        public ASTCILExpressionNode(ISymbolTable symbolTable):base(symbolTable)
+        protected ASTCILExpressionNode()
         {
         }
 

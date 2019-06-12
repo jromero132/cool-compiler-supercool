@@ -245,7 +245,7 @@ namespace SuperCOOL.ANTLR
             AssignSymbolTable(letExp);
             ExitScope();
 
-            result.Declarations = declarations;
+            result.Declarations = declarations.Select(x=>(letExp.SymbolTable.GetObject(x.Item1.Text),x.Item2,x.Item3)).ToArray();
             result.LetExp = letExp;
             return result;
         }
@@ -416,7 +416,7 @@ namespace SuperCOOL.ANTLR
 
         public override ASTNode VisitString([NotNull] SuperCOOLParser.StringContext context)
         {
-            return new ASTStringConstantNode() { Value = context.STRING().Symbol.Text };
+            return new ASTStringConstantNode() { Value = context.STRING().Symbol.Text.Trim('"') };
         }
 
         public override ASTNode VisitTrue([NotNull] SuperCOOLParser.TrueContext context)

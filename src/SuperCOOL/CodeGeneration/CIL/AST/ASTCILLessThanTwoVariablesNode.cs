@@ -11,7 +11,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
 
-        public ASTCILLessThanTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right, ISymbolTable symbolTable ) : base( symbolTable )
+        public ASTCILLessThanTwoVariablesNode( ASTCILExpressionNode left, ASTCILExpressionNode right) : base()
         {
             Left = left;
             Right = right;

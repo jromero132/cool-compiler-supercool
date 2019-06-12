@@ -10,7 +10,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     {
         public ASTCILExpressionNode Expression { get; }
 
-        public ASTCILBoolNotNode( ASTCILExpressionNode expression,ISymbolTable symbolTable) : base(symbolTable )
+        public ASTCILBoolNotNode( ASTCILExpressionNode expression) : base()
         {
             Expression = expression;
         }

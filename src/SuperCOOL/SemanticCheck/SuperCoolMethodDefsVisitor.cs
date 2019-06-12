@@ -38,7 +38,7 @@ namespace SuperCOOL.SemanticCheck
                 new Lazy<Error>(()=>new Error($"Multiple declaration of method {Method.Name}  on type {CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable)}.", ErrorKind.MethodError)));
             if (!def)
             {
-                var defAncestor=CompilationUnit.MethodEnvironment.GetMethod(type, Method.Name, out var m2);
+                var defAncestor=CompilationUnit.MethodEnvironment.GetMethodIfDef(type, Method.Name, out var m2);
                 if (defAncestor)
                 {
                     var samesignature = Method.Name == m2.Name && Method.ReturnType == m2.ReturnType.Name && m2.EnsureParametersCount(Method.Formals.Count);
@@ -63,8 +63,12 @@ namespace SuperCOOL.SemanticCheck
                 }
                 var defreturn=CompilationUnit.TypeEnvironment.GetTypeDefinition(Method.ReturnType,Method.SymbolTable,out var ret);
                 result.Ensure(defreturn, new Lazy<Error>(()=>new Error($"Missing declaration for type {Method.ReturnType}.", ErrorKind.TypeError, Method.Return.Line, Method.Return.Column)));
-                if(defreturn && defformals)
-                    CompilationUnit.MethodEnvironment.AddMethod(type, Method.Name,formalTypes, ret);
+                if (defreturn && defformals)
+                {
+                    CompilationUnit.MethodEnvironment.AddMethod(type, Method.Name,formalTypes, ret,Method.SymbolTable);
+                    var definedMethod=CompilationUnit.MethodEnvironment.GetMethod(type, Method.Name);
+                    definedMethod.AssignParametersAndLocals();
+                }
             }
 
             return result;

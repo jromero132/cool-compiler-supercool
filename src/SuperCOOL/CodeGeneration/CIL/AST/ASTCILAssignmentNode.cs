@@ -4,10 +4,10 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 {
     public class ASTCILAssignmentNode : ASTCILExpressionNode
     {
-        public string Identifier { get; }
+        public SymbolInfo Identifier { get; }
         public ASTCILExpressionNode Expresion { get; }
 
-        public ASTCILAssignmentNode( string identifier, ASTCILExpressionNode expresion,ISymbolTable symbolTable):base(symbolTable)
+        public ASTCILAssignmentNode(SymbolInfo identifier, ASTCILExpressionNode expresion):base()
         {
             Identifier = identifier;
             Expresion = expresion;
