@@ -245,7 +245,7 @@ namespace SuperCOOL.ANTLR
             AssignSymbolTable(letExp);
             ExitScope();
 
-            result.Declarations = declarations;
+            result.Declarations = declarations.Select(x=>(letExp.SymbolTable.GetObject(x.Item1.Text),x.Item2,x.Item3)).ToArray();
             result.LetExp = letExp;
             return result;
         }
