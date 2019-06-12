@@ -59,6 +59,10 @@ namespace SuperCOOL.Core
             MethodEnvironment.GetMethod(TypeEnvironment.String, Functions.Init).AssignParametersAndLocals();
             MethodEnvironment.AddMethod(TypeEnvironment.IO, Functions.Init, new List<CoolType>(), TypeEnvironment.IO, new SymbolTable(TypeEnvironment.IO.SymbolTable));
             MethodEnvironment.GetMethod(TypeEnvironment.IO, Functions.Init).AssignParametersAndLocals();
+            MethodEnvironment.AddMethod(TypeEnvironment.Int, Functions.Init, new List<CoolType>(), TypeEnvironment.Int, new SymbolTable(TypeEnvironment.Int.SymbolTable));
+            MethodEnvironment.GetMethod(TypeEnvironment.Int, Functions.Init).AssignParametersAndLocals();
+            MethodEnvironment.AddMethod(TypeEnvironment.Bool, Functions.Init, new List<CoolType>(), TypeEnvironment.Bool, new SymbolTable(TypeEnvironment.Bool.SymbolTable));
+            MethodEnvironment.GetMethod(TypeEnvironment.Bool, Functions.Init).AssignParametersAndLocals();
         }
 
         public bool HasEntryPoint()
