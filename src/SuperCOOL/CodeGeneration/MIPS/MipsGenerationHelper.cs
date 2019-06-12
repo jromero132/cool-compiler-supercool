@@ -81,7 +81,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public static (string, object) AddStringData( string value ) => ( "asciiz", $"\"{ value }\"" );
 
         // Newline
         public MipsGenerationHelper NewLine()
@@ -94,7 +93,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Data Types
         public MipsGenerationHelper AddData( string name, IEnumerable<(string type, object value)> args ) => this.Tag( name ) + new StringBuilder( args.Select( x => $"{ TAB }.{ x.type } { x.value }{ ENDL }" ).Aggregate( ( x, y ) => x.ToString() + y.ToString() ) );
 
-        public static (string, object) AddStringData( string value ) => ("asciiz", value);
+        public static (string, object) AddStringData( string value ) => ( "asciiz", $"\"{ value }\"" );
 
         public static (string, object) AddIntData( object value ) => ("word", value);
 
