@@ -193,7 +193,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
             // loading virtual_table.f in a0
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                            .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, offset )
-                                                           .Call( MipsRegisterSet.a0 ) );
+                                                           .Call( MipsRegisterSet.a0 )
+                                                           .Add(MipsRegisterSet.sp, FuncVirtualCall.Arguments.Count * 4) );
 
             return result;
         }
