@@ -284,7 +284,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIOOutInt( ASTCILIOOutIntNode IOOutInt )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
+                                                                .Tag( IOOutInt.Name )
+                                                                .GetParam( 4 )
+                                                                .PrintInt( MipsRegisterSet.a0 )
+                                                                .Return() );
+            return result;
         }
 
         public MipsProgram VisitIOOutString( ASTCILIOOutStringNode IOOutString )
@@ -377,14 +383,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                            .GlobalSection( exceptions )
                                                            .AddData( exceptions, all.Select( x => MipsGenerationHelper.AddIntData( x ) ) ) );
 
-            CompilationUnit.TypeEnvironment.GetTypeDefinition("Main", Program.SymbolTable, out var main);
-            var entryPoint = new ASTCILBlockNode(new ASTCILExpressionNode[] {
+            CompilationUnit.TypeEnvironment.GetTypeDefinition( "Main", Program.SymbolTable, out var main );
+            var entryPoint = new ASTCILBlockNode( new ASTCILExpressionNode[] {
                                                     new ASTCILAllocateNode(main.Name,main.SymbolTable),
                                                     new ASTCILFuncVirtualCallNode(labelGenerator.GenerateInit(main.Name),new ASTCILExpressionNode[]{ },main.SymbolTable),
                                                     new ASTCILFuncVirtualCallNode("main",new ASTCILExpressionNode[]{ },main.SymbolTable),
-                                                    }, Program.SymbolTable);
+                                                    }, Program.SymbolTable );
 
-            result.SectionCode.Append(entryPoint.Accept(this).SectionCode);
+            result.SectionCode.Append( entryPoint.Accept( this ).SectionCode );
 
             foreach( var item in Program.Types )
                 result += item.Accept( this );
