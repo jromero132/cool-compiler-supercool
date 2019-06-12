@@ -36,6 +36,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return new StringBuilder().Append(MipsGenerationHelper.NewScript().DataSection())
                 .Append(SectionDataGlobals)
                 .Append(SectionData)
+                .AppendLine()
                 .Append(MipsGenerationHelper.NewScript().TextSection()).Append(SectionTextGlobals).Append(SectionCode)
                 .Append(SectionFunctions).ToString();
         }
