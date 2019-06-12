@@ -92,7 +92,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitClass(ASTClassNode Class)
         {
-            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this));
+            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this)).Append(new ASTCILSelfNode());
             
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName,Class.SymbolTable, out var type);
             compilationUnit.MethodEnvironment.GetMethodIfDef(type, Functions.Init,out var methodInit);
@@ -268,7 +268,7 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILIOOutIntNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.OutInt),labelIlGenerator),
                             new ASTCILIOOutStringNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.OutString),labelIlGenerator),
                             new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.IO.Name),compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.IO,Functions.Init),
-                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>())})
+                                                new[]{new ASTCILSelfNode()})
                         }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Object,
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Object),
@@ -282,7 +282,7 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILObjectCopyNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Copy),labelIlGenerator),
                             new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.Object.Name),
                                                 compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Object,Functions.Init),
-                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>())})
+                                                new[]{new ASTCILSelfNode() })
                         }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.String,
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.String),
@@ -299,7 +299,7 @@ namespace SuperCOOL.CodeGeneration
                             new ASTCILStringSubStrNode(compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Substr),labelIlGenerator),
                             new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.String.Name),
                                                 compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.String,Functions.Init),
-                                                new[]{new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>())})
+                                                new[]{new ASTCILSelfNode() })
                         })));
         }
 
