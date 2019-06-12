@@ -145,11 +145,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Print
-        public MipsGenerationHelper PrintInt() => this.LoadConstant( MipsRegisterSet.v0, print_int )
-                                                      .SystemCall();
+        public MipsGenerationHelper PrintInt( Register r ) => this.LoadConstant( MipsRegisterSet.v0, print_int )
+                                                                  .Move( MipsRegisterSet.a0, r )
+                                                                  .SystemCall();
 
         public MipsGenerationHelper PrintInt( int d ) => this.LoadConstant( MipsRegisterSet.a0, d )
-                                                             .PrintInt();
+                                                             .PrintInt( MipsRegisterSet.a0 );
 
         public MipsGenerationHelper PrintString( string name ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
                                                                       .LoadFromAddress( MipsRegisterSet.a0, name )
