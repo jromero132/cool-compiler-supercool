@@ -388,13 +388,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                            .AddData( exceptions, all.Select( x => MipsGenerationHelper.AddIntData( x ) ) ) );
 
             CompilationUnit.TypeEnvironment.GetTypeDefinition("Main", null, out var main);
-            var entryPoint = new ASTCILBlockNode(new ASTCILExpressionNode[] {
-                                                    new ASTCILAllocateNode(main),
-                                                    new ASTCILFuncVirtualCallNode(main,"_init",new ASTCILExpressionNode[]{ }),
-                                                    new ASTCILFuncVirtualCallNode(main,"main",new ASTCILExpressionNode[]{ }),
-                                                    });
+            var entryPoint = new ASTCILAllocateNode(main).Accept(this).SectionCode
+                .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0))
+                .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.bp))
+                .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.ip))
+                .Append(new ASTCILFuncVirtualCallNode(main, Functions.Init, new ASTCILExpressionNode[] { }).Accept(this).SectionCode)
+                .Append(new ASTCILFuncVirtualCallNode(main, "main", new ASTCILExpressionNode[] { new ASTCILSelfNode() }).Accept(this).SectionCode)
+                .Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.sp,12))
+                .Append(MipsGenerationHelper.NewScript().Exit());
 
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint.Accept(this).SectionCode);
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint);
 
             foreach( var item in Program.Types )
                 result += item.Accept( this );
@@ -451,6 +454,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 .AddData(label_type_name, new[] { MipsGenerationHelper.AddStringData(typeName) }));
 
             var label_virtual_table = labelGenerator.GenerateLabelVirtualTable(typeName);
+            
             result.SectionData.Append(MipsGenerationHelper.NewScript()
                 .AddData(label_virtual_table,
                     Type.VirtualTable.Select(x =>
