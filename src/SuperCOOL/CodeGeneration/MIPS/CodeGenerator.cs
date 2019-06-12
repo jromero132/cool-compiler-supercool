@@ -288,7 +288,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
-                                                                .Tag( IOOutInt.Name )
+                                                                .Tag( IOOutInt.Tag )
                                                                 .GetParam( 4 )
                                                                 .PrintInt( MipsRegisterSet.a0 )
                                                                 .Return() );
