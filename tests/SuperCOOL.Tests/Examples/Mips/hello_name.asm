@@ -20,7 +20,7 @@ syscall
 
 # Print "Hello"
 li $v0, 4
-la $a0, $a1
+la $a0, hello
 syscall
 
 # Print { name }
