@@ -58,7 +58,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                            .Move( MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
 
-            Assignment.SymbolTable.IsDefObject( Assignment.Identifier, out var symbolInfo );
             if( symbolInfo.Kind == ObjectKind.Local )
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                                .GetLocal( symbolInfo.Offset ) );
@@ -462,12 +461,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 .AddData(typeInfo_label, new[]
                 {
                     MipsGenerationHelper.AddIntData(label_type_name),
-                    MipsGenerationHelper.AddIntData(Type.AllocateSize),
+                    MipsGenerationHelper.AddIntData(Type.Type.AllocateSize),
                     MipsGenerationHelper.AddIntData(label_virtual_table)
                 }));
 
-            var typeInfo_label = labelGenerator.GenerateLabelTypeInfo( typeName );
-            result.SectionData.Append( MipsGenerationHelper.NewScript().AddData( typeInfo_label, new[] { MipsGenerationHelper.AddIntData( label_type_name ), MipsGenerationHelper.AddIntData( Type.Type.AllocateSize ), MipsGenerationHelper.AddIntData( label_virtual_table ) } ) );
             result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript().GlobalSection(label_type_name)
                 .GlobalSection(label_virtual_table).GlobalSection(typeInfo_label));
 
