@@ -297,7 +297,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIOOutString( ASTCILIOOutStringNode IOOutString )
         {
-            //TODO: falta
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Tag )
@@ -504,10 +503,19 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             //TODO: falta
             var result = new MipsProgram();
+            var tags=labelGenerator.GenerateIf();
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
                                                                 .Tag(objectCopy.Tag)
-                                                                .GetParam(4)
-                                                                .PrintString()
+                                                                .GetParam(0) // a0<- self
+                                                                .LoadFromMemory(MipsRegisterSet.t0, MipsRegisterSet.a0,MipsGenerationHelper.TypeInfoOffest)//t0 <- self.type_info
+                                                                .LoadFromMemory(MipsRegisterSet.t1, MipsRegisterSet.t0,MipsGenerationHelper.SizeOfOffset)//t1 <- self.size
+                                                                .Add(MipsRegisterSet.t1, 4)
+                                                                .Allocate(MipsRegisterSet.t1)//a0<- new (allocate does not use t0 or t1)
+                                                                .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)//putting self.typeInfo in a0 typeinfo area
+                                                                .Add(MipsRegisterSet.a0,4,MipsRegisterSet.t0)//to copy in t0
+                                                                .Sub(MipsRegisterSet.t1,4)//Size Copy in t1
+                                                                .GetParam(0)//From copy (self in a0)
+                                                                .Copy(tags.end,tags.@else)//word to word copy
                                                                 .Return());
             return result;
         }
