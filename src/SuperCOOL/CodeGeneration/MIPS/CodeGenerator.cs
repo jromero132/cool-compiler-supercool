@@ -41,7 +41,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromMemoryLabel( MipsRegisterSet.t0, label )
+                                                           .LoadFromAddress( MipsRegisterSet.t0, label )
                                                            .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset )
                                                            .Add( MipsRegisterSet.a0, 4 )
                                                            .Allocate( MipsRegisterSet.a0 )
@@ -391,12 +391,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
             CompilationUnit.TypeEnvironment.GetTypeDefinition("Main", null, out var main);
             var entryPoint = new ASTCILAllocateNode(main).Accept(this).SectionCode
                 .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.a0))
-                .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.bp))
-                .Append(MipsGenerationHelper.NewScript().Push(MipsRegisterSet.ip))
                 .Append(new ASTCILFuncVirtualCallNode(main, Functions.Init, new ASTCILExpressionNode[] { }).Accept(this).SectionCode)
-                .Append(new ASTCILFuncVirtualCallNode(main, "main", new ASTCILExpressionNode[] { new ASTCILSelfNode() }).Accept(this).SectionCode)
-                .Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.sp,12))
+                .Append(new ASTCILFuncVirtualCallNode(main, "main", new ASTCILExpressionNode[] { }).Accept(this).SectionCode)
+                .Append(MipsGenerationHelper.NewScript().Add(MipsRegisterSet.sp, 12))
                 .Append(MipsGenerationHelper.NewScript().Exit());
+
 
             result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint);
 
