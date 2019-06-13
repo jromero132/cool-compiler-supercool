@@ -343,7 +343,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v
         {
-            this.body.Append( $"{ TAB + TAB }div { r }, { v }{ ENDL }" );
+            this.body.Append($"{TAB + TAB}div {r}, {v}{ENDL}").Append($"{TAB + TAB}mflo $a0{ENDL}");
             return this;
         }
     }
