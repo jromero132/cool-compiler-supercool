@@ -156,9 +156,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                       .LoadFromAddress( MipsRegisterSet.a0, name )
                                                                       .SystemCall();
 
-        public MipsGenerationHelper PrintString( Register r ) => this.LoadConstant( MipsRegisterSet.v0, print_string )
-                                                                     .LoadFromMemory( MipsRegisterSet.a0, r )
-                                                                     .SystemCall();
+        public MipsGenerationHelper PrintString() => this.LoadConstant( MipsRegisterSet.v0, print_string )
+                                                     .SystemCall();
 
 
         // Move

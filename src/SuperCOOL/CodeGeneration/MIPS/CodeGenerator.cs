@@ -302,7 +302,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Tag )
                                                                 .GetParam( 4 )
-                                                                .PrintString( MipsRegisterSet.a0 )
+                                                                .PrintString()
                                                                 .Return() );
             return result;
         }
@@ -499,7 +499,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
                                                                 .Tag(objectCopy.Tag)
                                                                 .GetParam(4)
-                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .PrintString()
                                                                 .Return());
             return result;
         }
@@ -511,7 +511,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
                                                                 .Tag(stringConcat.Tag)
                                                                 .GetParam(4)
-                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .PrintString()
                                                                 .Return());
             return result;
         }
@@ -523,7 +523,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
                                                                 .Tag(stringSubStr.Tag)
                                                                 .GetParam(4)
-                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .PrintString()
                                                                 .Return());
             return result;
         }
