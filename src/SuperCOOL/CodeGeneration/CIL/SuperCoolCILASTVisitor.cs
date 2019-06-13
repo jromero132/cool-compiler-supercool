@@ -256,9 +256,18 @@ namespace SuperCOOL.CodeGeneration
             (
                 Program.Clases.Select(x => (ASTCILTypeNode)x.Accept(this))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Int,
-                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Int), Enumerable.Empty<ASTCILFuncNode>()))
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Int),
+                        new ASTCILFuncNode[]
+                        {
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.Int.Name),compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Int,Functions.Init),
+                                                new[]{new ASTCILSelfNode()})//TODO: assign the value attribute for the boxed int
+                        }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.Bool,
-                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Bool), Enumerable.Empty<ASTCILFuncNode>()))
+                        compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.Bool), 
+                        new ASTCILFuncNode[]{
+                            new ASTCILFuncNode(labelIlGenerator.GenerateInit(compilationUnit.TypeEnvironment.Bool.Name),compilationUnit.MethodEnvironment.GetMethod(compilationUnit.TypeEnvironment.Bool,Functions.Init),
+                                                new[]{new ASTCILSelfNode()})//TODO: assign the value attribute for the boxed int
+                        }))
                     .Append(new ASTCILTypeNode(compilationUnit.TypeEnvironment.IO,
                         compilationUnit.MethodEnvironment.GetVirtualTable(compilationUnit.TypeEnvironment.IO),
                         new ASTCILFuncNode[]
