@@ -406,7 +406,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
         {
-            //TODO: falta
             var result = new MipsProgram();
             return result;
         }
@@ -503,7 +502,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitObjectCopy( ASTCILObjectCopyNode objectCopy )
         {
-            //TODO: falta
             var result = new MipsProgram();
             var tags=labelGenerator.GenerateIf();
             result.SectionFunctions.Append(MipsGenerationHelper.NewScript()

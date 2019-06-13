@@ -21,7 +21,7 @@ namespace SuperCOOL.Core
 
         public bool GetTypeDefinition(string typeName, ISymbolTable symbolTable,out CoolType coolType)
         {
-            if (typeName.IsSelfType())
+            if (typeName==SuperCOOL.Constants.Types.SelfType)
             {
                 coolType = SelfType(symbolTable);
                 return true;
