@@ -484,7 +484,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitVoid( ASTCILVoidNode Void )
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadConstant(MipsRegisterSet.a0,0));
+            return result;
         }
 
         public MipsProgram VisitObjectTypeName( ASTCILObjectTypeNameNode objectTypeName )
