@@ -432,13 +432,21 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitStringConstant( ASTCILStringConstantNode StringConstant )
+        public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
         {
             var result = new MipsProgram();
-            result.SectionData.Append( MipsGenerationHelper.NewScript()
-                                                           .AddData( StringConstant.DataLabel, new List<(string, object)> { MipsGenerationHelper.AddStringData( StringConstant.Value ) } ) );
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromAddress( MipsRegisterSet.a0, StringConstant.DataLabel ) );
+            result.SectionData.Append(MipsGenerationHelper.NewScript()
+                .AddData(StringConstant.DataLabel,
+                    new[]
+                    {
+                        MipsGenerationHelper.AddIntData(
+                            labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
+                        MipsGenerationHelper.AddStringData(StringConstant.Value),
+                        MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
+                    }));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .LoadFromAddress(MipsRegisterSet.a0, StringConstant.DataLabel)
+                .Add(MipsRegisterSet.a0, 4));
             return result;
         }
 
