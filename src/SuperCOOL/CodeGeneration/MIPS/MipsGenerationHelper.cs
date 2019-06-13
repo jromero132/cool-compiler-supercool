@@ -118,14 +118,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper Call( Register r ) => this.Push( MipsRegisterSet.ip )
                                                               .Push( MipsRegisterSet.bp )
                                                               .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
-                                                              .JumpRegister( r );
+                                                              .JumpToLabelInRegistry(r)
+                                                              .Move(MipsRegisterSet.sp, MipsRegisterSet.bp)
+                                                              .Pop(MipsRegisterSet.bp)
+                                                              .Pop(MipsRegisterSet.ip);
 
-        public MipsGenerationHelper Return() => this
-                                                 .Move(MipsRegisterSet.sp, MipsRegisterSet.bp)
-                                                 .Pop( MipsRegisterSet.bp )
-                                                 .Pop( MipsRegisterSet.t0 )
-                                                 .JumpRegister( MipsRegisterSet.t0 );
-
+        public MipsGenerationHelper Return() => this.JumpRegister( MipsRegisterSet.ip);
 
         // Getting args and variables in functions
         public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
@@ -193,12 +191,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper LoadFromAddress( Register r, string a ) // r <- a
+        public MipsGenerationHelper LoadFromAddress( Register r, string a,int offset=0 ) // r <- a
         {
             this.body.Append( $"{ TAB + TAB }la { r }, { a }{ ENDL }" );
+            if (offset != 0)
+                return Add(r, offset);
             return this;
         }
-
 
         // Save
         public MipsGenerationHelper SaveToMemory( Register r, object d, int offset = 0 ) // (d + offset) <- r
@@ -206,7 +205,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body.Append( $"{ TAB + TAB }sw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }" );
             return this;
         }
-
 
         // Dynamic saving
         public MipsGenerationHelper Allocate( Register r )
@@ -225,6 +223,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper JumpToLabel( string label )
         {
             this.body.Append( $"{ TAB + TAB}j { label }{ ENDL }" );
+            return this;
+        }
+
+        public MipsGenerationHelper JumpToLabelInRegistry(Register r)
+        {
+            this.body.Append($"{ TAB + TAB }jalr { r }{ ENDL }");
             return this;
         }
 
