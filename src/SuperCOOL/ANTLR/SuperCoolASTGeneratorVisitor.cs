@@ -182,11 +182,6 @@ namespace SuperCOOL.ANTLR
             return result;
         }
 
-        public override ASTNode VisitErrorNode([NotNull] IErrorNode node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override ASTNode VisitFalse([NotNull] SuperCOOLParser.FalseContext context)
         {
             return new ASTBoolConstantNode() {Value=false };
