@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Examples\Cool\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Examples\Cool\*.cl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

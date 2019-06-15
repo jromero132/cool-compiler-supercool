@@ -92,5 +92,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "primes.cl" ), "primes" );
             Assert.True( test_case.RunTest() );
         }
+
+        [Fact]
+        public void Let()
+        {
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "let.cl" ), "let" );
+            Assert.True( test_case.RunTest() );
+        }
     }
 }
