@@ -52,13 +52,9 @@ expression
    | NEW TYPEID # new
    | INTEGER_NEGATIVE expression # negative
    | ISVOID expression # isvoid
-   | expression MULTIPLY expression # multiply
-   | expression DIVISION expression # division
-   | expression ADD expression # add
-   | expression MINUS expression # minus
-   | expression LESS_THAN expression # lessThan
-   | expression LESS_EQUAL expression # lessEqual
-   | expression EQUAL expression # equal
+   | expression (MULTIPLY|DIVISION) expression # multiplydivision
+   | expression (ADD|MINUS) expression # addminus
+   | expression (LESS_THAN|LESS_EQUAL|EQUAL) expression # comparison
    | NOT expression # boolNot
    | '(' expression ')' # parentheses
    | OBJECTID # id
@@ -66,7 +62,7 @@ expression
    | STRING # string
    | TRUE # true
    | FALSE # false
-   | OBJECTID ASSIGNMENT expression # assignment
+   | <assoc=right> OBJECTID ASSIGNMENT expression # assignment
    ;
 
 letassign
