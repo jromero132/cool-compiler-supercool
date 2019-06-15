@@ -53,6 +53,13 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void While()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "while.cl"), "while");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void Complex()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
