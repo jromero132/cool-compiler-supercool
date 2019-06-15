@@ -28,7 +28,7 @@ namespace SuperCOOL.SemanticCheck
                     CompilationUnit.TypeEnvironment.AddType(type.SymbolTable);
                     CompilationUnit.TypeEnvironment.GetTypeDefinition(type.TypeName, Program.SymbolTable, out var coolType);
                     coolType.SetAttributes();
-                    CompilationUnit.MethodEnvironment.AddMethod(coolType,Functions.Init, new List<CoolType>(), coolType,new SymbolTable(coolType.SymbolTable));//TODO change init cableado
+                    CompilationUnit.MethodEnvironment.AddMethod(coolType,Functions.Init, new List<CoolType>(), coolType,new SymbolTable(coolType.SymbolTable));
                     var init=CompilationUnit.MethodEnvironment.GetMethod(coolType, Functions.Init);
                     init.AssignParametersAndLocals();
                 }

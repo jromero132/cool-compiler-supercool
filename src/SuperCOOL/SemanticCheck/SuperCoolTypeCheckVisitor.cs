@@ -2,6 +2,7 @@
 using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 using System;
+using System.Collections.Generic;
 
 namespace SuperCOOL.SemanticCheck
 {
@@ -64,14 +65,18 @@ namespace SuperCOOL.SemanticCheck
             var expresionCaseResult = Case.ExpressionCase.Accept(this);
             Case.SemanticCheckResult.Ensure(expresionCaseResult);
 
+            HashSet<string> CoolTypesInBranch = new HashSet<string>();
+            CoolTypesInBranch.Add(Case.Cases[0].Type.Text);
+            foreach (var item in Case.Cases)
+                Case.SemanticCheckResult.Ensure(!CoolTypesInBranch.Contains(item.Type.Text), 
+                    new Lazy<Error>(() => new Error($"Multiple type branch for the type {item.Type.Text} in case expresion.",ErrorKind.SemanticError,item.Type.Line,item.Type.Column)));
+
             var branchresults = new SemanticCheckResult[Case.Cases.Length];
             for (int i = 0; i < Case.Cases.Length; i++)
-            {
                 branchresults[i] = Case.Cases[i].Branch.Accept(this);
-                //TODO: check if this is necesary
-                //Case.SemanticCheckResult.Ensure(branchresults[i],branchresults[i].Type.IsIt(CompilationUnit.TypeEnvironment.GetTypeForObject(Case.SymbolTable,Case.Cases[i].Type.Text)),
-                //    new Error($"Type {branchresults[i].Type} is not subtype of {Case.Cases[i].Type}.",ErrorKind.TypeError,Case.Cases[i]));
-            }
+
+            foreach (var item in branchresults)
+                Case.SemanticCheckResult.Ensure(item);
 
             Case.SemanticCheckResult.EnsureReturnType(branchresults[0].Type);
             for (int i = 1; i < Case.Cases.Length; i++)
