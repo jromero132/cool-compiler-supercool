@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Antlr4.Runtime.Atn;
 
 namespace SuperCOOL
 {
@@ -42,11 +43,23 @@ namespace SuperCOOL
         {
             Code = null;
             string program = ProcessInput( args, out var Errors );
-            //Lexer TODO: Lexer Errors
-            SuperCOOLLexer superCOOLLexer = new SuperCOOLLexer( new AntlrInputStream( program ) );
-            //Parser TODO: Parser Errors
-            SuperCOOLParser superCOOLParser = new SuperCOOLParser( new CommonTokenStream( superCOOLLexer ) );
+            if (Errors.Count > 0)
+                return Errors;
+            var lexingsyntactycErrors = new CustomErrorListener();
+
+            //Lexer
+            SuperCOOLLexer superCOOLLexer = new SuperCOOLLexer( new AntlrInputStream(program));
+            superCOOLLexer.RemoveErrorListeners();
+            var tokenStream = new CommonTokenStream(superCOOLLexer);
+            //Parser
+            SuperCOOLParser superCOOLParser = new SuperCOOLParser(tokenStream);
+            superCOOLParser.RemoveErrorListeners();
+            superCOOLParser.AddErrorListener(lexingsyntactycErrors);
             IParseTree parseTree = superCOOLParser.program();
+            if (lexingsyntactycErrors.Errors.Count > 0)
+                return lexingsyntactycErrors.Errors;
+            
+            //Semantyc Check
             //Build AST
             CompilationUnit compilationUnit = new CompilationUnit();
             ASTNode ast = parseTree.Accept( new SuperCoolASTGeneratorVisitor() );
@@ -59,13 +72,14 @@ namespace SuperCOOL
             Errors.AddRange( ast.SemanticCheckResult.Errors );
             if (Errors.Count > 0)
                 return Errors;
+            
             //Code Generation 
             var labelgen = new LabelILGeneratorAutoincrement();
             var astIl = ast.Accept(new SuperCoolCILASTVisitor(labelgen, compilationUnit));
             var mips = astIl.Accept(new CodeGeneration.MIPS.CodeGenerator(labelgen, compilationUnit));
             Code = mips.ToString();
 
-            return Errors;
+            return new List<Error>();
         }
 
         private static string ProcessInput( string[] args, out List<Error> Errors )
