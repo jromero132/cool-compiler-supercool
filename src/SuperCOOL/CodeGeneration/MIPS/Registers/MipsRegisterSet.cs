@@ -18,6 +18,7 @@
 
         // Argument registers
         public static readonly ArgumentRegister a0 = new ArgumentRegister( "$a0" );
+        public static readonly ArgumentRegister a1 = new ArgumentRegister( "$a1" );
 
         // Value registers
         public static readonly ValueRegister v0 = new ValueRegister( "$v0" );
