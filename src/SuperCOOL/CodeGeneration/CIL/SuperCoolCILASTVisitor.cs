@@ -263,7 +263,7 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILBlockNode(new ASTCILExpressionNode[]
             {
                 new ASTCILAllocateNode(type),
-                new ASTCILFuncVirtualCallNode(type,Functions.Init,Enumerable.Empty<ASTCILExpressionNode>())
+                new ASTCILFuncVirtualCallNode(type,Functions.Init,new []{new ASTCILSelfNode()})
             });
         }
 
