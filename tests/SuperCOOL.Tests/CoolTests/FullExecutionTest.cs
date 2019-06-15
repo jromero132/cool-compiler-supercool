@@ -46,6 +46,13 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void ComparerOperator()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "comparer_operator.cl"), "comparer_operator");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void Complex()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
