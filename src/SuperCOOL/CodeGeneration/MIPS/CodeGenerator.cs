@@ -247,6 +247,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var then = If.Then.Accept( this );
             then.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .JumpToLabel(If.EndLabel)
                                                          .Tag( If.ElseLabel ) );
 
             var @else = If.Else.Accept( this );
