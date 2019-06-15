@@ -93,6 +93,8 @@ namespace SuperCOOL.SemanticCheck
                 Class.SemanticCheckResult.Ensure(item.Accept(this));
             CompilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName,Class.SymbolTable, out var ret);
             Class.SemanticCheckResult.EnsureReturnType(ret);
+            ret.SetAttributes();
+
             return Class.SemanticCheckResult;
         }
 

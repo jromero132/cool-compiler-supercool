@@ -11,7 +11,7 @@ namespace SuperCOOL.Core
         public List<CoolType> Childs { get; set; }
 
         public ISymbolTable SymbolTable { get; set; }
-        public IEnumerable<SymbolInfo> Atributes{ get; private set; }
+        public List<SymbolInfo> Atributes{ get; private set; }
         public int AllocateSize => 4 * Atributes.Count();
 
         public CoolType(string Name) {
@@ -63,7 +63,7 @@ namespace SuperCOOL.Core
 
         public void SetAttributes()
         {
-            this.Atributes = SymbolTable.AllDefinedObjects().Where(x=>x.Kind==ObjectKind.Atribute).Select((x,i)=> { x.Offset = 4 * i;return x; });
+            this.Atributes = SymbolTable.AllDefinedObjects().Where(x=>x.Kind==ObjectKind.Atribute).Select((x,i)=> { x.Offset = 4 * i;return x; }).ToList();
         }
 
     }
