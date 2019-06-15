@@ -60,13 +60,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             if( symbolInfo.Kind == ObjectKind.Local )
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                               .GetLocal( symbolInfo.Offset ) );
+                                                               .GetLocalAddress( symbolInfo.Offset ) );
             else
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                               .GetParam( symbolInfo.Offset ) );
+                                                               .GetParamAddress( symbolInfo.Offset ) );
 
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .SaveToMemory( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+                                                           .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
             return result;
         }
 

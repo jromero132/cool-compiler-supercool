@@ -127,9 +127,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         // Getting args and variables in functions
         public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
+        public MipsGenerationHelper GetParamAddress( int offset ) => this.Move( MipsRegisterSet.a0, MipsRegisterSet.bp).Add(MipsRegisterSet.a0, offset + 8);
 
         public MipsGenerationHelper GetLocal( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, -offset );
 
+        public MipsGenerationHelper GetLocalAddress(int offset) =>
+            this.Move(MipsRegisterSet.a0, MipsRegisterSet.bp).Sub(MipsRegisterSet.a0, offset);
 
         // Read
         public MipsGenerationHelper ReadInt( Register r )
