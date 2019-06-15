@@ -60,6 +60,13 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void ComplementOperator()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "complement_operator.cl"), "complement_operator");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void Complex()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
