@@ -24,12 +24,12 @@ namespace SuperCOOL.Core
         public string Name { get; }
         public CoolType ReturnType { get; }
 
-        public IEnumerable<SymbolInfo> Locals{ get; private set; }
-        public IEnumerable<SymbolInfo> Parameters{ get; private set; }
+        public List<SymbolInfo> Locals{ get; private set; }
+        public List<SymbolInfo> Parameters{ get; private set; }
         public void AssignParametersAndLocals()
         {
-            Locals = SymbolTable.GetInSubScopes().Where(x => x.Kind == ObjectKind.Local).Select((x, i) => { x.Offset = 4 * i; return x; });
-            Parameters = SymbolTable.AllDefinedObjects().Where(x => x.Kind == ObjectKind.Parameter).Select((x, i) => { x.Offset = 4 * (i + 1); return x; });
+            Locals = SymbolTable.GetInSubScopes().Where(x => x.Kind == ObjectKind.Local).Select((x, i) => { x.Offset = 4 * i; return x; }).ToList();
+            Parameters = SymbolTable.AllDefinedObjects().Where(x => x.Kind == ObjectKind.Parameter).Select((x, i) => { x.Offset = 4 * (i + 1); return x; }).ToList();
         }
 
         public virtual CoolType GetParam(int i)

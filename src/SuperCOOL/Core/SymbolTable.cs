@@ -81,9 +81,12 @@ namespace SuperCOOL.Core
 
         public ISymbolTable ExitScope()
         {
-            var locals = Objects.Values.ToList();
+            var locals = Subscopes.ToList();
+            var objects = Objects.Values.ToList();
             if (locals.Count > 0)
                 Parent.Subscopes.AddRange(locals);
+            if (objects.Count > 0)
+                Parent.Subscopes.AddRange(objects);
             return Parent;
         }
 
