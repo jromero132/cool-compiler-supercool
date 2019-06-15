@@ -23,6 +23,7 @@
         public string GenerateStringData() => $"_string_{ stringData++ }";
 
         public string GenerateEmptyStringData() => $"_string_empty";
+        public string GenerateVoid() => "_void";
 
         public string GenerateLabelTypeName( string name ) => $"__{ name }";
 

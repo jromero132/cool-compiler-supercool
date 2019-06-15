@@ -308,7 +308,18 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIsVoid( ASTCILIsVoidNode IsVoid )
         {
-            throw new NotImplementedException();// TODO hay que hacer esto en IL
+            var result = IsVoid.Expression.Accept(this);
+            var (endLabel, elseLabel) = labelGenerator.GenerateIf();
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .LoadFromAddress(MipsRegisterSet.t0, labelGenerator.GenerateVoid())
+                .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
+                .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.FALSE)
+                .JumpToLabel(endLabel)
+                .Tag(elseLabel)
+                .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE)
+                .Tag(endLabel));
+
+            return result;
         }
 
         public MipsProgram VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables )
@@ -398,7 +409,19 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint);
 
-            foreach( var item in Program.Types )
+            var stringEmptyLabel = labelGenerator.GenerateEmptyStringData();
+            result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript()
+                .GlobalSection(stringEmptyLabel));
+            result.SectionData.Append(MipsGenerationHelper.NewScript()
+                .AddData(stringEmptyLabel, new[] { MipsGenerationHelper.AddStringData(String.Empty) }));
+
+            var voidLabel = labelGenerator.GenerateVoid();
+            result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript()
+                .GlobalSection(voidLabel));
+            result.SectionData.Append(MipsGenerationHelper.NewScript()
+                .AddData(voidLabel, new[] { MipsGenerationHelper.AddStringData(String.Empty) }));
+
+            foreach ( var item in Program.Types )
                 result += item.Accept( this );
 
             return result;
@@ -484,7 +507,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitVoid( ASTCILVoidNode Void )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadConstant(MipsRegisterSet.a0,0));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromAddress(MipsRegisterSet.a0,labelGenerator.GenerateVoid()));
             return result;
         }
 
