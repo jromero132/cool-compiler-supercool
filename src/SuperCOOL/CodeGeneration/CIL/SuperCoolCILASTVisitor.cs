@@ -218,12 +218,15 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
         {
+            var type = MethodCall.InvokeOnExpresion.SemanticCheckResult.Type;
+            if (type is SelfType self)
+                type = self.ContextType;
+            var args= new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
+                .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode)a.Accept(this)));
             return new ASTCILIfNode(
                 new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(compilationUnit.TypeEnvironment.GetContextType(MethodCall.SymbolTable),
-                    MethodCall.MethodName,
-                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
+                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(type,
+                    MethodCall.MethodName,args),
                 labelIlGenerator.GenerateIf());
         }
 
