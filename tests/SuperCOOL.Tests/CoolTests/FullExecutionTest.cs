@@ -31,6 +31,13 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void Assigment()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "assigment.cl"), "assigment");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void Complex()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
