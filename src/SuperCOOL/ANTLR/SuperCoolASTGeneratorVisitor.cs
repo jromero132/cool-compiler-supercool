@@ -426,7 +426,7 @@ namespace SuperCOOL.ANTLR
         public override ASTNode VisitWhile([NotNull] SuperCOOLParser.WhileContext context)
         {
             var result = new ASTWhileNode();
-            var condition = context.expression(1).Accept(this);
+            var condition = context.expression(0).Accept(this);
             AssignSymbolTable(condition);
             var body = context.expression(1).Accept(this);
             AssignSymbolTable(body);
