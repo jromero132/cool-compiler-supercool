@@ -518,7 +518,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( objectTypeName.Tag )
-                                                                .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp )
+                                                                .GetParam( 0 )
                                                                 .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest )
                                                                 .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset )
                                                                 .Return() );
