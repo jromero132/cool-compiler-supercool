@@ -23,17 +23,31 @@ namespace SuperCOOL.ANTLR
             Functions = new List<(string type, string method, string[] asrgTypes, string returnType)>();
         }
 
-        public override ASTNode VisitAdd([NotNull] SuperCOOLParser.AddContext context)
+        public override ASTNode VisitAddminus([NotNull] SuperCOOLParser.AddminusContext context)
         {
-            var result=new ASTAddNode() { };
+            if (context.ADD() != null)
+            {
+                var resultadd=new ASTAddNode() { };
+                ASTExpressionNode leftadd = (ASTExpressionNode)context.expression()[0].Accept(this);
+                AssignSymbolTable(leftadd);
+                ASTExpressionNode rightadd = (ASTExpressionNode)context.expression()[1].Accept(this);
+                AssignSymbolTable(rightadd);
+                resultadd.Left = leftadd;
+                resultadd.Right = rightadd;
+                resultadd.AddToken = context.ADD().Symbol;
+                return resultadd;
+            }
+            var result=new ASTMinusNode() { };
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
             AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
             AssignSymbolTable(right);
+
             result.Left = left;
             result.Right = right;
-            result.AddToken = context.ADD().Symbol;
+            result.MinusToken = context.MINUS().Symbol;
             return result;
+            
         }
 
         public override ASTNode VisitAssignment([NotNull] SuperCOOLParser.AssignmentContext context)
@@ -127,9 +141,36 @@ namespace SuperCOOL.ANTLR
             return result;
         }
 
-        public override ASTNode VisitDivision([NotNull] SuperCOOLParser.DivisionContext context)
+
+        public override ASTNode VisitComparison([NotNull] SuperCOOLParser.ComparisonContext context)
         {
-            var result = new ASTDivideNode();
+            if (context.EQUAL() != null)
+            {
+                var resultequal = new ASTEqualNode();
+                ASTExpressionNode leftequal = (ASTExpressionNode)context.expression()[0].Accept(this);
+                AssignSymbolTable(leftequal);
+                ASTExpressionNode rightequal = (ASTExpressionNode)context.expression()[1].Accept(this);
+                AssignSymbolTable(rightequal);
+
+                resultequal.Left = leftequal;
+                resultequal.Right = rightequal;
+                resultequal.EqualToken = context.EQUAL().Symbol;
+                return resultequal;
+            }
+            if (context.LESS_THAN() != null)
+            {
+                var resultless = new ASTLessThanNode();
+                ASTExpressionNode leftless = (ASTExpressionNode)context.expression()[0].Accept(this);
+                AssignSymbolTable(leftless);
+                ASTExpressionNode rightless = (ASTExpressionNode)context.expression()[1].Accept(this);
+                AssignSymbolTable(rightless);
+
+                resultless.Left = leftless;
+                resultless.Right = rightless;
+                resultless.LessThanToken = context.LESS_THAN().Symbol;
+                return resultless;
+            }
+            var result = new ASTLessEqualNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
             AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
@@ -137,21 +178,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
-            result.DivToken = context.DIVISION().Symbol;
-            return result;
-        }
-
-        public override ASTNode VisitEqual([NotNull] SuperCOOLParser.EqualContext context)
-        {
-            var result = new ASTEqualNode();
-            ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            AssignSymbolTable(left);
-            ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            AssignSymbolTable(right);
-
-            result.Left = left;
-            result.Right = right;
-            result.EqualToken = context.EQUAL().Symbol;
+            result.LessEqualToken = context.LESS_EQUAL().Symbol;
             return result;
         }
 
@@ -195,34 +222,6 @@ namespace SuperCOOL.ANTLR
             AssignSymbolTable(expression);
 
             result.Expression = (ASTExpressionNode) expression;
-            return result;
-        }
-
-        public override ASTNode VisitLessEqual([NotNull] SuperCOOLParser.LessEqualContext context)
-        {
-            var result = new ASTLessEqualNode();
-            ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            AssignSymbolTable(left);
-            ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            AssignSymbolTable(right);
-
-            result.Left = left;
-            result.Right = right;
-            result.LessEqualToken = context.LESS_EQUAL().Symbol;
-            return result;
-        }
-
-        public override ASTNode VisitLessThan([NotNull] SuperCOOLParser.LessThanContext context)
-        {
-            var result = new ASTLessThanNode();
-            ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            AssignSymbolTable(left);
-            ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            AssignSymbolTable(right);
-
-            result.Left = left;
-            result.Right = right;
-            result.LessThanToken = context.LESS_THAN().Symbol;
             return result;
         }
 
@@ -310,9 +309,23 @@ namespace SuperCOOL.ANTLR
             return dresult;
         }
 
-        public override ASTNode VisitMinus([NotNull] SuperCOOLParser.MinusContext context)
+        public override ASTNode VisitMultiplydivision([NotNull] SuperCOOLParser.MultiplydivisionContext context)
         {
-            var result = new ASTMinusNode();
+            if (context.MULTIPLY()!=null)
+            {
+                var resultmult = new ASTMultiplyNode();
+                ASTExpressionNode leftmult = (ASTExpressionNode)context.expression()[0].Accept(this);
+                AssignSymbolTable(leftmult);
+                ASTExpressionNode rightmult = (ASTExpressionNode)context.expression()[1].Accept(this);
+                AssignSymbolTable(rightmult);
+
+                resultmult.Left = leftmult;
+                resultmult.Right = rightmult;
+                resultmult.MultToken = context.MULTIPLY().Symbol;
+                return resultmult;
+            }
+
+            var result = new ASTDivideNode();
             ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
             AssignSymbolTable(left);
             ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
@@ -320,21 +333,7 @@ namespace SuperCOOL.ANTLR
 
             result.Left = left;
             result.Right = right;
-            result.MinusToken = context.MINUS().Symbol;
-            return  result;
-        }
-
-        public override ASTNode VisitMultiply([NotNull] SuperCOOLParser.MultiplyContext context)
-        {
-            var result = new ASTMultiplyNode();
-            ASTExpressionNode left = (ASTExpressionNode)context.expression()[0].Accept(this);
-            AssignSymbolTable(left);
-            ASTExpressionNode right = (ASTExpressionNode)context.expression()[1].Accept(this);
-            AssignSymbolTable(right);
-
-            result.Left = left;
-            result.Right = right;
-            result.MultToken = context.MULTIPLY().Symbol;
+            result.DivToken = context.DIVISION().Symbol;
             return result;
         }
 
