@@ -356,17 +356,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
             Register from = MipsRegisterSet.a0;
             Register to = MipsRegisterSet.t0;
             Register size = MipsRegisterSet.t1;
-            this.body.Append(Move(MipsRegisterSet.t2,to))//save to in t2
-                     .Append(Tag(@else))//start tag
-                     .Append(BranchLessEqual(size, 0, endtag))//if size is 0 go to end tag
-                     .Append(LoadFromMemory(MipsRegisterSet.v0,from))//v0<- (from)
-                     .Append(SaveToMemory(MipsRegisterSet.v0,to))//(to)<-v0
-                     .Append(Add(from,4))
-                     .Append(Add(to,4))
-                     .Append(Sub(size, 4))
-                     .Append(JumpToLabel(@else))
-                     .Append(Tag(endtag))
-                     .Append(Move(MipsRegisterSet.a0,MipsRegisterSet.t2));
+            this.Move(MipsRegisterSet.t2,to)//save to in t2
+                     .Tag(@else)//start tag
+                     .BranchLessEqual(size, 0, endtag)//if size is 0 go to end tag
+                     .LoadFromMemory(MipsRegisterSet.v0,from)//v0<- (from)
+                     .SaveToMemory(MipsRegisterSet.v0,to)//(to)<-v0
+                     .Add(from,4)
+                     .Add(to,4)
+                     .Sub(size, 4)
+                     .JumpToLabel(@else)
+                     .Tag(endtag)
+                     .Move(MipsRegisterSet.a0,MipsRegisterSet.t2);
             return this;
         }
     }
