@@ -3,7 +3,7 @@
     public interface ILabelILGenerator
     {
         string GenerateVariable();
-        (string end, string @else) GenerateIf();
+        (string end, string @else, string init) GenerateIf();
         (string varInit, string endOfCase) GenerateCase();
         string GenerateFunc(string className, string methodName);
         string GenerateInit(string classTypeName);

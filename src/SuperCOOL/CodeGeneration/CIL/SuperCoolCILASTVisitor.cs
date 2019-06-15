@@ -379,7 +379,7 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILIfNode((ASTCILExpressionNode) While.Condition.Accept(this),
                 new ASTCILBlockNode(new[]
                 {
-                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.end)
+                    (ASTCILExpressionNode) While.Body.Accept(this), new ASTCILGotoNode(ifLabel.init)
                 }),
                 new ASTCILVoidNode(), ifLabel);
         }

@@ -12,7 +12,7 @@
 
         public string GenerateVariable() => $"_var_{ variableIndex++ }";
 
-        public (string end, string @else) GenerateIf() => ($"_end_if_{ this.ifIndex }", $"_else_if_{ this.ifIndex++ }");
+        public (string end, string @else, string init) GenerateIf() => ($"_end_if_{ this.ifIndex }", $"_else_if_{ this.ifIndex }", $"_if_{ ifIndex++ }");
 
         public (string varInit, string endOfCase) GenerateCase() => (GenerateVariable(), $"_caseEnd_{ this.caseIndex++ }");
 

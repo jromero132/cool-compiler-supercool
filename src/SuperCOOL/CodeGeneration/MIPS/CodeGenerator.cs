@@ -241,7 +241,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIf( ASTCILIfNode If )
         {
-            var @if = If.Condition.Accept( this );
+            var ifLabel = new MipsProgram();
+            ifLabel.SectionCode.Append(MipsGenerationHelper.NewScript().Tag(If.IfLabel));
+            var @if = ifLabel + If.Condition.Accept( this );
             @if.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                         .BranchOnEquals( MipsRegisterSet.a0, MipsGenerationHelper.FALSE, If.ElseLabel ) );
 
@@ -309,7 +311,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitIsVoid( ASTCILIsVoidNode IsVoid )
         {
             var result = IsVoid.Expression.Accept(this);
-            var (endLabel, elseLabel) = labelGenerator.GenerateIf();
+            var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
             result.SectionCode.Append(MipsGenerationHelper.NewScript()
                 .LoadFromAddress(MipsRegisterSet.t0, labelGenerator.GenerateVoid())
                 .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
@@ -324,7 +326,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitLessThanTwoVariables( ASTCILLessThanTwoVariablesNode LessThanTwoVariables )
         {
-            (string end_label, string else_label) = labelGenerator.GenerateIf();
+            (string end_label, string else_label, _) = labelGenerator.GenerateIf();
 
             var left = LessThanTwoVariables.Left.Accept( this );
             left.SectionCode.Append( MipsGenerationHelper.NewScript()
