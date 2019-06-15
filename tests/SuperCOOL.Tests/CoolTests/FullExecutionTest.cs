@@ -7,7 +7,6 @@ using Xunit;
 
 namespace SuperCOOL.Tests.CoolTests
 {
-    //TODO: Full Execution test
     public class FullExecutionTest
     {
         [Fact]
