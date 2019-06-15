@@ -15,7 +15,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public static readonly string TAB = "\t";
         private static readonly string ENDL = Environment.NewLine;
 
+        // Read string buffer
         public const int BufferSize = 4096;
+        public const string BufferLabel = "_____buffer";
+        public const string StringLengthMethodLabel = "_____string_length";
+        public const string StringLengthMethodWhile = "_____string_length_while";
+
+        // Exceptions
         public const string Exceptions = "____exceptions";
 
         //Variable
@@ -46,6 +52,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         private const int print_int = 1;
         private const int print_string = 4;
         private const int read_int = 5;
+        private const int read_string = 8;
         private const int allocate = 9;
         private const int exit = 10;
 
@@ -53,7 +60,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Sections
         public MipsGenerationHelper Section( string section_name, string arg = "", bool Indented = false ) // .{ section_name } arg
         {
-            this.body.Append( $"{(Indented ? TAB : "")}.{ section_name }{ ( arg == "" ? "" : " " + arg ) }{ ENDL }" );
+            this.body.Append( $"{( Indented ? TAB : "" )}.{ section_name }{ ( arg == "" ? "" : " " + arg ) }{ ENDL }" );
             return this;
         }
 
@@ -93,7 +100,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Data Types
         public MipsGenerationHelper AddData( string name, IEnumerable<(string type, object value)> args ) => this.Tag( name ) + new StringBuilder( args.Select( x => $"{ TAB + TAB }.{ x.type } { x.value }{ ENDL }" ).Aggregate( ( x, y ) => x.ToString() + y.ToString() ) );
 
-        public static (string, object) AddStringData( string value ) => ( $"asciiz", $"\"{ value }\"" );
+        public static (string, object) AddStringData( string value ) => ($"asciiz", $"\"{ value }\"");
 
         public static (string, object) AddIntData( object value ) => ($"word", value);
 
@@ -118,12 +125,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper Call( Register r ) => this.Push( MipsRegisterSet.ip )
                                                               .Push( MipsRegisterSet.bp )
                                                               .Move( MipsRegisterSet.bp, MipsRegisterSet.sp )
-                                                              .JumpToLabelInRegistry(r)
-                                                              .Move(MipsRegisterSet.sp, MipsRegisterSet.bp)
-                                                              .Pop(MipsRegisterSet.bp)
-                                                              .Pop(MipsRegisterSet.ip);
+                                                              .JumpToLabelInRegistry( r )
+                                                              .Move( MipsRegisterSet.sp, MipsRegisterSet.bp )
+                                                              .Pop( MipsRegisterSet.bp )
+                                                              .Pop( MipsRegisterSet.ip );
 
-        public MipsGenerationHelper Return() => this.JumpRegister( MipsRegisterSet.ip);
+        public MipsGenerationHelper Return() => this.JumpRegister( MipsRegisterSet.ip );
 
         // Getting args and variables in functions
         public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
@@ -135,16 +142,32 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.Move(MipsRegisterSet.a0, MipsRegisterSet.bp).Sub(MipsRegisterSet.a0, offset);
 
         // Read
-        public MipsGenerationHelper ReadInt( Register r )
+        public MipsGenerationHelper ReadInt( Register r ) => this.LoadConstant( MipsRegisterSet.v0, read_int )
+                                                                 .SystemCall()
+                                                                 .Move( r, MipsRegisterSet.v0 );
+
+        // TODO
+        public MipsGenerationHelper ReadString()
         {
-            this.LoadConstant( MipsRegisterSet.v0, read_int )
+            this.LoadConstant( MipsRegisterSet.v0, read_string )
+                .LoadFromAddress( MipsRegisterSet.a0, BufferLabel )
+                .LoadConstant( MipsRegisterSet.a1, BufferSize )
                 .SystemCall();
-
-            if( r != MipsRegisterSet.v0 )
-                this.Move( r, MipsRegisterSet.v0 );
-
             return this;
         }
+
+
+        // String length
+        public MipsGenerationHelper StringLengthMethod() => this.Move( MipsRegisterSet.a1, MipsRegisterSet.a0 )
+                                                                .LoadConstant( MipsRegisterSet.t1, 10 )
+                                                                .Tag( StringLengthMethodWhile )
+                                                                .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a1 )
+                                                                .Add( MipsRegisterSet.a1, 1 )
+                                                                .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringLengthMethodWhile )
+                                                                .BranchNotEqualZero( MipsRegisterSet.t0, StringLengthMethodWhile )
+                                                                .Sub( MipsRegisterSet.a1, 1 )
+                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1 )
+                                                                .Sub( MipsRegisterSet.a0, MipsRegisterSet.a1, MipsRegisterSet.a0 );
 
 
         // Print
@@ -193,13 +216,20 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper LoadFromAddress( Register r, string a,int offset=0 ) // r <- a
+        public MipsGenerationHelper LoadFromAddress( Register r, string a, int offset = 0 ) // r <- a
         {
             this.body.Append( $"{ TAB + TAB }la { r }, { a }{ ENDL }" );
-            if (offset != 0)
-                return Add(r, offset);
+            if( offset != 0 )
+                return Add( r, offset );
             return this;
         }
+
+        public MipsGenerationHelper LoadByte( Register r1, Register r2 ) // r1 <- (r2)
+        {
+            this.body.Append( $"{ TAB + TAB }lb { r1 }, ({ r2 }){ ENDL }" );
+            return this;
+        }
+
 
         // Save
         public MipsGenerationHelper SaveToMemory( Register r, object d, int offset = 0 ) // (d + offset) <- r
@@ -207,6 +237,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
             this.body.Append( $"{ TAB + TAB }sw { r }, { ( offset == 0 ? "" : offset.ToString() ) }({ d }){ ENDL }" );
             return this;
         }
+
+        public MipsGenerationHelper SaveByte( Register r1, Register r2 ) // r2 <- (r1)
+        {
+            this.body.Append( $"{ TAB + TAB }sb { r1 }, ({ r2 }){ ENDL }" );
+            return this;
+        }
+
 
         // Dynamic saving
         public MipsGenerationHelper Allocate( Register r )
@@ -228,9 +265,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper JumpToLabelInRegistry(Register r)
+        public MipsGenerationHelper JumpToLabelInRegistry( Register r )
         {
-            this.body.Append($"{ TAB + TAB }jalr { r }{ ENDL }");
+            this.body.Append( $"{ TAB + TAB }jalr { r }{ ENDL }" );
             return this;
         }
 
@@ -246,6 +283,21 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 return this.JumpToLabel( label );
 
             this.body.Append( $"{ TAB + TAB }beq { r }, { v }, { label }{ ENDL }" );
+            return this;
+        }
+
+        public MipsGenerationHelper BranchNotEquals( Register r, object v, string label )
+        {
+            if( r == v )
+                return this;
+
+            this.body.Append( $"{ TAB + TAB }bne { r }, { v }, { label }{ ENDL }" );
+            return this;
+        }
+
+        public MipsGenerationHelper BranchNotEqualZero( Register r, string label )
+        {
+            this.body.Append( $"{ TAB + TAB }bnez { r }, { label }{ ENDL }" );
             return this;
         }
 
@@ -346,30 +398,28 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v
         {
-            this.body.Append($"{TAB + TAB}div {r}, {v}{ENDL}").Append($"{TAB + TAB}mflo $a0{ENDL}");
+            this.body.Append( $"{TAB + TAB}div {r}, {v}{ENDL}" ).Append( $"{TAB + TAB}mflo $a0{ENDL}" );
             return this;
         }
 
-        /// <summary>
-        /// Copy cant size in t1 from memory in t0 to memory in a0.
-        /// </summary>
-        /// <returns></returns>
-        public MipsGenerationHelper Copy(string endtag,string @else)
+
+        // Copy
+        public MipsGenerationHelper Copy( string endtag, string @else )
         {
             Register from = MipsRegisterSet.a0;
             Register to = MipsRegisterSet.t0;
             Register size = MipsRegisterSet.t1;
-            this.Move(MipsRegisterSet.t2,to)//save to in t2
-                     .Tag(@else)//start tag
-                     .BranchLessEqual(size, 0, endtag)//if size is 0 go to end tag
-                     .LoadFromMemory(MipsRegisterSet.v0,from)//v0<- (from)
-                     .SaveToMemory(MipsRegisterSet.v0,to)//(to)<-v0
-                     .Add(from,4)
-                     .Add(to,4)
-                     .Sub(size, 4)
-                     .JumpToLabel(@else)
-                     .Tag(endtag)
-                     .Move(MipsRegisterSet.a0,MipsRegisterSet.t2);
+            this.Move( MipsRegisterSet.t2, to )//save to in t2
+                     .Tag( @else )//start tag
+                     .BranchLessEqual( size, 0, endtag )//if size is 0 go to end tag
+                     .LoadFromMemory( MipsRegisterSet.v0, from )//v0<- (from)
+                     .SaveToMemory( MipsRegisterSet.v0, to )//(to)<-v0
+                     .Add( from, 4 )
+                     .Add( to, 4 )
+                     .Sub( size, 4 )
+                     .JumpToLabel( @else )
+                     .Tag( endtag )
+                     .Move( MipsRegisterSet.a0, MipsRegisterSet.t2 );
             return this;
         }
     }

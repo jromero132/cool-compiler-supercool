@@ -278,17 +278,50 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitIOInString( ASTCILIOInStringNode IOInString )
         {
-            //TODO: falta
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOInString.Tag )
-                                                                .Return() );
+                                                                .ReadString()
+                                                                .StringLengthMethod()
+                                                                .LoadFromAddress( MipsRegisterSet.a1, MipsGenerationHelper.BufferLabel ) );
+            result += CreateString( MipsRegisterSet.a1, MipsRegisterSet.a0 );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .Return() );
             return result;
         }
 
-        private MipsProgram CreateString( string label, Register r )
+        private MipsProgram CreateString( Register r1, Register r2 )
         {
+            string label_info = labelGenerator.GenerateLabelTypeInfo( Types.String );
+            var result = new MipsProgram();
 
+            if( r2 == MipsRegisterSet.t1 )
+            {
+                if( r1 == MipsRegisterSet.t2 )
+                    result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                                   .Move( MipsRegisterSet.t0, r1 )
+                                                                   .Move( MipsRegisterSet.t2, r2 )
+                                                                   .Move( MipsRegisterSet.t1, MipsRegisterSet.t0 ) );
+                else
+                    result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                                   .Move( MipsRegisterSet.t2, r2 )
+                                                                   .Move( MipsRegisterSet.t1, r1 ) );
+            }
+            else
+                result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                               .Move( MipsRegisterSet.t1, r1 )
+                                                               .Move( MipsRegisterSet.t2, r2 ) );
+
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                           .LoadFromAddress( MipsRegisterSet.t0, label_info )
+                                                           .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset )
+                                                           .Add( MipsRegisterSet.a0, 4 )
+                                                           .Allocate( MipsRegisterSet.a0 )
+                                                           .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )
+                                                           .Add( MipsRegisterSet.a0, 4 )
+                                                           .SaveToMemory( MipsRegisterSet.t1, MipsRegisterSet.a0 )
+                                                           .SaveToMemory( MipsRegisterSet.t2, MipsRegisterSet.a0, 4 ) );
+            return result;
         }
 
         public MipsProgram VisitIOOutInt( ASTCILIOOutIntNode IOOutInt )
@@ -381,7 +414,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitProgram( ASTCILProgramNode Program )
         {
-            var bufferlabel = labelGenerator.GetBuffer();
+            var bufferlabel = MipsGenerationHelper.BufferLabel;
 
             var result = new MipsProgram();
             result.SectionDataGlobals.Append( MipsGenerationHelper.NewScript().GlobalSection( bufferlabel ) );
