@@ -38,6 +38,14 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void In_Int()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_int.cl"), "in_int");
+            Assert.True(false); //TODO input
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void Complex()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
