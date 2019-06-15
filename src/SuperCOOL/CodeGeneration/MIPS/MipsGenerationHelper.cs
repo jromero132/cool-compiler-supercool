@@ -282,7 +282,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Boolean operators
         public MipsGenerationHelper Not( Register r, Register r_out )
         {
-            this.body.Append( $"{ TAB + TAB }nor { r_out }, { r }, { MipsRegisterSet.zero }{ ENDL }" );
+            this.LoadConstant(MipsRegisterSet.t0, 1).Sub(MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0);
             return this;
         }
 

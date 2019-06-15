@@ -44,7 +44,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitBoolNot(ASTBoolNotNode BoolNot)
         {
-            return new ASTCILBoolNotNode((ASTCILExpressionNode) BoolNot.Accept(this));
+            return new ASTCILBoolNotNode((ASTCILExpressionNode) BoolNot.Expresion.Accept(this));
         }
 
         public ASTCILNode VisitCase(ASTCaseNode Case)

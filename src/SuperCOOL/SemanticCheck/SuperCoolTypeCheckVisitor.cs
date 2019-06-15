@@ -53,7 +53,7 @@ namespace SuperCOOL.SemanticCheck
 
         public override SemanticCheckResult VisitBoolNot(ASTBoolNotNode BoolNode)
         {
-            var exp = BoolNode.Accept(this);
+            var exp = BoolNode.Expresion.Accept(this);
             BoolNode.SemanticCheckResult.Ensure(exp,exp.Type == CompilationUnit.TypeEnvironment.Bool,
                 new Lazy<Error>(()=>new Error("Expresion must be of tipe Bool",ErrorKind.TypeError,BoolNode.NotToken.Line,BoolNode.NotToken.Column)));
             BoolNode.SemanticCheckResult.EnsureReturnType(CompilationUnit.TypeEnvironment.Bool);
