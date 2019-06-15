@@ -411,12 +411,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             result.SectionCode.Append(MipsGenerationHelper.NewScript().MainTag()).Append(entryPoint);
 
-            var stringEmptyLabel = labelGenerator.GenerateEmptyStringData();
-            result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript()
-                .GlobalSection(stringEmptyLabel));
-            result.SectionData.Append(MipsGenerationHelper.NewScript()
-                .AddData(stringEmptyLabel, new[] { MipsGenerationHelper.AddStringData(String.Empty) }));
-
             var voidLabel = labelGenerator.GenerateVoid();
             result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript()
                 .GlobalSection(voidLabel));
@@ -458,7 +452,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
         {
             var result = new MipsProgram();
-            result.SectionData.Append(MipsGenerationHelper.NewScript()
+            result.SectionData.Append(MipsGenerationHelper.NewScript() //TODO add only if not defined
                 .AddData(StringConstant.DataLabel,
                     new[]
                     {
