@@ -13,7 +13,6 @@
         string GenerateLabelTypeName(string name);
         string GenerateLabelTypeInfo(string name);
         string GenerateLabelVirtualTable(string name);
-        string GetBuffer();
         string GetException();
     }
 }

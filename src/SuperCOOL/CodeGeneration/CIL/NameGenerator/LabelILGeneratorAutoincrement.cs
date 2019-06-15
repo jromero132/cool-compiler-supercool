@@ -31,8 +31,6 @@
 
         public string GenerateLabelVirtualTable( string name ) => $"____virtual_table_{ name }";
 
-        public string GetBuffer() => $"_____buffer";
-
         public string GetException() => $"____exception{ exceptionIndex++ }";
     }
 }
