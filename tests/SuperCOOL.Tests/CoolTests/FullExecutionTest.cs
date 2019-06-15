@@ -17,6 +17,13 @@ namespace SuperCOOL.Tests.CoolTests
         }
 
         [Fact]
+        public void IfSimpleExpression()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "if_expression.cl"), "if_expression");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
         public void ArithmeticOperator()
         {
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "arithmetic_operator.cl" ), "arithmetic_operator" );
