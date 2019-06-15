@@ -168,15 +168,25 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitLetIn(ASTLetInNode LetIn)
         {
-            return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x => {
-                return new ASTCILExpressionNode[]{
-                                new ASTCILAssignmentNode(x.Id,
-                                    x.Expression!=null?(ASTCILExpressionNode) x.Expression?.Accept(this) :
-                                    x.Type==compilationUnit.TypeEnvironment.Bool? new ASTCILBoolConstantNode(false):
-                                    x.Type==compilationUnit.TypeEnvironment.Int? new ASTCILIntConstantNode(0):
-                                    (ASTCILExpressionNode)new ASTCILVoidNode()
-                                    )};
-            }).Append((ASTCILExpressionNode)LetIn.LetExp.Accept(this))); 
+            return new ASTCILBlockNode(LetIn.Declarations.SelectMany(x =>
+            {
+                ASTCILExpressionNode expression;
+                compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, LetIn.SymbolTable, out var type); 
+                if (x.Expression != null)
+                    expression = (ASTCILExpressionNode) x.Expression.Accept(this);
+                else if (x.Type.Text == Types.Bool)
+                    expression = new ASTCILBoolConstantNode(false);
+                else if (x.Type.Text == Types.Int)
+                    expression = new ASTCILIntConstantNode(0);
+                else if (x.Type.Text == Types.String)
+                    expression = new ASTCILStringConstantNode("", labelIlGenerator.GenerateEmptyStringData());
+                else
+                    expression = new ASTCILVoidNode();
+                return new ASTCILExpressionNode[]
+                {
+                    new ASTCILAssignmentNode(x.Id, expression)
+                };
+            }).Append((ASTCILExpressionNode) LetIn.LetExp.Accept(this)));
         }
 
         public ASTCILNode VisitMethod(ASTMethodNode Method)
@@ -246,7 +256,7 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILBlockNode(new ASTCILExpressionNode[]
             {
                 new ASTCILAllocateNode(type),
-                new ASTCILFuncVirtualCallNode(type,labelIlGenerator.GenerateInit(type.Name),Enumerable.Empty<ASTCILExpressionNode>())
+                new ASTCILFuncVirtualCallNode(type,Functions.Init,Enumerable.Empty<ASTCILExpressionNode>())
             });
         }
 
