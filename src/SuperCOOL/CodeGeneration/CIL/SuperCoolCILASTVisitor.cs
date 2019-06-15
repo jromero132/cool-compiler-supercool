@@ -120,10 +120,15 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
         {
+            var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILIfNode(
                 (ASTCILExpressionNode) VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),
-                new ASTCILBoolConstantNode(true), new ASTCILBoolConstantNode(false),
-                labelIlGenerator.GenerateIf());
+                new ASTCILBlockNode(new ASTCILExpressionNode[]
+                {
+                    new ASTCILBoolConstantNode(false),
+                    new ASTCILGotoNode(ifLabel.end)
+                }), new ASTCILBoolConstantNode(true),
+                ifLabel);
         }
 
         public ASTCILNode VisitBoolConstant(ASTBoolConstantNode BoolConstant)
@@ -157,14 +162,19 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
         {
+            var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILIfNode(
-                new ASTCILBoolOrTwoVariablesNode(
-                    (ASTCILExpressionNode) (new ASTLessThanNode
-                        { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this),
-                    (ASTCILExpressionNode) (new ASTEqualNode
-                        { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this)),
+                new ASTCILBlockNode(new ASTCILExpressionNode[]
+                {
+                    new ASTCILBoolOrTwoVariablesNode(
+                        (ASTCILExpressionNode) (new ASTLessThanNode
+                            { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this),
+                        (ASTCILExpressionNode) (new ASTEqualNode
+                            { Left = LessEqual.Left, Right = LessEqual.Right }).Accept(this)),
+                    new ASTCILGotoNode(ifLabel.end), 
+                }),
                 new ASTCILIntConstantNode(1),
-                new ASTCILIntConstantNode(0), labelIlGenerator.GenerateIf());
+                new ASTCILIntConstantNode(0), ifLabel);
         }
 
         public ASTCILNode VisitLessThan(ASTLessThanNode LessThan)
@@ -207,13 +217,17 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             compilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.MethodName, null, out var type);
+            var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILIfNode(
                 new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncStaticCallNode(
-                    MethodCall.MethodName,type,
-                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this)}
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))),
-                labelIlGenerator.GenerateIf());
+                new ASTCILBlockNode(new ASTCILExpressionNode[]
+                {
+                    new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILGotoNode(ifLabel.end)
+                }), new ASTCILFuncStaticCallNode(
+                    MethodCall.MethodName, type,
+                    new[] { (ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this) }
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))), ifLabel
+            );
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
@@ -221,13 +235,17 @@ namespace SuperCOOL.CodeGeneration
             var type = MethodCall.InvokeOnExpresion.SemanticCheckResult.Type;
             if (type is SelfType self)
                 type = self.ContextType;
-            var args= new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
-                .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode)a.Accept(this)));
+            var args = new[] { (ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this) }
+                .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
+            var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILIfNode(
                 new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILFuncVirtualCallNode(type,
-                    MethodCall.MethodName,args),
-                labelIlGenerator.GenerateIf());
+                new ASTCILBlockNode(new ASTCILExpressionNode[]
+                {
+                    new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILGotoNode(ifLabel.end)
+                }), new ASTCILFuncVirtualCallNode(type,
+                    MethodCall.MethodName, args), ifLabel
+            );
         }
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
