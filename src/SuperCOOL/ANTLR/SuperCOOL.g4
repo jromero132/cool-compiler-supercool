@@ -23,7 +23,7 @@ http://sist.shanghaitech.edu.cn/faculty/songfu/course/spring2017/cs131/COOL/COOL
 grammar SuperCOOL;
 
 program
-   : classDefine ';'( classDefine ';')* # classes
+   : classDefine ';'( classDefine ';')* EOF# classes
    | EOF # eof
    ;
 
@@ -292,4 +292,8 @@ ONE_LINE_COMMENT
 // skip spaces, tabs, newlines, note that \v is not suppoted in antlr
 WHITESPACE
    : [ \t\r\n\f] + -> skip
+   ;
+
+ERROR
+   : . 
    ;
