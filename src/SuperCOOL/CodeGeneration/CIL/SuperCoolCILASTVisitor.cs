@@ -133,9 +133,16 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIf(ASTIfNode If)
         {
-            return new ASTCILIfNode((ASTCILExpressionNode) If.Condition.Accept(this),
-                (ASTCILExpressionNode) If.Then.Accept(this), (ASTCILExpressionNode) If.Else.Accept(this),
-                labelIlGenerator.GenerateIf());
+            var ifLabel = labelIlGenerator.GenerateIf();
+            return new ASTCILIfNode((ASTCILExpressionNode) If.Condition.Accept(this), new ASTCILBlockNode
+                (
+                    new[]
+                    {
+                        (ASTCILExpressionNode) If.Then.Accept(this),
+                        new ASTCILGotoNode(ifLabel.end)
+                    }
+                ), (ASTCILExpressionNode) If.Else.Accept(this),
+                ifLabel);
         }
 
         public ASTCILNode VisitIntConstant(ASTIntConstantNode Int)
