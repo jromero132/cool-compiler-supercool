@@ -410,6 +410,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 .JumpToLabel( @else )
                 .Tag( endtag );
 
+        public MipsGenerationHelper IsVoid(string voidLabel, string elseLabel, string endLabel) => this
+            .LoadFromAddress(MipsRegisterSet.t0, voidLabel)
+            .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
+            .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.FALSE)
+            .JumpToLabel(endLabel)
+            .Tag(elseLabel)
+            .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE)
+            .Tag(endLabel);
+
         public MipsGenerationHelper ThrowRuntimeError(int id, ILabelILGenerator labelGenerator)
         {
             switch (id)

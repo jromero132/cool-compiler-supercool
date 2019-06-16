@@ -376,13 +376,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = IsVoid.Expression.Accept(this);
             var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
             result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .LoadFromAddress(MipsRegisterSet.t0, labelGenerator.GenerateVoid())
-                .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
-                .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.FALSE)
-                .JumpToLabel(endLabel)
-                .Tag(elseLabel)
-                .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE)
-                .Tag(endLabel));
+                .IsVoid(labelGenerator.GenerateVoid(), elseLabel, endLabel));
 
             return result;
         }
