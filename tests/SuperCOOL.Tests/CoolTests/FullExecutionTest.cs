@@ -131,5 +131,19 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "static_dispatch.cl"), "static_dispatch");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void BookList()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "book_list.cl"), "book_list");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void IO()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "io.cl"), "io");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
