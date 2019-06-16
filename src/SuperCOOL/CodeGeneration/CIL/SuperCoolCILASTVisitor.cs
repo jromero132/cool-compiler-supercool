@@ -284,11 +284,7 @@ namespace SuperCOOL.CodeGeneration
             if (context.SemanticCheckResult.Type is SelfType selftype)
                 type = selftype.ContextType;
 
-            return new ASTCILBlockNode(new ASTCILExpressionNode[]
-            {
-                new ASTCILAllocateNode(type),
-                new ASTCILFuncVirtualCallNode(type,Functions.Init,new []{new ASTCILSelfNode()})
-            });
+            return new ASTCILFuncVirtualCallNode(type, Functions.Init, new[] { new ASTCILAllocateNode(type)});
         }
 
         public ASTCILNode VisitProgram(ASTProgramNode Program)
