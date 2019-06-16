@@ -248,13 +248,11 @@ namespace SuperCOOL.ANTLR
         {
             var result = new ASTMethodNode();
             var formals = context.formal().Select(x=>(x.OBJECTID().Symbol,x.TYPEID().Symbol)).ToList();
-            EnterScope();
             foreach (var item in formals)
                 CurrentTable.DefObject(item.Item1.Text,item.Item2.Text,ObjectKind.Parameter);
 
             var body = (ASTExpressionNode)context.expression().Accept(this);
             AssignSymbolTable(body);
-            ExitScope();
 
             result.Method = context.OBJECTID().Symbol;
             result.Body = body;

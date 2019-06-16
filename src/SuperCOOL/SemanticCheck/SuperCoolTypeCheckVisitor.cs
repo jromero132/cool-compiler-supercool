@@ -66,10 +66,14 @@ namespace SuperCOOL.SemanticCheck
             Case.SemanticCheckResult.Ensure(expresionCaseResult);
 
             HashSet<string> CoolTypesInBranch = new HashSet<string>();
-            CoolTypesInBranch.Add(Case.Cases[0].Type.Text);
             foreach (var item in Case.Cases)
-                Case.SemanticCheckResult.Ensure(!CoolTypesInBranch.Contains(item.Type.Text), 
+            {
+                var already = CoolTypesInBranch.Contains(item.Type.Text);
+                Case.SemanticCheckResult.Ensure(!already, 
                     new Lazy<Error>(() => new Error($"Multiple type branch for the type {item.Type.Text} in case expresion.",ErrorKind.SemanticError,item.Type.Line,item.Type.Column)));
+                if (!already)
+                    CoolTypesInBranch.Add(item.Type.Text);
+            }
 
             var branchresults = new SemanticCheckResult[Case.Cases.Length];
             for (int i = 0; i < Case.Cases.Length; i++)
