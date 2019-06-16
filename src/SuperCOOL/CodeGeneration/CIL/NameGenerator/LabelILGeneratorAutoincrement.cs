@@ -25,7 +25,7 @@
         public (string @object, string value) GenerateEmptyStringData() => ("_string_obj_empty", "_string_val_empty");
         public string GenerateVoid() => "_void";
 
-        public string GenerateLabelTypeName( string name ) => $"__{ name }";
+        public (string @object,string value) GenerateLabelTypeName( string name ) => ($"__{ name }_obj", $"__{ name }_val");
 
         public string GenerateLabelTypeInfo( string name ) => $"___type_info_{ name }";
 

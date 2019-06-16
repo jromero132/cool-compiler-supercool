@@ -341,6 +341,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Tag )
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
+                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
                                                                 .PrintString()
                                                                 .Return() );
             return result;
@@ -517,8 +518,17 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var typeName = Type.Type.Name;
             var label_type_name = labelGenerator.GenerateLabelTypeName( typeName );
-            result.SectionData.Append( MipsGenerationHelper.NewScript()
-                .AddData( label_type_name, new[] { MipsGenerationHelper.AddStringData( typeName ) } ) );
+            result.SectionData.Append(MipsGenerationHelper.NewScript()
+                .AddData(label_type_name.value, new[]
+                {
+                    MipsGenerationHelper.AddStringData(typeName)
+                }));
+            result.SectionData.Append(MipsGenerationHelper.NewScript()
+                .AddData(label_type_name.@object, new[]
+                {
+                    MipsGenerationHelper.AddIntData(label_type_name.value),
+                    MipsGenerationHelper.AddIntData(typeName.Length)
+                }));
 
             var label_virtual_table = labelGenerator.GenerateLabelVirtualTable( typeName );
 
@@ -531,13 +541,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionData.Append( MipsGenerationHelper.NewScript()
                 .AddData( typeInfo_label, new[]
                 {
-                    MipsGenerationHelper.AddIntData(label_type_name),
+                    MipsGenerationHelper.AddIntData(label_type_name.@object),
                     MipsGenerationHelper.AddIntData(Type.Type.AllocateSize),
                     MipsGenerationHelper.AddIntData(label_virtual_table)
                 } ) );
 
-            result.SectionDataGlobals.Append( MipsGenerationHelper.NewScript().GlobalSection( label_type_name )
-                .GlobalSection( label_virtual_table ).GlobalSection( typeInfo_label ) );
+            result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript().GlobalSection(label_type_name.value)
+                .GlobalSection(label_type_name.@object)
+                .GlobalSection(label_virtual_table).GlobalSection(typeInfo_label));
 
             return result;
         }

@@ -10,7 +10,7 @@
         (string @object, string value) GenerateStringData();
         (string @object, string value) GenerateEmptyStringData();
         string GenerateVoid();
-        string GenerateLabelTypeName(string name);
+        (string @object, string value) GenerateLabelTypeName(string name);
         string GenerateLabelTypeInfo(string name);
         string GenerateLabelVirtualTable(string name);
         string GetException();
