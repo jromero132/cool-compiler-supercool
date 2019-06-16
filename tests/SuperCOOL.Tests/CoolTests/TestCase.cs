@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace SuperCOOL.Tests.CoolTests
@@ -22,8 +24,8 @@ namespace SuperCOOL.Tests.CoolTests
         public string MipsFromUsFileName => $"{ this.TestCaseName }_fromUs.{ Default.MipsExtension }";
         public string MipsFromUsFileNamePath => $"{ Path.Combine( this.TestCasePath, this.MipsFromUsFileName ) }";
 
-        public string InputFileName { get; private set; }
-        public string InputFileNamePath => $"{ Path.Combine( this.TestCasePath, this.InputFileName ) }";
+        public List<string> InputFileName { get; private set; }
+        //public string InputFileNamePath => $"{ Path.Combine( this.TestCasePath, this.InputFileName ) }";
 
         public string OutputFileFromGoName => $"{ this.TestCaseName }_fromGo.{ Default.OutputExtension }";
         public string OutputFileFromGoPath => $"{ Path.Combine( this.TestCasePath, this.OutputFileFromGoName ) }";
@@ -34,11 +36,12 @@ namespace SuperCOOL.Tests.CoolTests
 
         public bool HasInputFile { get; private set; }
 
-        public TestCase( string cool_file_path, string file_name = "", string input_file = "" )
+        public TestCase( string cool_file_path, string file_name = "", List<string> inputs_file = null )
         {
             file_name = file_name == "" ? Path.GetFileName( cool_file_path ) : file_name;
             this.TestCaseName = file_name;
             this.TestCasePath = Path.Combine( Default.Path, this.TestCaseName );
+            this.InputFileName = inputs_file != null ? new List<string>(inputs_file) : new List<string>();
 
             Directory.CreateDirectory( this.TestCasePath );
 
@@ -66,13 +69,25 @@ namespace SuperCOOL.Tests.CoolTests
             using( StreamWriter writer = new StreamWriter( $"{ this.MipsFromUsFileNamePath }" ) )
                 writer.Write( code );
 
-            Helper.RunSpim( this.MipsFromGoFileNamePath, null, this.OutputFileFromGoPath, Default.GoCompilerTrapHandlerPath );
-            Helper.RunSpim( this.MipsFromUsFileNamePath, null, this.OutputFileFromUsPath );
+            bool result = true;
+            string currentFileName;
+            int indexFile = 0;
+            do
+            {
+                currentFileName = indexFile < InputFileName.Count ? InputFileName[indexFile++] : null;
+                if (InputFileName.Count > 0 && currentFileName == null)
+                    return result;
+                Helper.RunSpim(this.MipsFromGoFileNamePath, currentFileName, this.OutputFileFromGoPath,
+                    Default.GoCompilerTrapHandlerPath);
+                Helper.RunSpim(this.MipsFromUsFileNamePath, currentFileName, this.OutputFileFromUsPath);
 
-            Helper.Normalize( this.OutputFileFromGoPath, 3 );
-            Helper.Normalize( this.OutputFileFromUsPath );
+                Helper.Normalize(this.OutputFileFromGoPath, 3);
+                Helper.Normalize(this.OutputFileFromUsPath);
 
-            return Helper.CompareFiles( this.OutputFileFromGoPath, this.OutputFileFromUsPath );
+                result &= Helper.CompareFiles(this.OutputFileFromGoPath, this.OutputFileFromUsPath);
+            } while (currentFileName != null);
+
+            return result;
         }
     }
 
