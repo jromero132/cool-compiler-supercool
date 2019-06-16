@@ -107,6 +107,7 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitDivision(ASTDivideNode Division)
         {
+            var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILDivideTwoVariablesNode((ASTCILExpressionNode) Division.Left.Accept(this),
                 new ASTCILIfNode(
                     (ASTCILExpressionNode) new ASTEqualNode
@@ -114,8 +115,10 @@ namespace SuperCOOL.CodeGeneration
                         Left = Division.Right,
                         Right = new ASTIntConstantNode { Value = 0, SymbolTable = Division.SymbolTable },
                         SymbolTable = Division.SymbolTable
-                    }.Accept(this), new ASTCILRuntimeErrorNode(RuntimeErrors.DivisionBy0),
-                    (ASTCILExpressionNode) Division.Right.Accept(this), labelIlGenerator.GenerateIf()));
+                    }.Accept(this),
+                    new ASTCILBlockNode(new ASTCILExpressionNode[] { 
+                    new ASTCILRuntimeErrorNode(RuntimeErrors.DivisionBy0), new ASTCILGotoNode(ifLabel.end) }),
+                    (ASTCILExpressionNode) Division.Right.Accept(this), ifLabel));
         }
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
