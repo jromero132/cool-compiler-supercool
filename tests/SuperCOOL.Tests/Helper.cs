@@ -10,6 +10,8 @@ namespace SuperCOOL.Tests
     {
         private static readonly string ENDL = Environment.CommandLine;
 
+        private const string IncresingHeapMessageGOCompiler = "Increasing heap...";
+
         public static void CreateFile(string file_name, params string[] lines)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(file_name));
@@ -66,17 +68,22 @@ namespace SuperCOOL.Tests
 
         public static void Normalize(string file_name, int offset = 0)
         {
-            string tmp;
+            StringBuilder tmp = new StringBuilder();
             using (StreamReader reader = new StreamReader(file_name))
             {
                 offset += 5;
                 for (int i = 0; i < offset; i++)
                     reader.ReadLine();
-                tmp = reader.ReadToEnd();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line != IncresingHeapMessageGOCompiler)
+                        tmp.AppendLine(line);
+                }
             }
             using (StreamWriter writer = new StreamWriter(file_name))
             {
-                writer.Write(tmp);
+                writer.Write(tmp.ToString());
             }
         }
     }
