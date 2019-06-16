@@ -92,9 +92,13 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitClass(ASTClassNode Class)
         {
-            var attributesInit = Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this)).Append(new ASTCILSelfNode());
-            
             compilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName,Class.SymbolTable, out var type);
+            var attributesInit = new List<ASTCILExpressionNode>();
+            if(type.Parent!=null)
+                attributesInit.Add(new ASTCILFuncStaticCallNode(Functions.Init,type.Parent,new []{new ASTCILSelfNode()}));
+            attributesInit.AddRange(Class.Atributes.Select(x => (ASTCILExpressionNode) x.Accept(this)));
+            attributesInit.Add(new ASTCILSelfNode());
+            
             compilationUnit.MethodEnvironment.GetMethodIfDef(type, Functions.Init,out var methodInit);
 
             var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
