@@ -3,7 +3,6 @@
     public class LabelILGeneratorAutoincrement : ILabelILGenerator
     {
         private int ifIndex;
-        private int exceptionIndex;
         private int caseIndex;
         private int variableIndex;
         private int stringData;
@@ -31,6 +30,6 @@
 
         public string GenerateLabelVirtualTable( string name ) => $"____virtual_table_{ name }";
 
-        public string GetException() => $"____exception{ exceptionIndex++ }";
+        public string GetException( int id ) => $"____exception{ id }";
     }
 }

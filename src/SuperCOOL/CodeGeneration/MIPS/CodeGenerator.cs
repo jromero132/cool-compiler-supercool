@@ -425,7 +425,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             List<string> all = new List<string>();
             foreach( var item in RuntimeErrors.GetRuntimeErrorString )
             {
-                var exception = labelGenerator.GetException();
+                var exception = labelGenerator.GetException(item.Key);
                 all.Add( exception );
                 result.SectionDataGlobals.Append( MipsGenerationHelper.NewScript()
                     .GlobalSection( exception ) );
@@ -465,6 +465,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
         {
             var result = new MipsProgram();
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().PrintString( labelGenerator.GetException(RuntimeError.Id) ).Exit() );
             return result;
         }
 

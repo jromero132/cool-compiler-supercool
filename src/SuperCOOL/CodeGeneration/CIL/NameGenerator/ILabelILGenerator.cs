@@ -13,6 +13,6 @@
         (string @object, string value) GenerateLabelTypeName(string name);
         string GenerateLabelTypeInfo(string name);
         string GenerateLabelVirtualTable(string name);
-        string GetException();
+        string GetException( int id );
     }
 }
