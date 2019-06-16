@@ -124,5 +124,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "allocate.cl"), "allocate");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void StaticDispatch()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "static_dispatch.cl"), "static_dispatch");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
