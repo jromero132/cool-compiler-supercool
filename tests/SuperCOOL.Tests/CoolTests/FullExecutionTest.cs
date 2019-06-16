@@ -44,6 +44,13 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.True(false); //TODO input
             Assert.True(test_case.RunTest());
         }
+        [Fact]
+        public void In_String()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_string.cl"), "in_string");
+            Assert.True(false); //TODO input
+            Assert.True(test_case.RunTest());
+        }
 
         [Fact]
         public void ComparerOperator()
