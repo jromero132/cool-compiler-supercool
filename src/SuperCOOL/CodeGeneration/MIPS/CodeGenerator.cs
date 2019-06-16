@@ -564,6 +564,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 result += method.Accept( this );
 
             var typeName = Type.Type.Name;
+            var typeNameParent = Type.Type.Parent?.Name;
             var label_type_name = labelGenerator.GenerateLabelTypeName( typeName );
             result.SectionData.Append(MipsGenerationHelper.NewScript()
                 .AddData(label_type_name.value, new[]
@@ -585,13 +586,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
                          MipsGenerationHelper.AddIntData( labelGenerator.GenerateFunc( x.Type.Name, x.Name ) ) ) ) );
 
             var typeInfo_label = labelGenerator.GenerateLabelTypeInfo( typeName );
+            var typeInfo_label_parent = typeNameParent != null ? labelGenerator.GenerateLabelTypeInfo( typeNameParent ) : labelGenerator.GenerateVoid();
             result.SectionData.Append( MipsGenerationHelper.NewScript()
                 .AddData( typeInfo_label, new[]
                 {
                     MipsGenerationHelper.AddIntData(label_type_name.@object),
                     MipsGenerationHelper.AddIntData(Type.Type.AllocateSize),
-                    MipsGenerationHelper.AddIntData(label_virtual_table)
-                } ) );
+                    MipsGenerationHelper.AddIntData(label_virtual_table),
+                    MipsGenerationHelper.AddIntData(typeInfo_label_parent)
+                }) );
 
             result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript().GlobalSection(label_type_name.value)
                 .GlobalSection(label_type_name.@object)

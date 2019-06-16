@@ -31,6 +31,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const int TypeNameOffset = 0;
         public const int SizeOfOffset = 4;
         public const int VirtualTableOffset = 8;
+        public const int TypeInfoOffsetParent = 12;
 
 
         private StringBuilder body;
