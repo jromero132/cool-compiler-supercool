@@ -491,16 +491,20 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionData.Append(MipsGenerationHelper.NewScript() //TODO add only if not defined
-                .AddData(StringConstant.DataLabel,
+                .AddData(StringConstant.ObjectLabel,
                     new[]
                     {
                         MipsGenerationHelper.AddIntData(
                             labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
-                        MipsGenerationHelper.AddStringData(StringConstant.Value),
+                        MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
                         MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
-                    } ) );
+                    })
+                .AddData(StringConstant.ValueLabel, new[]
+                {
+                    MipsGenerationHelper.AddStringData(StringConstant.Value)
+                }));
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                .LoadFromAddress( MipsRegisterSet.a0, StringConstant.DataLabel )
+                .LoadFromAddress( MipsRegisterSet.a0, StringConstant.ObjectLabel )
                 .Add( MipsRegisterSet.a0, 4 ) );
             return result;
         }

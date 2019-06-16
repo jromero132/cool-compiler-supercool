@@ -20,9 +20,9 @@
 
         public string GenerateInit( string classTypeName ) => $"{ classTypeName }__init";
 
-        public string GenerateStringData() => $"_string_{ stringData++ }";
+        public (string @object, string value) GenerateStringData() => ($"_string_obj_{ stringData }", $"_string_val_{ stringData++ }");
 
-        public string GenerateEmptyStringData() => $"_string_empty";
+        public (string @object, string value) GenerateEmptyStringData() => ("_string_obj_empty", "_string_val_empty");
         public string GenerateVoid() => "_void";
 
         public string GenerateLabelTypeName( string name ) => $"__{ name }";

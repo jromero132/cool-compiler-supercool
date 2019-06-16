@@ -7,8 +7,8 @@
         (string varInit, string endOfCase) GenerateCase();
         string GenerateFunc(string className, string methodName);
         string GenerateInit(string classTypeName);
-        string GenerateStringData();
-        string GenerateEmptyStringData();
+        (string @object, string value) GenerateStringData();
+        (string @object, string value) GenerateEmptyStringData();
         string GenerateVoid();
         string GenerateLabelTypeName(string name);
         string GenerateLabelTypeInfo(string name);

@@ -24,6 +24,7 @@ namespace SuperCOOL.Core
             TypeEnvironment.Int.SetAttributes();
             TypeEnvironment.AddInheritance(Types.Int, Types.Object);
             TypeEnvironment.AddType(Types.String);
+            TypeEnvironment.String.SymbolTable.DefObject(Attributes.StringValue, Types.Int, ObjectKind.Atribute);
             TypeEnvironment.String.SymbolTable.DefObject(Attributes.StringLength, Types.Int, ObjectKind.Atribute);
             TypeEnvironment.String.SetAttributes();
             TypeEnvironment.AddInheritance(Types.String,Types.Object);
