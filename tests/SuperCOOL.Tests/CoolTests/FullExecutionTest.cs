@@ -40,15 +40,14 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void In_Int()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_int.cl"), "in_int");
-            Assert.True(false); //TODO input
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_int.cl"), "in_int",
+                new List<string> { Path.Combine("Examples", "Cool", "in_int.in") });
             Assert.True(test_case.RunTest());
         }
         [Fact]
         public void In_String()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_string.cl"), "in_string");
-            Assert.True(false); //TODO input
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_string.cl"), "in_string", new List<string> { Path.Combine("Examples", "Cool", "in_string.in")});
             Assert.True(test_case.RunTest());
         }
 
@@ -83,6 +82,18 @@ namespace SuperCOOL.Tests.CoolTests
         public void Attributes()
         {
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "attributes.cl"), "attributes");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void Palindrome()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "palindrome.cl"), "palindrome",
+                new List<string>
+                {
+                    Path.Combine("Examples", "Cool", "palindrome1.in"),
+                    Path.Combine("Examples", "Cool", "palindrome2.in")
+                });
             Assert.True(test_case.RunTest());
         }
 
