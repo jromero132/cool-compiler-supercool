@@ -41,7 +41,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .LoadFromAddress( MipsRegisterSet.t0, label )
+                                                           .LoadFromAddress( MipsRegisterSet.t0, label)
                                                            .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset )
                                                            .Add( MipsRegisterSet.a0, 4 )
                                                            .Allocate( MipsRegisterSet.a0 )
@@ -148,13 +148,16 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
             var result = new MipsProgram();
-            foreach( var arg in FuncStaticCall.Arguments.Reverse() )
+            result+= FuncStaticCall.Arguments.First().Accept(this);
+
+            foreach ( var arg in FuncStaticCall.Arguments.Reverse())
             {
                 result += arg.Accept( this ); // leave in a0 expresion result
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                                .Push( MipsRegisterSet.a0 ) );
             }
-            var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable( FuncStaticCall.Type.Name );
+            var ifLabel = labelGenerator.GenerateIf();
+            var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable(FuncStaticCall.Type.Name);
             //loading static virtual_table in a0
             result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemoryLabel( MipsRegisterSet.a0, virtualTableLabel ) );
             var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable( FuncStaticCall.Type );
@@ -173,15 +176,27 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall )
         {
             var result = new MipsProgram();
-            foreach( var arg in FuncVirtualCall.Arguments.Reverse() )
+            var cant = FuncVirtualCall.Arguments.Count;
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp, 4 * cant));
+            for (int i = 0; i < cant; i++)
             {
-                result += arg.Accept( this ); // leave in a0 expresion result
-                result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                               .Push( MipsRegisterSet.a0 ) );
+                result += FuncVirtualCall.Arguments[i].Accept(this);// leave in a0 expresion result
+                if (i == 0)
+                {
+                    var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
+                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                                .LoadFromAddress(MipsRegisterSet.t0, labelGenerator.GenerateVoid())
+                                                .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
+                                                .JumpToLabel(endLabel)
+                                                .Tag(elseLabel)
+                                                //.LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE) TODO: throw void execption dispatch
+                                                .Tag(endLabel));
+                }
+                result.SectionCode.Append(MipsGenerationHelper.NewScript().SaveToMemory(MipsRegisterSet.a0, MipsRegisterSet.sp, 4 *(i)));
             }
 
-            // moving self to a0 not necesary self is already in ao.
-            //result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadMemory(MipsRegisterSet.a0, MipsRegisterSet.fp, MipsGenerationHelper.SelfOffset));
+            // moving self to a0 
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.sp));
             //loading self.typeInfo in a0
             result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest ) );
             //loading typeInfo.virtual_table in a0
@@ -195,7 +210,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                            .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, offset )
                                                            .Call( MipsRegisterSet.a0 )
-                                                           .Add( MipsRegisterSet.sp, FuncVirtualCall.Arguments.Count * 4 ) );
+                                                           .Add( MipsRegisterSet.sp, cant * 4 ) );
 
             return result;
         }

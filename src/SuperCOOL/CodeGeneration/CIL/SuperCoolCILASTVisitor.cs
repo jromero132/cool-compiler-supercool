@@ -240,15 +240,7 @@ namespace SuperCOOL.CodeGeneration
                 type = self.ContextType;
             var args = new[] { (ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this) }
                 .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
-            var ifLabel = labelIlGenerator.GenerateIf();
-            return new ASTCILIfNode(
-                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
-                new ASTCILBlockNode(new ASTCILExpressionNode[]
-                {
-                    new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILGotoNode(ifLabel.end)
-                }), new ASTCILFuncVirtualCallNode(type,
-                    MethodCall.MethodName, args), ifLabel
-            );
+            return new ASTCILFuncVirtualCallNode(type, MethodCall.MethodName, args);
         }
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
@@ -388,6 +380,7 @@ namespace SuperCOOL.CodeGeneration
              Id.SymbolTable.IsDefObject(Id.Name, out var info);
             if (info.Kind == ObjectKind.Atribute)
                 return new ASTCILGetAttrNode(info);
+            
             return new ASTCILIdNode(info);
         }
 
