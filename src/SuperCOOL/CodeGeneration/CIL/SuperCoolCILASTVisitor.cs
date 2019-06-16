@@ -380,7 +380,8 @@ namespace SuperCOOL.CodeGeneration
              Id.SymbolTable.IsDefObject(Id.Name, out var info);
             if (info.Kind == ObjectKind.Atribute)
                 return new ASTCILGetAttrNode(info);
-            
+            if (info.Kind == ObjectKind.Self)
+                return new ASTCILSelfNode();
             return new ASTCILIdNode(info);
         }
 
