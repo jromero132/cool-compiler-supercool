@@ -14,5 +14,6 @@
         string GenerateLabelTypeInfo(string name);
         string GenerateLabelVirtualTable(string name);
         string GetException( int id );
+        string GetNewLine();
     }
 }

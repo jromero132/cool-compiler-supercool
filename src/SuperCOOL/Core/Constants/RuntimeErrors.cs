@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace SuperCOOL.Constants
 {
@@ -13,7 +12,15 @@ namespace SuperCOOL.Constants
         public const int HeapOverflow = 6;
         public const int ObjectAbort = 7;
 
-        public static Dictionary<int, string> GetRuntimeErrorString = typeof(RuntimeErrors).GetFields()
-            .Where(x => x.FieldType == typeof(int)).ToDictionary(x => (int)x.GetValue(null), x => x.Name);
+        public static Dictionary<int, string> GetRuntimeErrorString = new Dictionary<int, string>
+        {
+            [DispatchOnVoid] = "",
+            [CaseVoidRuntimeError] = "",
+            [CaseWithoutMatching] = "",
+            [DivisionBy0] = "",
+            [SubStringOutOfRange] = "",
+            [HeapOverflow] = "",
+            [ObjectAbort] = "Abort called from class "
+        };
     }
 }

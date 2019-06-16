@@ -31,5 +31,6 @@
         public string GenerateLabelVirtualTable( string name ) => $"____virtual_table_{ name }";
 
         public string GetException( int id ) => $"____exception{ id }";
+        public string GetNewLine() => "_NewLine";
     }
 }
