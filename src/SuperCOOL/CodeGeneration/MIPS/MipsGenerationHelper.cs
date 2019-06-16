@@ -133,13 +133,13 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsGenerationHelper Return() => this.JumpRegister( MipsRegisterSet.ip );
 
         // Getting args and variables in functions
-        public MipsGenerationHelper GetParam( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, offset + 8 );
-        public MipsGenerationHelper GetParamAddress( int offset ) => this.Move( MipsRegisterSet.a0, MipsRegisterSet.bp).Add(MipsRegisterSet.a0, offset + 8);
+        public MipsGenerationHelper GetParam( Register r, int offset ) => this.LoadFromMemory( r, MipsRegisterSet.bp, offset + 8 );
+        public MipsGenerationHelper GetParamAddress( int offset ) => this.Move( MipsRegisterSet.a0, MipsRegisterSet.bp ).Add( MipsRegisterSet.a0, offset + 8 );
 
         public MipsGenerationHelper GetLocal( int offset ) => this.LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.bp, -offset );
 
-        public MipsGenerationHelper GetLocalAddress(int offset) =>
-            this.Move(MipsRegisterSet.a0, MipsRegisterSet.bp).Sub(MipsRegisterSet.a0, offset);
+        public MipsGenerationHelper GetLocalAddress( int offset ) =>
+            this.Move( MipsRegisterSet.a0, MipsRegisterSet.bp ).Sub( MipsRegisterSet.a0, offset );
 
         // Read
         public MipsGenerationHelper ReadInt( Register r ) => this.LoadConstant( MipsRegisterSet.v0, read_int )
@@ -164,10 +164,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a1 )
                                                                 .Add( MipsRegisterSet.a1, 1 )
                                                                 .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringLengthMethodWhile )
-                                                                .BranchNotEqualZero( MipsRegisterSet.t0, StringLengthMethodWhile )
                                                                 .Sub( MipsRegisterSet.a1, 1 )
                                                                 .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1 )
-                                                                .Sub( MipsRegisterSet.a0, MipsRegisterSet.a1, MipsRegisterSet.a0 );
+                                                                .Sub( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.a0 );
 
 
         // Print
@@ -246,16 +245,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Dynamic saving
-        public MipsGenerationHelper Allocate( Register r )
-        {
-            this.LoadConstant( MipsRegisterSet.v0, allocate );
-
-            if( MipsRegisterSet.a0 != r )
-                this.Move( MipsRegisterSet.a0, r );
-
-            return this.SystemCall()
-                .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
-        }
+        public MipsGenerationHelper Allocate( Register r1 ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
+                                                                   .Move( MipsRegisterSet.a0, r1 )
+                                                                   .SystemCall()
+                                                                   .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
 
 
         // Jumps
@@ -404,23 +397,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
 
         // Copy
-        public MipsGenerationHelper Copy( string endtag, string @else )
-        {
-            Register from = MipsRegisterSet.a0;
-            Register to = MipsRegisterSet.t0;
-            Register size = MipsRegisterSet.t1;
-            this.Move( MipsRegisterSet.t2, to )//save to in t2
-                     .Tag( @else )//start tag
-                     .BranchLessEqual( size, 0, endtag )//if size is 0 go to end tag
-                     .LoadFromMemory( MipsRegisterSet.v0, from )//v0<- (from)
-                     .SaveToMemory( MipsRegisterSet.v0, to )//(to)<-v0
-                     .Add( from, 4 )
-                     .Add( to, 4 )
-                     .Sub( size, 4 )
-                     .JumpToLabel( @else )
-                     .Tag( endtag )
-                     .Move( MipsRegisterSet.a0, MipsRegisterSet.t2 );
-            return this;
-        }
+        public MipsGenerationHelper Copy( Register r1, Register r2, Register r3, string endtag, string @else ) =>
+            this.Tag( @else )//start tag
+                .BranchLessEqual( r3, 0, endtag )//if size is 0 go to end tag
+                .LoadByte( MipsRegisterSet.v0, r1 )//v0<- (from)
+                .SaveByte( MipsRegisterSet.v0, r2 )//(to)<-v0
+                .Add( r1, 1 )
+                .Add( r2, 1 )
+                .Sub( r3, 1 )
+                .JumpToLabel( @else )
+                .Tag( endtag );
     }
 }

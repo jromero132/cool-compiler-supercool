@@ -206,7 +206,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .GetParam( 0 )
+                                                           .GetParam( MipsRegisterSet.a0, 0 )
                                                            .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, attr_offset ) );
             return result;
         }
@@ -233,7 +233,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             if( info.Kind == ObjectKind.Parameter )
             {
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                               .GetParam( info.Offset ) );
+                                                               .GetParam( MipsRegisterSet.a0, info.Offset ) );
             }
 
             return result;
@@ -284,8 +284,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .ReadString()
                                                                 .StringLengthMethod()
                                                                 .LoadFromAddress( MipsRegisterSet.a1, MipsGenerationHelper.BufferLabel ) );
-            result += CreateString( MipsRegisterSet.a1, MipsRegisterSet.a0 );
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+            result.SectionFunctions.Append( CreateString( MipsRegisterSet.a1, MipsRegisterSet.a0 ).SectionCode );
+            result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                            .Return() );
             return result;
         }
@@ -329,7 +329,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutInt.Tag )
-                                                                .GetParam( 4 )
+                                                                .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .PrintInt( MipsRegisterSet.a0 )
                                                                 .Return() );
             return result;
@@ -340,7 +340,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Tag )
-                                                                .GetParam( 4 )
+                                                                .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .PrintString()
                                                                 .Return() );
             return result;
@@ -450,12 +450,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionCode.Append( MipsGenerationHelper.NewScript().MainTag() ).Append( entryPoint );
 
             var voidLabel = labelGenerator.GenerateVoid();
-            result.SectionDataGlobals.Append(MipsGenerationHelper.NewScript()
-                .GlobalSection(voidLabel));
-            result.SectionData.Append(MipsGenerationHelper.NewScript()
-                .AddData(voidLabel, new[] { MipsGenerationHelper.AddStringData(String.Empty) }));
+            result.SectionDataGlobals.Append( MipsGenerationHelper.NewScript()
+                .GlobalSection( voidLabel ) );
+            result.SectionData.Append( MipsGenerationHelper.NewScript()
+                .AddData( voidLabel, new[] { MipsGenerationHelper.AddStringData( String.Empty ) } ) );
 
-            foreach ( var item in Program.Types )
+            foreach( var item in Program.Types )
                 result += item.Accept( this );
 
             return result;
@@ -471,7 +471,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .GetParam( 0 ) );
+                                                           .GetParam( MipsRegisterSet.a0, 0 ) );
             return result;
         }
 
@@ -482,7 +482,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = SetAttribute.Expression.Accept( this );
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                            .Move( MipsRegisterSet.t0, MipsRegisterSet.a0 )
-                                                           .GetParam( 0 )
+                                                           .GetParam( MipsRegisterSet.a0, 0 )
                                                            .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0, attr_offset ) );
             return result;
         }
@@ -541,7 +541,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitVoid( ASTCILVoidNode Void )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append(MipsGenerationHelper.NewScript().LoadFromAddress(MipsRegisterSet.a0,labelGenerator.GenerateVoid()));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromAddress( MipsRegisterSet.a0, labelGenerator.GenerateVoid() ) );
             return result;
         }
 
@@ -563,7 +563,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var tags = labelGenerator.GenerateIf();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( objectCopy.Tag )
-                                                                .GetParam( 0 ) // a0<- self
+                                                                .GetParam( MipsRegisterSet.a0, 0 ) // a0<- self
                                                                 .LoadFromMemory( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest )//t0 <- self.type_info
                                                                 .LoadFromMemory( MipsRegisterSet.t1, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset )//t1 <- self.size
                                                                 .Add( MipsRegisterSet.t1, 4 )
@@ -571,20 +571,30 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )//putting self.typeInfo in a0 typeinfo area
                                                                 .Add( MipsRegisterSet.a0, 4, MipsRegisterSet.t0 )//to copy in t0
                                                                 .Sub( MipsRegisterSet.t1, 4 )//Size Copy in t1
-                                                                .GetParam( 0 )//From copy (self in a0)
-                                                                .Copy( tags.end, tags.@else )//word to word copy
+                                                                .GetParam( MipsRegisterSet.a0, 0 )//From copy (self in a0)
+                                                                .Copy( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.t1, tags.end, tags.@else )//word to word copy
+                                                                .Move( MipsRegisterSet.a0, MipsRegisterSet.t0 )
                                                                 .Return() );
             return result;
         }
 
         public MipsProgram VisitStringConcat( ASTCILStringConcatNode stringConcat )
         {
-            //TODO: falta
+            var tags1 = labelGenerator.GenerateIf();
+            var tags2 = labelGenerator.GenerateIf();
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( stringConcat.Tag )
-                                                                .GetParam( 4 )
-                                                                .PrintString()
+                                                                .GetParam( MipsRegisterSet.a1, 0 )
+                                                                .GetParam( MipsRegisterSet.a2, 4 )
+                                                                .LoadFromMemory( MipsRegisterSet.t1, MipsRegisterSet.a1, 4 )
+                                                                .Add( MipsRegisterSet.t1, 1 )
+                                                                .LoadFromMemory( MipsRegisterSet.t2, MipsRegisterSet.a2, 4 )
+                                                                .Add( MipsRegisterSet.t1, MipsRegisterSet.t2, MipsRegisterSet.t0 )
+                                                                .Add( MipsRegisterSet.t2, 1 )
+                                                                .Allocate( MipsRegisterSet.t0 )
+                                                                .Copy( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.t1, tags1.end, tags1.@else )
+                                                                .Copy( MipsRegisterSet.a2, MipsRegisterSet.a0, MipsRegisterSet.t1, tags2.end, tags2.@else )
                                                                 .Return() );
             return result;
         }
@@ -595,7 +605,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( stringSubStr.Tag )
-                                                                .GetParam( 4 )
+                                                                .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .PrintString()
                                                                 .Return() );
             return result;
