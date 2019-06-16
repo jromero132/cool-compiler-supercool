@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperCOOL.Constants;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -408,5 +409,27 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 .Sub( r3, 1 )
                 .JumpToLabel( @else )
                 .Tag( endtag );
+
+        public MipsGenerationHelper ThrowRuntimeError(int id, ILabelILGenerator labelGenerator)
+        {
+            switch (id)
+            {
+                case RuntimeErrors.ObjectAbort:
+                    this.PrintString(labelGenerator.GetException(id))
+                        .GetParam(MipsRegisterSet.a0, 0)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
+                        .PrintString()
+                        .PrintString(labelGenerator.GetNewLine())
+                        .Exit();
+                    break;
+                default:
+                    this.PrintString(labelGenerator.GetException(id)).Exit();
+                    break;
+            }
+
+            return this;
+        }
     }
 }

@@ -493,24 +493,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitRuntimeError(ASTCILRuntimeErrorNode RuntimeError)
         {
             var result = new MipsProgram();
-            switch (RuntimeError.Id)
-            {
-                case RuntimeErrors.ObjectAbort:
-                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                        .PrintString(labelGenerator.GetException(RuntimeError.Id))
-                        .GetParam(MipsRegisterSet.a0, 0)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                        .PrintString()
-                        .PrintString(labelGenerator.GetNewLine())
-                        .Exit());
-                    break;
-                default:
-                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                        .PrintString(labelGenerator.GetException(RuntimeError.Id)).Exit());
-                    break;
-            }
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .ThrowRuntimeError(RuntimeError.Id, labelGenerator));
 
             return result;
         }
