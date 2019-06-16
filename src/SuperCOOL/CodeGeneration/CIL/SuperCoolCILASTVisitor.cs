@@ -352,10 +352,10 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitAtribute(ASTAtributeNode Atribute)
         {
-            if (Atribute.HasInit)
-                return Atribute.Init.Accept(this);
+            var atribute = Atribute.SymbolTable.GetObject(Atribute.AttributeName);
 
-            var atribute=Atribute.SymbolTable.GetObject(Atribute.AttributeName);
+            if (Atribute.HasInit)
+                return new ASTCILSetAttributeNode(atribute, (ASTCILExpressionNode) Atribute.Init.Accept(this));
             if (atribute.Type.Equals(compilationUnit.TypeEnvironment.Int.Name))
                 return new ASTCILSetAttributeNode(atribute,
                     new ASTCILIntConstantNode(0));
