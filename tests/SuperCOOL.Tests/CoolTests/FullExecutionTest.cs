@@ -72,6 +72,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "objectType_name.cl"), "objectType_name");
             Assert.True(test_case.RunTest());
         }
+        [Fact]
+        public void Attributes()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "attributes.cl"), "attributes");
+            Assert.True(test_case.RunTest());
+        }
 
         [Fact]
         public void Complex()
