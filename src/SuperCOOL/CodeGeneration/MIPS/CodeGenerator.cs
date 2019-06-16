@@ -148,19 +148,28 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall )
         {
             var result = new MipsProgram();
-            result+= FuncStaticCall.Arguments.First().Accept(this);
-
-            foreach ( var arg in FuncStaticCall.Arguments.Reverse())
+            var cant = FuncStaticCall.Arguments.Count;
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Sub(MipsRegisterSet.sp, 4 * cant));
+            for (int i = 0; i < cant; i++)
             {
-                result += arg.Accept( this ); // leave in a0 expresion result
-                result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                               .Push( MipsRegisterSet.a0 ) );
+                result += FuncStaticCall.Arguments[i].Accept(this);// leave in a0 expresion result
+                if (i == 0)
+                {
+                    var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
+                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                                .LoadFromAddress(MipsRegisterSet.t0, labelGenerator.GenerateVoid())
+                                                .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
+                                                .JumpToLabel(endLabel)
+                                                .Tag(elseLabel)
+                                                //.LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE) TODO: throw void execption dispatch
+                                                .Tag(endLabel));
+                }
+                result.SectionCode.Append(MipsGenerationHelper.NewScript().SaveToMemory(MipsRegisterSet.a0, MipsRegisterSet.sp, 4 * (i)));
             }
-            var ifLabel = labelGenerator.GenerateIf();
             var virtualTableLabel = labelGenerator.GenerateLabelVirtualTable(FuncStaticCall.Type.Name);
             //loading static virtual_table in a0
-            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromMemoryLabel( MipsRegisterSet.a0, virtualTableLabel ) );
-            var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable( FuncStaticCall.Type );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().LoadFromAddress( MipsRegisterSet.a0, virtualTableLabel ) );
+            var virtualTable = CompilationUnit.MethodEnvironment.GetVirtualTable(FuncStaticCall.Type);
             var virtualMethod = virtualTable.Single( x => x.Name == FuncStaticCall.MethodName );
             int index = virtualTable.IndexOf( virtualMethod );
             int offset = 4 * index;

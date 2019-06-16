@@ -219,18 +219,11 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
-            compilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.MethodName, null, out var type);
-            var ifLabel = labelIlGenerator.GenerateIf();
-            return new ASTCILIfNode(
-                new ASTCILIsVoidNode((ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this)),
-                new ASTCILBlockNode(new ASTCILExpressionNode[]
-                {
-                    new ASTCILRuntimeErrorNode(RuntimeErrors.DispatchOnVoid), new ASTCILGotoNode(ifLabel.end)
-                }), new ASTCILFuncStaticCallNode(
+            compilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName, null, out var type);
+            return new ASTCILFuncStaticCallNode(
                     MethodCall.MethodName, type,
-                    new[] { (ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this) }
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)))), ifLabel
-            );
+                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
+                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode)a.Accept(this))));
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
