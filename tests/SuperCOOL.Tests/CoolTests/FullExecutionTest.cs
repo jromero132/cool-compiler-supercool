@@ -91,8 +91,8 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "palindrome.cl"), "palindrome",
                 new List<string>
                 {
-                    Path.Combine("Examples", "Cool", "palindrome1.in"),
-                    Path.Combine("Examples", "Cool", "palindrome2.in")
+                    Path.Combine("Examples", "Cool", "palindrome.in1"),
+                    Path.Combine("Examples", "Cool", "palindrome.in2")
                 });
             Assert.True(test_case.RunTest());
         }
