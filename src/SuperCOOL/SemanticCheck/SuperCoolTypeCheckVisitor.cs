@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using SuperCOOL.Constants;
 using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 using System;
@@ -230,6 +231,8 @@ namespace SuperCOOL.SemanticCheck
         public override SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
+            MethodCall.SemanticCheckResult.Ensure(!Types.IsSelfType(MethodCall.TypeName),
+                  new Lazy<Error>(() => new Error($"Not Allowed {MethodCall.TypeName}", ErrorKind.SemanticError, MethodCall.Type.Line, MethodCall.Type.Column)));
             var isStaticDef = CompilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName,MethodCall.SymbolTable,out var staticType);
             MethodCall.SemanticCheckResult.Ensure(isStaticDef,
                 new Lazy<Error>(()=>new Error($"Missing declaration for type {MethodCall.TypeName}.",ErrorKind.TypeError,MethodCall.Type.Line,MethodCall.Type.Column)));
