@@ -20,6 +20,9 @@ namespace SuperCOOL.SemanticCheck
             //Creating All Types
             foreach (var type in Program.Clases)
             {
+                Program.SemanticCheckResult.Ensure(Types.IsSelfType(type.TypeName),
+                    new Lazy<Error>(()=>new Error($"Not Allowed {type.TypeName}", ErrorKind.SemanticError,type.Type.Line,type.Type.Column)));
+                
                 var exist = CompilationUnit.TypeEnvironment.GetTypeDefinition(type.TypeName,Program.SymbolTable,out var _);
                 Program.SemanticCheckResult.Ensure(!exist, 
                     new Lazy<Error>(()=>new Error($"Multiple Definitions for class {type.TypeName}", ErrorKind.TypeError,type.Type.Line,type.Type.Column)));
