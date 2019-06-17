@@ -15,8 +15,8 @@ namespace SuperCOOL.Constants
         public static Dictionary<int, string> GetRuntimeErrorString = new Dictionary<int, string>
         {
             [DispatchOnVoid] = "",
-            [CaseVoidRuntimeError] = "",
-            [CaseWithoutMatching] = "",
+            [CaseVoidRuntimeError] = "Match on void in case statement.",
+            [CaseWithoutMatching] = "No match in case statement for Class ",
             [DivisionBy0] = "",
             [SubStringOutOfRange] = "",
             [HeapOverflow] = "",
