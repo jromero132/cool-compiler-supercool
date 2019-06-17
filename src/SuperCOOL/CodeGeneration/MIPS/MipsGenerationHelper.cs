@@ -480,6 +480,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         //String equals --> en a0 y a1 los strings
         public MipsGenerationHelper StringEquals() => this.Tag( StringEqualsLabel )
+                                                          .GetParam( MipsRegisterSet.a0, 0 )
+                                                          .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
+                                                          .GetParam( MipsRegisterSet.a1, 4 )
+                                                          .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a1 )
                                                           .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a0 )
                                                           .LoadByte( MipsRegisterSet.t1, MipsRegisterSet.a1 )
                                                           .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringEqualsLabelFalse )

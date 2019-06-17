@@ -186,9 +186,20 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitExpression( ASTCILExpressionNode Expression ) => Expression.Accept( this );
 
-        public MipsProgram VisitEqualString(ASTCILEqualStringNode EqualString)
+        public MipsProgram VisitEqualString( ASTCILEqualStringNode EqualString )
         {
-            throw new NotImplementedException();
+            var left = EqualString.Left.Accept( this );
+            left.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                         .Push( MipsRegisterSet.a0 ) );
+
+            var right = EqualString.Right.Accept( this );
+            right.SectionCode.Append( MipsGenerationHelper.NewScript()
+                                                          .Push( MipsRegisterSet.a0 )
+                                                          .LoadFromAddress( MipsRegisterSet.a0, MipsGenerationHelper.StringEqualsLabel )
+                                                          .Call( MipsRegisterSet.a0 )
+                                                          .Return() );
+
+            return left + right;
         }
 
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
@@ -551,6 +562,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                     {
                         MipsGenerationHelper.AddStringData(Environment.NewLine)
                     } ) );
+
+            result.SectionTextGlobals.Append( MipsGenerationHelper.NewScript().GlobalSection( MipsGenerationHelper.StringEqualsLabel ) );
+            result.SectionCode.Append( MipsGenerationHelper.NewScript().StringEquals() );
 
             foreach( var item in Program.Types )
                 result += item.Accept( this );
