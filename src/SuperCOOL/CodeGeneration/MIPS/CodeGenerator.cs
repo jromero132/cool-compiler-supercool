@@ -13,6 +13,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
 {
     class CodeGenerator : ICILVisitor<MipsProgram>
     {
+        private readonly Dictionary<string, string> StringConstantGenerated;
         private ILabelILGenerator labelGenerator;
         public CompilationUnit CompilationUnit { get; }
 
@@ -20,6 +21,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             this.labelGenerator = labelGenerator;
             this.CompilationUnit = compilationUnit;
+            StringConstantGenerated = new Dictionary<string, string>();
         }
 
         public MipsProgram VisitAddTwoVariables( ASTCILAddTwoVariablesNode AddTwoVariables )
@@ -601,25 +603,31 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return result;
         }
 
-        public MipsProgram VisitStringConstant( ASTCILStringConstantNode StringConstant )
+        public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
         {
             var result = new MipsProgram();
-            result.SectionData.Append( MipsGenerationHelper.NewScript()
-                .AddData( StringConstant.ObjectLabel,
-                    new[]
+            if (!StringConstantGenerated.TryGetValue(StringConstant.Value, out var labelStringConstant))
+            {
+                result.SectionData.Append(MipsGenerationHelper.NewScript()
+                    .AddData(StringConstant.ObjectLabel,
+                        new[]
+                        {
+                            MipsGenerationHelper.AddIntData(
+                                labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
+                            MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
+                            MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
+                        })
+                    .AddData(StringConstant.ValueLabel, new[]
                     {
-                        MipsGenerationHelper.AddIntData(
-                            labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
-                        MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
-                        MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
-                    } )
-                .AddData( StringConstant.ValueLabel, new[]
-                {
-                    MipsGenerationHelper.AddByteData( Regex.Unescape(StringConstant.Value).Select(x => (int)x))
-                }));
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                .LoadFromAddress( MipsRegisterSet.a0, StringConstant.ObjectLabel )
-                .Add( MipsRegisterSet.a0, 4 ) );
+                        MipsGenerationHelper.AddByteData(Regex.Unescape(StringConstant.Value).Select(x => (int) x))
+                    }));
+                StringConstantGenerated.Add(StringConstant.Value, StringConstant.ObjectLabel);
+                labelStringConstant = StringConstant.ObjectLabel;
+            }
+
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .LoadFromAddress(MipsRegisterSet.a0, labelStringConstant)
+                .Add(MipsRegisterSet.a0, 4));
             return result;
         }
 
