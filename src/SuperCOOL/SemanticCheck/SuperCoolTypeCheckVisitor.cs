@@ -69,6 +69,8 @@ namespace SuperCOOL.SemanticCheck
             HashSet<string> CoolTypesInBranch = new HashSet<string>();
             foreach (var item in Case.Cases)
             {
+                Case.SemanticCheckResult.Ensure(!Types.IsSelfType(item.Type.Text),
+                  new Lazy<Error>(() => new Error($"Not Allowed {item.Type.Text}", ErrorKind.SemanticError, item.Type.Line, item.Type.Column)));
                 var already = CoolTypesInBranch.Contains(item.Type.Text);
                 Case.SemanticCheckResult.Ensure(!already, 
                     new Lazy<Error>(() => new Error($"Multiple type branch for the type {item.Type.Text} in case expresion.",ErrorKind.SemanticError,item.Type.Line,item.Type.Column)));
