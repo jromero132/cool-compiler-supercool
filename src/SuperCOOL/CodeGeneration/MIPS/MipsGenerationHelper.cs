@@ -22,6 +22,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const string StringLengthMethodLabel = "_____string_length";
         public const string StringLengthMethodWhile = "_____string_length_while";
         public const string StringEqualsLabel = "_____string_equals";
+        public const string StringEqualsLabelWhile = "_____string_equals_while";
         public const string StringEqualsLabelFalse = "_____string_equals_false";
         public const string StringEqualsLabelEnd = "_____string_equals_end";
 
@@ -171,8 +172,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a1 )
                                                                 .Add( MipsRegisterSet.a1, 1 )
                                                                 .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringLengthMethodWhile )
-                                                                .Sub( MipsRegisterSet.a1, 2 )
-                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1, 1 )
+                                                                .Sub( MipsRegisterSet.a1, 1 )
+                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1)
                                                                 .Sub( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.a0 );
 
 
@@ -484,16 +485,18 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                           .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
                                                           .GetParam( MipsRegisterSet.a1, 4 )
                                                           .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a1 )
+                                                          .Tag(StringEqualsLabelWhile)
                                                           .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a0 )
                                                           .LoadByte( MipsRegisterSet.t1, MipsRegisterSet.a1 )
                                                           .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringEqualsLabelFalse )
                                                           .Add( MipsRegisterSet.a0, 1 )
                                                           .Add( MipsRegisterSet.a1, 1 )
-                                                          .BranchNotEquals( MipsRegisterSet.t0, 0, StringEqualsLabel )
+                                                          .BranchNotEquals( MipsRegisterSet.t0, 0, StringEqualsLabelWhile)
                                                           .Add( MipsRegisterSet.zero, 1, MipsRegisterSet.a0 )
                                                           .JumpToLabel( StringEqualsLabelEnd )
                                                           .Tag( StringEqualsLabelFalse )
                                                           .Move( MipsRegisterSet.a0, MipsRegisterSet.zero )
-                                                          .Tag( StringEqualsLabelEnd );
+                                                          .Tag(StringEqualsLabelEnd)
+                                                          .Return();
     }
 }

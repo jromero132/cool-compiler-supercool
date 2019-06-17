@@ -198,8 +198,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             right.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                           .Push( MipsRegisterSet.a0 )
                                                           .LoadFromAddress( MipsRegisterSet.a0, MipsGenerationHelper.StringEqualsLabel )
-                                                          .Call( MipsRegisterSet.a0 )
-                                                          .Return() );
+                                                          .Call( MipsRegisterSet.a0 ) );
 
             return left + right;
         }
@@ -386,14 +385,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .Tag( IOInString.Tag )
                                                                 .ReadString()
                                                                 .StringLengthMethod()
+                                                                .Move(MipsRegisterSet.t0, MipsRegisterSet.a0)
                                                                 .LoadFromAddress( MipsRegisterSet.a1, MipsGenerationHelper.BufferLabel )
                                                                 .Add( MipsRegisterSet.a0, 1 )
-                                                                .Move( MipsRegisterSet.t0, MipsRegisterSet.a0 )
                                                                 .Allocate( MipsRegisterSet.a0, MipsRegisterSet.a2 )
-                                                                .Copy( MipsRegisterSet.a1, MipsRegisterSet.a2, MipsRegisterSet.t0, tags.end, tags.@else )
-                                                                .Sub( MipsRegisterSet.a2, MipsRegisterSet.a0 ) );
+                                                                .Copy( MipsRegisterSet.a1, MipsRegisterSet.a2, MipsRegisterSet.a0, tags.end, tags.@else )
+                                                                .Sub( MipsRegisterSet.a2, 1 )
+                                                                .Sub(MipsRegisterSet.a2, MipsRegisterSet.t0));
 
-            result.SectionFunctions.Append( CreateString( MipsRegisterSet.a2, MipsRegisterSet.a0 ).SectionCode );
+            result.SectionFunctions.Append( CreateString( MipsRegisterSet.a2, MipsRegisterSet.t0 ).SectionCode );
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Return() );
             return result;
@@ -763,6 +763,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .BranchLessThan( MipsRegisterSet.t0, MipsRegisterSet.t1, tag1.@else )
                                                                 .Add( MipsRegisterSet.a3, 1, MipsRegisterSet.t1 )
                                                                 .Allocate( MipsRegisterSet.t1, MipsRegisterSet.t0 )
+                                                                .Add(MipsRegisterSet.a1, MipsRegisterSet.a2)
                                                                 .Copy( MipsRegisterSet.a1, MipsRegisterSet.t0, MipsRegisterSet.a3, tag2.end, tag2.@else )
                                                                 .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.t0 )
                                                                 .Sub( MipsRegisterSet.t0, MipsRegisterSet.t1 )
