@@ -7,9 +7,9 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
     public class ASTCILCaseNode : ASTCILExpressionNode
     {
         public ASTCILExpressionNode ExpressionCase { get; }
-        public IReadOnlyList<(CoolType type, ASTCILExpressionNode expression)> Cases { get; }
+        public IReadOnlyList<(CoolType type, ASTCILExpressionNode expression, SymbolInfo symbolInfo)> Cases { get; }
 
-        public ASTCILCaseNode(ASTCILExpressionNode expressionCase, IEnumerable<(CoolType type, ASTCILExpressionNode expression)> cases)
+        public ASTCILCaseNode(ASTCILExpressionNode expressionCase, IEnumerable<(CoolType type, ASTCILExpressionNode expression, SymbolInfo symbolInfo)> cases)
         {
             ExpressionCase = expressionCase;
             Cases = cases.ToImmutableList();

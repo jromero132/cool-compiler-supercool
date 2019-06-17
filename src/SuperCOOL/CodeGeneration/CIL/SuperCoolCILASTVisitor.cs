@@ -53,7 +53,7 @@ namespace SuperCOOL.CodeGeneration
                 Case.Cases.Select(x =>
                 {
                     compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var type);
-                    return (type, (ASTCILExpressionNode) x.Branch.Accept(this));
+                    return (type, (ASTCILExpressionNode) x.Branch.Accept(this), x.Branch.SymbolTable.GetObject(x.Name.Text));
                 }));
         }
 
