@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using SuperCOOL.Constants;
 using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 using System;
@@ -30,6 +31,8 @@ namespace SuperCOOL.SemanticCheck
 
         public override SemanticCheckResult VisitAssignment(ASTAssingmentNode Assingment)
         {
+            Assingment.SemanticCheckResult.Ensure(!Types.IsSelf(Assingment.Id.Name),
+                   new Lazy<Error>(() => new Error($"Not allowed to assign {Assingment.Id.Name}.", ErrorKind.SemanticError, Assingment.Id.Token.Line, Assingment.Id.Token.Column)));
             var expresult = Assingment.Expresion.Accept(this);
             var idResult = Assingment.Id.Accept(this);
 
@@ -68,6 +71,10 @@ namespace SuperCOOL.SemanticCheck
             HashSet<string> CoolTypesInBranch = new HashSet<string>();
             foreach (var item in Case.Cases)
             {
+                Case.SemanticCheckResult.Ensure(!Types.IsSelf(item.Name.Text),
+                    new Lazy<Error>(() => new Error($"Not allowed to use {item.Name.Text}.", ErrorKind.SemanticError, item.Name.Line, item.Name.Column)));
+                Case.SemanticCheckResult.Ensure(!Types.IsSelfType(item.Type.Text),
+                    new Lazy<Error>(() => new Error($"Not Allowed {item.Type.Text}", ErrorKind.SemanticError, item.Type.Line, item.Type.Column)));
                 var already = CoolTypesInBranch.Contains(item.Type.Text);
                 Case.SemanticCheckResult.Ensure(!already, 
                     new Lazy<Error>(() => new Error($"Multiple type branch for the type {item.Type.Text} in case expresion.",ErrorKind.SemanticError,item.Type.Line,item.Type.Column)));
@@ -193,6 +200,8 @@ namespace SuperCOOL.SemanticCheck
             var declarations = LetIn.Declarations;
             foreach (var item in declarations)
             {
+                LetIn.SemanticCheckResult.Ensure(!Types.IsSelf(item.Id.Name),
+                   new Lazy<Error>(() => new Error($"Not allowed to use {item.Id.Name}.", ErrorKind.SemanticError, item.Type.Line, item.Type.Column)));
                 var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type.Text,LetIn.SymbolTable, out var type);
                 LetIn.SemanticCheckResult.Ensure(b,
                     new Lazy<Error>(()=>new Error($"Missing declaration for type {item.Type.Text}.",ErrorKind.TypeError,item.Type.Line,item.Type.Column)));
@@ -230,6 +239,8 @@ namespace SuperCOOL.SemanticCheck
         public override SemanticCheckResult VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
             var onResult = MethodCall.InvokeOnExpresion.Accept(this);
+            MethodCall.SemanticCheckResult.Ensure(!Types.IsSelfType(MethodCall.TypeName),
+                  new Lazy<Error>(() => new Error($"Not Allowed {MethodCall.TypeName}", ErrorKind.SemanticError, MethodCall.Type.Line, MethodCall.Type.Column)));
             var isStaticDef = CompilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName,MethodCall.SymbolTable,out var staticType);
             MethodCall.SemanticCheckResult.Ensure(isStaticDef,
                 new Lazy<Error>(()=>new Error($"Missing declaration for type {MethodCall.TypeName}.",ErrorKind.TypeError,MethodCall.Type.Line,MethodCall.Type.Column)));
@@ -341,6 +352,8 @@ namespace SuperCOOL.SemanticCheck
 
         public override SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
+            Atribute.SemanticCheckResult.Ensure(!Types.IsSelf(Atribute.AttributeName),
+                new Lazy<Error>(() => new Error($"Not allowed to use {Atribute.AttributeName}.", ErrorKind.SemanticError, Atribute.Attribute.Line, Atribute.Attribute.Column)));
             var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.TypeName,Atribute.SymbolTable,out var t);
             Atribute.SemanticCheckResult.Ensure(isdef,
                 new Lazy<Error> (()=>new Error($"Missing declaration for type {Atribute.TypeName}.",ErrorKind.TypeError,Atribute.Type.Line, Atribute.Type.Column)));
