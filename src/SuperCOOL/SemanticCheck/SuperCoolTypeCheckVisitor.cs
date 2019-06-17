@@ -198,6 +198,8 @@ namespace SuperCOOL.SemanticCheck
             var declarations = LetIn.Declarations;
             foreach (var item in declarations)
             {
+                LetIn.SemanticCheckResult.Ensure(!Types.IsSelf(item.Id.Name),
+                   new Lazy<Error>(() => new Error($"Not allowed to use {item.Id.Name}.", ErrorKind.SemanticError, item.Type.Line, item.Type.Column)));
                 var b=CompilationUnit.TypeEnvironment.GetTypeDefinition(item.Type.Text,LetIn.SymbolTable, out var type);
                 LetIn.SemanticCheckResult.Ensure(b,
                     new Lazy<Error>(()=>new Error($"Missing declaration for type {item.Type.Text}.",ErrorKind.TypeError,item.Type.Line,item.Type.Column)));
