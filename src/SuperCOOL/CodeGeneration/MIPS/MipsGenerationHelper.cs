@@ -89,7 +89,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Comments
         public MipsGenerationHelper Comment( string comment )
         {
-            this.body.Append( $"# { comment }{ ENDL }" );
+            this.body.Append( $"{ TAB }# { comment }{ ENDL }" );
             return this;
         }
 

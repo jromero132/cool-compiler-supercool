@@ -617,6 +617,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                             MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
                             MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
                         })
+                    .Comment(StringConstant.Value)
                     .AddData(StringConstant.ValueLabel, new[]
                     {
                         MipsGenerationHelper.AddByteData(Regex.Unescape(StringConstant.Value).Select(x => (int) x))
