@@ -52,6 +52,8 @@ namespace SuperCOOL.SemanticCheck
             Class.SemanticCheckResult.Ensure(exist, new Lazy<Error>(()=>new Error($"Missing declaration for type {Class.ParentTypeName}.", ErrorKind.TypeError,Class.ParentType.Line,Class.ParentType.Column)));
             if (exist)
                 CompilationUnit.TypeEnvironment.AddInheritance(Class.TypeName, Class.ParentTypeName);
+            Class.SemanticCheckResult.Ensure(Types.IsSelfType(Class.ParentTypeName),
+                    new Lazy<Error>(() => new Error($"Not Allowed {Class.ParentTypeName}", ErrorKind.SemanticError, Class.ParentType.Line, Class.ParentType.Column)));
             return Class.SemanticCheckResult;
         }
 
