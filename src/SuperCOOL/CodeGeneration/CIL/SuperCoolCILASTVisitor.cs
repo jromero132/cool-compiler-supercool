@@ -57,11 +57,18 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
-            return new ASTCILCaseNode((ASTCILExpressionNode) Case.ExpressionCase.Accept(this),
+            var exp = (ASTCILExpressionNode)Case.ExpressionCase.Accept(this);
+            if (Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                exp = new ASTCILBoxingNode(exp, Case.SemanticCheckResult.Type);
+            return new ASTCILCaseNode(exp,
                 Case.Cases.Select(x =>
                 {
+                    compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var branchType);
+                    var branch = (ASTCILExpressionNode)x.Branch.Accept(this);
+                    if (branchType == compilationUnit.TypeEnvironment.Int || branchType == compilationUnit.TypeEnvironment.Bool)
+                        branch = new ASTCILUnboxingNode(branch, branchType);
                     compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var type);
-                    return (type, (ASTCILExpressionNode) x.Branch.Accept(this), x.Branch.SymbolTable.GetObject(x.Name.Text));
+                    return (type,branch , x.Branch.SymbolTable.GetObject(x.Name.Text));
                 }));
         }
 
@@ -198,8 +205,11 @@ namespace SuperCOOL.CodeGeneration
         {
             var type = compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             compilationUnit.MethodEnvironment.GetMethodOnIt(type, Method.Name, out var coolMethod);
+
+            bool boxing = coolMethod.ReturnType == compilationUnit.TypeEnvironment.Object && (Method.Body.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Method.Body.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int);
+
             return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name, coolMethod.Name), coolMethod,
-                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) });
+                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) },boxing, Method.Body.SemanticCheckResult.Type);
         }
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
