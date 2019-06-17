@@ -787,7 +787,19 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitBoxing(ASTCILBoxingNode Boxing)
         {
-            throw new NotImplementedException();
+            var result = Boxing.Expression.Accept(this);
+            var label = labelGenerator.GenerateLabelTypeInfo(Boxing.Type.Name);
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
+                .LoadFromAddress(MipsRegisterSet.t0, label)
+                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset)
+                .Add(MipsRegisterSet.a0, 4)
+                .Allocate(MipsRegisterSet.a0, MipsRegisterSet.a0)
+                .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)
+                .Add(MipsRegisterSet.a0, 4)
+                .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0));
+
+            return result;
         }
     }
 }
