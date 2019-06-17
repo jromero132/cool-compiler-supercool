@@ -12,8 +12,8 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void HelloWorld()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "hello_world.cl"), "hello_world");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "hello_world.cl" ), "hello_world" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -26,9 +26,9 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void ArithmeticOperator()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "arithmetic_operator.cl"),
-                "arithmetic_operator");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "arithmetic_operator.cl" ),
+                "arithmetic_operator" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -49,9 +49,9 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void In_String()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_string.cl"), "in_string",
-                new List<string> { Path.Combine("Examples", "Cool", "in_string.in") });
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "in_string.cl" ), "in_string",
+                new List<string> { Path.Combine( "Examples", "Cool", "in_string.in" ) } );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -104,22 +104,22 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void Complex()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "complex.cl"), "complex");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complex.cl" ), "complex" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void Primes()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "primes.cl"), "primes");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "primes.cl" ), "primes" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void Let()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "let.cl"), "let");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "let.cl" ), "let" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -163,16 +163,22 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void Case()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "case.cl"), "case");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "case.cl" ), "case" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void CaseWithVoidExpr()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "case_void_expression.cl"),
-                "case_void_expression");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "case_void_expression.cl" ), "case_void_expression" );
+            Assert.True( test_case.RunTest() );
+        }
+
+        [Fact]
+        public void Substring()
+        {
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "substring.cl" ), "substring" );
+            Assert.True( test_case.RunTest() );
         }
     }
 }

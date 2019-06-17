@@ -183,7 +183,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                       .LoadFromAddress( MipsRegisterSet.a0, name )
                                                                       .SystemCall();
 
-        public MipsGenerationHelper PrintString(Register r) => this.Move(MipsRegisterSet.a0, r).LoadConstant( MipsRegisterSet.v0, print_string )
+        public MipsGenerationHelper PrintString( Register r ) => this.Move( MipsRegisterSet.a0, r ).LoadConstant( MipsRegisterSet.v0, print_string )
                                                      .SystemCall();
 
 
@@ -410,59 +410,59 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 .JumpToLabel( @else )
                 .Tag( endtag );
 
-        public MipsGenerationHelper IsVoid(string voidLabel, string elseLabel, string endLabel) => this
-            .LoadFromAddress(MipsRegisterSet.t0, voidLabel)
-            .BranchOnEquals(MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel)
-            .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.FALSE)
-            .JumpToLabel(endLabel)
-            .Tag(elseLabel)
-            .LoadConstant(MipsRegisterSet.a0, MipsGenerationHelper.TRUE)
-            .Tag(endLabel);
+        public MipsGenerationHelper IsVoid( string voidLabel, string elseLabel, string endLabel ) => this
+            .LoadFromAddress( MipsRegisterSet.t0, voidLabel )
+            .BranchOnEquals( MipsRegisterSet.t0, MipsRegisterSet.a0, elseLabel )
+            .LoadConstant( MipsRegisterSet.a0, MipsGenerationHelper.FALSE )
+            .JumpToLabel( endLabel )
+            .Tag( elseLabel )
+            .LoadConstant( MipsRegisterSet.a0, MipsGenerationHelper.TRUE )
+            .Tag( endLabel );
 
-        public MipsGenerationHelper ThrowRuntimeError(int id, ILabelILGenerator labelGenerator)
+        public MipsGenerationHelper ThrowRuntimeError( int id, ILabelILGenerator labelGenerator )
         {
-            switch (id)
+            switch( id )
             {
                 case RuntimeErrors.ObjectAbort:
-                    this.PrintString(labelGenerator.GetException(id))
-                        .GetParam(MipsRegisterSet.a0, 0)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                        .PrintString(MipsRegisterSet.a0)
-                        .PrintString(labelGenerator.GetNewLine())
+                    this.PrintString( labelGenerator.GetException( id ) )
+                        .GetParam( MipsRegisterSet.a0, 0 )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
+                        .PrintString( MipsRegisterSet.a0 )
+                        .PrintString( labelGenerator.GetNewLine() )
                         .Exit();
                     break;
                 default:
-                    this.PrintString(labelGenerator.GetException(id)).Exit();
+                    this.PrintString( labelGenerator.GetException( id ) ).Exit();
                     break;
             }
 
             return this;
         }
 
-        public MipsGenerationHelper ThrowRuntimeErrorAdditionalMsg(int id, ILabelILGenerator labelGenerator, Register r)
+        public MipsGenerationHelper ThrowRuntimeErrorAdditionalMsg( int id, ILabelILGenerator labelGenerator, Register r )
         {
-            switch (id)
+            switch( id )
             {
                 case RuntimeErrors.ObjectAbort:
-                    this.PrintString(labelGenerator.GetException(id))
-                        .GetParam(MipsRegisterSet.a0, 0)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
-                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                        .PrintString(MipsRegisterSet.a0)
-                        .PrintString(labelGenerator.GetNewLine())
+                    this.PrintString( labelGenerator.GetException( id ) )
+                        .GetParam( MipsRegisterSet.a0, 0 )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset )
+                        .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
+                        .PrintString( MipsRegisterSet.a0 )
+                        .PrintString( labelGenerator.GetNewLine() )
                         .Exit();
                     break;
                 case RuntimeErrors.CaseWithoutMatching:
-                    this.PrintString(labelGenerator.GetException(id))
-                        .PrintString(r)
-                        .PrintString(labelGenerator.GetNewLine())
+                    this.PrintString( labelGenerator.GetException( id ) )
+                        .PrintString( r )
+                        .PrintString( labelGenerator.GetNewLine() )
                         .Exit();
                     break;
                 default:
-                    this.PrintString(labelGenerator.GetException(id)).Exit();
+                    this.PrintString( labelGenerator.GetException( id ) ).Exit();
                     break;
             }
 

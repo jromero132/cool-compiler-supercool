@@ -110,61 +110,61 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return left + right;
         }
 
-        public MipsProgram VisitCase(ASTCILCaseNode caseNode)
+        public MipsProgram VisitCase( ASTCILCaseNode caseNode )
         {
             var result = new MipsProgram();
-            result += caseNode.ExpressionCase.Accept(this);
+            result += caseNode.ExpressionCase.Accept( this );
             var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
             var (endLabelRuntimeError, _, _) = labelGenerator.GenerateIf();
             //check if case expression is null and throw runtime error
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
-                .IsVoid(labelGenerator.GenerateVoid(), elseLabel, endLabel)
-                .BranchOnEquals(MipsRegisterSet.a0, 0, endLabelRuntimeError)
-                .ThrowRuntimeError(RuntimeErrors.CaseVoidRuntimeError, labelGenerator)
-                .Tag(endLabelRuntimeError)
-                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                .Move( MipsRegisterSet.a2, MipsRegisterSet.a0 )
+                .IsVoid( labelGenerator.GenerateVoid(), elseLabel, endLabel )
+                .BranchOnEquals( MipsRegisterSet.a0, 0, endLabelRuntimeError )
+                .ThrowRuntimeError( RuntimeErrors.CaseVoidRuntimeError, labelGenerator )
+                .Tag( endLabelRuntimeError )
+                .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest ) );
 
             var (endWhileLabel, elseWhileLabel, initWhileLabel) = labelGenerator.GenerateIf();
 
             //load type_name
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .Tag(initWhileLabel)
-                .Move(MipsRegisterSet.t2, MipsRegisterSet.a1)
-                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.a1, MipsGenerationHelper.TypeNameOffset));
-            foreach (var currentCase in caseNode.Cases)
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                .Tag( initWhileLabel )
+                .Move( MipsRegisterSet.t2, MipsRegisterSet.a1 )
+                .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a1, MipsGenerationHelper.TypeNameOffset ) );
+            foreach( var currentCase in caseNode.Cases )
             {
                 var currentIfLabel = labelGenerator.GenerateIf();
                 result.SectionCode.Append(
                     MipsGenerationHelper.NewScript()
-                        .LoadFromAddress(MipsRegisterSet.t0,
-                            labelGenerator.GenerateLabelTypeName(currentCase.type.Name).@object)
-                        .BranchOnEquals(MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else)
-                        .JumpToLabel(currentIfLabel.end)
-                        .Tag(currentIfLabel.@else)
-                        .GetLocalAddress(currentCase.symbolInfo.Offset)
-                        .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0));
-                result += currentCase.expression.Accept(this);
-                result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                    .JumpToLabel(endWhileLabel)
-                    .Tag(currentIfLabel.end));
+                        .LoadFromAddress( MipsRegisterSet.t0,
+                            labelGenerator.GenerateLabelTypeName( currentCase.type.Name ).@object )
+                        .BranchOnEquals( MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else )
+                        .JumpToLabel( currentIfLabel.end )
+                        .Tag( currentIfLabel.@else )
+                        .GetLocalAddress( currentCase.symbolInfo.Offset )
+                        .SaveToMemory( MipsRegisterSet.a2, MipsRegisterSet.a0 ) );
+                result += currentCase.expression.Accept( this );
+                result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                    .JumpToLabel( endWhileLabel )
+                    .Tag( currentIfLabel.end ) );
             }
             var (endLabelNotMatch, elseLabelNotMatch, _) = labelGenerator.GenerateIf();
             var (endLabelRuntimeErrorNotMatch, _, _) = labelGenerator.GenerateIf();
-            
+
             //move to parent and throw runtime error if not parent is void
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.t2, MipsGenerationHelper.TypeInfoOffsetParent)
-                .Move(MipsRegisterSet.a0, MipsRegisterSet.a1)
-                .IsVoid(labelGenerator.GenerateVoid(), elseLabelNotMatch, endLabelNotMatch)
-                .BranchOnEquals(MipsRegisterSet.a0, 0, endLabelRuntimeErrorNotMatch)
-                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest)
-                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
-                .LoadFromMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)
-                .ThrowRuntimeErrorAdditionalMsg(RuntimeErrors.CaseWithoutMatching, labelGenerator,MipsRegisterSet.t0)
-                .Tag(endLabelRuntimeErrorNotMatch)
-                .JumpToLabel(initWhileLabel)
-                .Tag(endWhileLabel));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.t2, MipsGenerationHelper.TypeInfoOffsetParent )
+                .Move( MipsRegisterSet.a0, MipsRegisterSet.a1 )
+                .IsVoid( labelGenerator.GenerateVoid(), elseLabelNotMatch, endLabelNotMatch )
+                .BranchOnEquals( MipsRegisterSet.a0, 0, endLabelRuntimeErrorNotMatch )
+                .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest )
+                .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset )
+                .LoadFromMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )
+                .ThrowRuntimeErrorAdditionalMsg( RuntimeErrors.CaseWithoutMatching, labelGenerator, MipsRegisterSet.t0 )
+                .Tag( endLabelRuntimeErrorNotMatch )
+                .JumpToLabel( initWhileLabel )
+                .Tag( endWhileLabel ) );
 
             return result;
         }
@@ -431,8 +431,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( IOOutString.Tag )
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
-                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                                                                .PrintString(MipsRegisterSet.a0)
+                                                                .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
+                                                                .PrintString( MipsRegisterSet.a0 )
                                                                 .Return() );
             return result;
         }
@@ -441,8 +441,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = IsVoid.Expression.Accept( this );
             var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .IsVoid(labelGenerator.GenerateVoid(), elseLabel, endLabel));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                .IsVoid( labelGenerator.GenerateVoid(), elseLabel, endLabel ) );
 
             return result;
         }
@@ -553,8 +553,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitRuntimeError( ASTCILRuntimeErrorNode RuntimeError )
         {
             var result = new MipsProgram();
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .ThrowRuntimeError(RuntimeError.Id, labelGenerator));
+            result.SectionCode.Append( MipsGenerationHelper.NewScript()
+                .ThrowRuntimeError( RuntimeError.Id, labelGenerator ) );
 
             return result;
         }
@@ -638,7 +638,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                     MipsGenerationHelper.AddIntData(Type.Type.AllocateSize),
                     MipsGenerationHelper.AddIntData(label_virtual_table),
                     MipsGenerationHelper.AddIntData(typeInfo_label_parent)
-                }) );
+                } ) );
 
             result.SectionDataGlobals.Append( MipsGenerationHelper.NewScript().GlobalSection( label_type_name.value )
                 .GlobalSection( label_type_name.@object )
@@ -715,13 +715,32 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitStringSubStr( ASTCILStringSubStrNode stringSubStr )
         {
-            //TODO: falta
+            var tag1 = labelGenerator.GenerateIf();
+            var tag2 = labelGenerator.GenerateIf();
+            var tag3 = labelGenerator.GenerateIf();
             var result = new MipsProgram();
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( stringSubStr.Tag )
-                                                                .GetParam( MipsRegisterSet.a0, 4 )
-                                                                .PrintString(MipsRegisterSet.a0)
-                                                                .Return() );
+                                                                .GetParam( MipsRegisterSet.a1, 0 )
+                                                                .LoadFromMemory( MipsRegisterSet.t0, MipsRegisterSet.a1, 4 )
+                                                                .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a1 )
+                                                                .GetParam( MipsRegisterSet.a2, 4 )
+                                                                .BranchLessThan( MipsRegisterSet.a2, 0, tag1.@else )
+                                                                .GetParam( MipsRegisterSet.a3, 8 )
+                                                                .BranchLessThan( MipsRegisterSet.a3, 0, tag1.@else )
+                                                                .Add( MipsRegisterSet.a2, MipsRegisterSet.a3, MipsRegisterSet.t1 )
+                                                                .BranchLessThan( MipsRegisterSet.t0, MipsRegisterSet.t1, tag1.@else )
+                                                                .Add( MipsRegisterSet.a3, 1, MipsRegisterSet.t1 )
+                                                                .Allocate( MipsRegisterSet.t1, MipsRegisterSet.t0 )
+                                                                .Copy( MipsRegisterSet.a1, MipsRegisterSet.t0, MipsRegisterSet.a3, tag2.end, tag2.@else )
+                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.t0 )
+                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.t1 )
+                                                                .Add( MipsRegisterSet.t0, 1 ) );
+            result.SectionFunctions.Append( CreateString( MipsRegisterSet.t0, MipsRegisterSet.a3 ).SectionCode );
+            result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
+                                                                .Return()
+                                                                .Tag( tag1.@else )
+                                                                .ThrowRuntimeError( RuntimeErrors.SubStringOutOfRange, labelGenerator ) );
             return result;
         }
     }
