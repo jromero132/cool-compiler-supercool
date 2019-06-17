@@ -166,8 +166,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a1 )
                                                                 .Add( MipsRegisterSet.a1, 1 )
                                                                 .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringLengthMethodWhile )
-                                                                .Sub( MipsRegisterSet.a1, 1 )
-                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1 )
+                                                                .Sub( MipsRegisterSet.a1, 2 )
+                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1, 1 )
                                                                 .Sub( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.a0 );
 
 
@@ -239,18 +239,18 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return this;
         }
 
-        public MipsGenerationHelper SaveByte( Register r1, Register r2 ) // r2 <- (r1)
+        public MipsGenerationHelper SaveByte( Register r1, Register r2, int offset = 0 ) // r2 <- (r1)
         {
-            this.body.Append( $"{ TAB + TAB }sb { r1 }, ({ r2 }){ ENDL }" );
+            this.body.Append( $"{ TAB + TAB }sb { r1 }, { ( offset == 0 ? "" : offset.ToString() ) }({ r2 }){ ENDL }" );
             return this;
         }
 
 
         // Dynamic saving
-        public MipsGenerationHelper Allocate( Register r1 ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
-                                                                   .Move( MipsRegisterSet.a0, r1 )
-                                                                   .SystemCall()
-                                                                   .Move( MipsRegisterSet.a0, MipsRegisterSet.v0 );
+        public MipsGenerationHelper Allocate( Register r1, Register r2 ) => this.LoadConstant( MipsRegisterSet.v0, allocate )
+                                                                                .Move( MipsRegisterSet.a0, r1 )
+                                                                                .SystemCall()
+                                                                                .Move( r2, MipsRegisterSet.v0 );
 
 
         // Jumps
@@ -329,7 +329,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Boolean operators
         public MipsGenerationHelper Not( Register r, Register r_out )
         {
-            this.LoadConstant(MipsRegisterSet.t0, 1).Sub(MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0);
+            this.LoadConstant( MipsRegisterSet.t0, 1 ).Sub( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsRegisterSet.a0 );
             return this;
         }
 

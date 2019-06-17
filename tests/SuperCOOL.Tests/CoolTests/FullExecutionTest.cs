@@ -19,8 +19,8 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void IfSimpleExpression()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "if_expression.cl"), "if_expression");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "if_expression.cl" ), "if_expression" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -34,16 +34,16 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void Assigment()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "assigment.cl"), "assigment");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "assigment.cl" ), "assigment" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void In_Int()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "in_int.cl"), "in_int",
-                new List<string> { Path.Combine("Examples", "Cool", "in_int.in") });
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "in_int.cl" ), "in_int",
+                new List<string> { Path.Combine( "Examples", "Cool", "in_int.in" ) } );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -57,51 +57,48 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void ComparerOperator()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "comparer_operator.cl"),
-                "comparer_operator");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "comparer_operator.cl" ), "comparer_operator" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void While()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "while.cl"), "while");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "while.cl" ), "while" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void ComplementOperator()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "complement_operator.cl"),
-                "complement_operator");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "complement_operator.cl" ), "complement_operator" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void ObjectTypeName()
         {
-            TestCase test_case =
-                new TestCase(Path.Combine("Examples", "Cool", "objectType_name.cl"), "objectType_name");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "objectType_name.cl" ), "objectType_name" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void Attributes()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "attributes.cl"), "attributes");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "attributes.cl" ), "attributes" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void Palindrome()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "palindrome.cl"), "palindrome",
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "palindrome.cl" ), "palindrome",
                 new List<string>
                 {
                     Path.Combine("Examples", "Cool", "palindrome.in1"),
                     Path.Combine("Examples", "Cool", "palindrome.in2")
-                });
-            Assert.True(test_case.RunTest());
+                } );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
@@ -128,30 +125,39 @@ namespace SuperCOOL.Tests.CoolTests
         [Fact]
         public void Allocate()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "allocate.cl"), "allocate");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "allocate.cl" ), "allocate" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void StaticDispatch()
         {
-            TestCase test_case =
-                new TestCase(Path.Combine("Examples", "Cool", "static_dispatch.cl"), "static_dispatch");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "static_dispatch.cl" ), "static_dispatch" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void BookList()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "book_list.cl"), "book_list");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "book_list.cl" ), "book_list" );
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
         public void IO()
         {
-            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "io.cl"), "io");
-            Assert.True(test_case.RunTest());
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "io.cl" ), "io" );
+            Assert.True( test_case.RunTest() );
+        }
+
+        [Fact]
+        public void Concat()
+        {
+            TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "concat.cl" ), "concat", new List<string>
+            {
+                Path.Combine("Examples", "Cool", "concat.in"),
+            });
+            Assert.True( test_case.RunTest() );
         }
 
         [Fact]
