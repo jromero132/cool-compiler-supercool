@@ -141,7 +141,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                             labelGenerator.GenerateLabelTypeName(currentCase.type.Name).@object)
                         .BranchOnEquals(MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else)
                         .JumpToLabel(currentIfLabel.end)
-                        .Tag(currentIfLabel.@else));
+                        .Tag(currentIfLabel.@else)
+                        .GetLocalAddress(currentCase.symbolInfo.Offset)
+                        .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0));
                 result += currentCase.expression.Accept(this);
                 result.SectionCode.Append(MipsGenerationHelper.NewScript()
                     .JumpToLabel(endWhileLabel)
