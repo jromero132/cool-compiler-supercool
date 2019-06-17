@@ -346,6 +346,8 @@ namespace SuperCOOL.SemanticCheck
 
         public override SemanticCheckResult VisitAtribute(ASTAtributeNode Atribute)
         {
+            Atribute.SemanticCheckResult.Ensure(!Types.IsSelf(Atribute.AttributeName),
+                new Lazy<Error>(() => new Error($"Not allowed to use {Atribute.AttributeName}.", ErrorKind.SemanticError, Atribute.Attribute.Line, Atribute.Attribute.Column)));
             var isdef = CompilationUnit.TypeEnvironment.GetTypeDefinition(Atribute.TypeName,Atribute.SymbolTable,out var t);
             Atribute.SemanticCheckResult.Ensure(isdef,
                 new Lazy<Error> (()=>new Error($"Missing declaration for type {Atribute.TypeName}.",ErrorKind.TypeError,Atribute.Type.Line, Atribute.Type.Column)));
