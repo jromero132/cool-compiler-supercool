@@ -185,6 +185,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitExpression( ASTCILExpressionNode Expression ) => Expression.Accept( this );
 
+        public MipsProgram VisitEqualString(ASTCILEqualStringNode EqualString)
+        {
+            throw new NotImplementedException();
+        }
+
         public MipsProgram VisitFunc( ASTCILFuncNode Func )
         {
             var result = new MipsProgram();

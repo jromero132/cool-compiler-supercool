@@ -94,6 +94,9 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitEqual(ASTEqualNode Equal)
         {
+            if (Equal.Left.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.String)
+                return new ASTCILEqualStringNode((ASTCILExpressionNode) Equal.Left.Accept(this),
+                    (ASTCILExpressionNode) Equal.Right.Accept(this));
             var ifLabel = labelIlGenerator.GenerateIf();
             return new ASTCILIfNode(
                 (ASTCILExpressionNode) VisitMinus(new ASTMinusNode { Left = Equal.Left, Right = Equal.Right }),

@@ -15,6 +15,7 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitCase( ASTCILCaseNode caseNode );
         Result VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables );
         Result VisitExpression( ASTCILExpressionNode Expression );
+        Result VisitEqualString( ASTCILEqualStringNode EqualString );
         Result VisitFunc( ASTCILFuncNode Func );
         Result VisitFuncStaticCall( ASTCILFuncStaticCallNode FuncStaticCall );
         Result VisitFuncVirtualCall( ASTCILFuncVirtualCallNode FuncVirtualCall );
