@@ -23,5 +23,10 @@ namespace SuperCOOL.Constants
         {
             return name == "self";
         }
+
+        internal static bool IsStringBoolOrInt(string typeName)
+        {
+            return typeName == Int || typeName == String || typeName == Bool;
+        }
     }
 }
