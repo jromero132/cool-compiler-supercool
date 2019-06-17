@@ -183,7 +183,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                       .LoadFromAddress( MipsRegisterSet.a0, name )
                                                                       .SystemCall();
 
-        public MipsGenerationHelper PrintString() => this.LoadConstant( MipsRegisterSet.v0, print_string )
+        public MipsGenerationHelper PrintString(Register r) => this.Move(MipsRegisterSet.a0, r).LoadConstant( MipsRegisterSet.v0, print_string )
                                                      .SystemCall();
 
 
@@ -429,7 +429,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                         .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
                         .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
                         .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                        .PrintString()
+                        .PrintString(MipsRegisterSet.a0)
                         .PrintString(labelGenerator.GetNewLine())
                         .Exit();
                     break;

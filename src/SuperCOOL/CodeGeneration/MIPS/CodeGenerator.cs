@@ -371,7 +371,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .Tag( IOOutString.Tag )
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                                                                .PrintString()
+                                                                .PrintString(MipsRegisterSet.a0)
                                                                 .Return() );
             return result;
         }
@@ -654,7 +654,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Tag( stringSubStr.Tag )
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
-                                                                .PrintString()
+                                                                .PrintString(MipsRegisterSet.a0)
                                                                 .Return() );
             return result;
         }
