@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SuperCOOL.Tests
 {
@@ -66,9 +67,11 @@ namespace SuperCOOL.Tests
             }
         }
 
-        public static void Normalize(string file_name, int offset = 0)
+        public static void Normalize(string file_name, int offset = 0, string fileNameSource = null)
         {
             StringBuilder tmp = new StringBuilder();
+            var runtimeErrorLineRegex =
+                fileNameSource != null ? new Regex($"{fileNameSource.Replace("\\", "\\\\")}:\\d+") : null;
             using (StreamReader reader = new StreamReader(file_name))
             {
                 offset += 5;
@@ -77,6 +80,7 @@ namespace SuperCOOL.Tests
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
+                    line = runtimeErrorLineRegex?.Replace(line, String.Empty) ?? line;
                     if (line != IncresingHeapMessageGOCompiler)
                         tmp.AppendLine(line);
                 }
