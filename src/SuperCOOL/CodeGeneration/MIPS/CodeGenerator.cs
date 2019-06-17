@@ -7,6 +7,7 @@ using SuperCOOL.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SuperCOOL.CodeGeneration.MIPS
 {
@@ -426,6 +427,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .Tag( IOOutInt.Tag )
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .PrintInt( MipsRegisterSet.a0 )
+                                                                .GetParam(MipsRegisterSet.a0, 0)
                                                                 .Return() );
             return result;
         }
@@ -438,6 +440,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .GetParam( MipsRegisterSet.a0, 4 )
                                                                 .LoadFromMemory( MipsRegisterSet.a0, MipsRegisterSet.a0 )
                                                                 .PrintString( MipsRegisterSet.a0 )
+                                                                .GetParam(MipsRegisterSet.a0,0)
                                                                 .Return() );
             return result;
         }
@@ -587,7 +590,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitStringConstant( ASTCILStringConstantNode StringConstant )
         {
             var result = new MipsProgram();
-            result.SectionData.Append( MipsGenerationHelper.NewScript() //TODO add only if not defined
+            result.SectionData.Append( MipsGenerationHelper.NewScript()
                 .AddData( StringConstant.ObjectLabel,
                     new[]
                     {
@@ -598,8 +601,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                     } )
                 .AddData( StringConstant.ValueLabel, new[]
                 {
-                    MipsGenerationHelper.AddStringData(StringConstant.Value)
-                } ) );
+                    MipsGenerationHelper.AddByteData( Regex.Unescape(StringConstant.Value).Select(x => (int)x))
+                }));
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
                 .LoadFromAddress( MipsRegisterSet.a0, StringConstant.ObjectLabel )
                 .Add( MipsRegisterSet.a0, 4 ) );

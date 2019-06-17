@@ -104,6 +104,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public static (string, object) AddStringData( string value ) => ($"asciiz", $"\"{ value }\"");
 
+        public static (string, object) AddByteData(IEnumerable<int> bytes) => ($"byte", $"{string.Join(',', bytes)},0");
+
         public static (string, object) AddIntData( object value ) => ($"word", value);
 
         public static (string, object) AddDynamycString( int space ) => ($"space", space);
