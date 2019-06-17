@@ -774,5 +774,15 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .ThrowRuntimeError( RuntimeErrors.SubStringOutOfRange, labelGenerator ) );
             return result;
         }
+
+        public MipsProgram VisitUnboxing(ASTCILUnboxingNode Unboxing)
+        {
+            throw new NotImplementedException();
+        }
+
+        public MipsProgram VisitBoxing(ASTCILBoxingNode Boxing)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
