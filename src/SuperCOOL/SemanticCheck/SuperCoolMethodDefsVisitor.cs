@@ -63,6 +63,8 @@ namespace SuperCOOL.SemanticCheck
                         new Lazy<Error>(()=>new Error($"Mising declaration for type {item.type}.", ErrorKind.TypeError, item.type.Line, item.type.Column)));
                     Method.SemanticCheckResult.Ensure(!Types.IsSelfType(item.type.Text),
                         new Lazy<Error>(() => new Error($"Not Allowed {item.type.Text}", ErrorKind.SemanticError, item.type.Line, item.type.Column)));
+                    Method.SemanticCheckResult.Ensure(!Types.IsSelf(Method.Name),
+                new Lazy<Error>(() => new Error($"Not allowed to use {Method.Name}.", ErrorKind.SemanticError, Method.Method.Line, Method.Method.Column)));
                     defformals &= defformal;
                     formalTypes.Add(ftype);
                 }
