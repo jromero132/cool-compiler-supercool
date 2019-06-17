@@ -44,7 +44,7 @@ namespace SuperCOOL.Core
     {
         void DefObject(string name, string type, ObjectKind kind);
         bool IsDefObject(string name,out SymbolInfo Info);
-        SymbolInfo GetObject(string stringLength);
+        SymbolInfo GetObject(string name);
         bool IsDefObjectOnThis(string name, out SymbolInfo Info);
         ISymbolTable EnterScope();
         ISymbolTable ExitScope();

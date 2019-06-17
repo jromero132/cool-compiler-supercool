@@ -81,7 +81,7 @@ namespace SuperCOOL.Tests.CoolTests
                     Default.GoCompilerTrapHandlerPath);
                 Helper.RunSpim(this.MipsFromUsFileNamePath, currentFileName, this.OutputFileFromUsPath);
 
-                Helper.Normalize(this.OutputFileFromGoPath, 3);
+                Helper.Normalize(this.OutputFileFromGoPath, 3, CoolFileNamePath);
                 Helper.Normalize(this.OutputFileFromUsPath);
 
                 result &= Helper.CompareFiles(this.OutputFileFromGoPath, this.OutputFileFromUsPath);

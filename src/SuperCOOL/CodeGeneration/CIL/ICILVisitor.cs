@@ -12,6 +12,7 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitBoolConstant( ASTCILBoolConstantNode BoolConstant );
         Result VisitBoolNot( ASTCILBoolNotNode BoolNot );
         Result VisitBoolOrTwoVariables( ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables );
+        Result VisitCase( ASTCILCaseNode caseNode );
         Result VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables );
         Result VisitExpression( ASTCILExpressionNode Expression );
         Result VisitFunc( ASTCILFuncNode Func );
