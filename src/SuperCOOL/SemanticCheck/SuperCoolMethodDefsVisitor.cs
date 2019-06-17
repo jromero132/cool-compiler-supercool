@@ -33,6 +33,8 @@ namespace SuperCOOL.SemanticCheck
         public override SemanticCheckResult VisitMethod(ASTMethodNode Method)
         {
             var result = Method.SemanticCheckResult;
+            result.Ensure(!Types.IsSelf(Method.Name),
+                new Lazy<Error>(() => new Error($"Not allowed to use {Method.Name}.", ErrorKind.SemanticError, Method.Method.Line, Method.Method.Column)));
             var type=CompilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             var def = CompilationUnit.MethodEnvironment.GetMethodOnIt(type,Method.Name, out var _);
             result.Ensure(!def,
