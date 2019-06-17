@@ -142,7 +142,10 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            return new ASTCILIsVoidNode((ASTCILExpressionNode) IsVoid.Expression.Accept(this));
+            var exp = (ASTCILExpressionNode)IsVoid.Expression.Accept(this);
+            if (IsVoid.Expression.SemanticCheckResult.Type==compilationUnit.TypeEnvironment.Int || IsVoid.Expression.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                return new ASTCILIsVoidNode(new ASTCILBoxingNode(exp, IsVoid.Expression.SemanticCheckResult.Type));
+            return new ASTCILIsVoidNode(exp);
         }
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
