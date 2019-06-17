@@ -778,7 +778,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitUnboxing(ASTCILUnboxingNode Unboxing)
         {
-            throw new NotImplementedException();
+            var result = Unboxing.Expression.Accept(this);
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0));
+
+            return result;
         }
 
         public MipsProgram VisitBoxing(ASTCILBoxingNode Boxing)
