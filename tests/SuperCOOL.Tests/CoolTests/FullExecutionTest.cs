@@ -187,5 +187,19 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "factorial.cl"), "factorial");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void HairScary()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "hair_scary.cl"), "hair_scary");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void Lam()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "lam.cl"), "lam");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
