@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperCOOL.Constants;
 using SuperCOOL.Core;
 using SuperCOOL.SemanticCheck.AST;
 
@@ -58,6 +59,8 @@ namespace SuperCOOL.SemanticCheck
                     var defformal = CompilationUnit.TypeEnvironment.GetTypeDefinition(item.type.Text, Method.SymbolTable, out var ftype);
                     Method.SemanticCheckResult.Ensure(defformal,
                         new Lazy<Error>(()=>new Error($"Mising declaration for type {item.type}.", ErrorKind.TypeError, item.type.Line, item.type.Column)));
+                    Method.SemanticCheckResult.Ensure(!Types.IsSelfType(item.type.Text),
+                        new Lazy<Error>(() => new Error($"Not Allowed {item.type.Text}", ErrorKind.SemanticError, item.type.Line, item.type.Column)));
                     defformals &= defformal;
                     formalTypes.Add(ftype);
                 }
