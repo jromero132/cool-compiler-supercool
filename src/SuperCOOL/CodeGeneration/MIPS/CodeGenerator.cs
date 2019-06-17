@@ -110,6 +110,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
             return left + right;
         }
 
+        public MipsProgram VisitCase(ASTCILCaseNode caseNode)
+        {
+            throw new NotImplementedException();
+        }
+
         public MipsProgram VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables )
         {
             var left = DivideTwoVariables.Left.Accept( this );

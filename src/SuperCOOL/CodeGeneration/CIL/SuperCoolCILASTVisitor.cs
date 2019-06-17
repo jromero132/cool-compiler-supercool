@@ -49,45 +49,12 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
-            var caseExpression = (ASTCILExpressionNode) Case.ExpressionCase.Accept(this);
-            var caseLabels = labelIlGenerator.GenerateCase();
-            var caseExpressionCheckVoid = new ASTCILIfNode(new ASTCILIsVoidNode(caseExpression),
-                new ASTCILRuntimeErrorNode(RuntimeErrors.CaseVoidRuntimeError),
-                new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()), labelIlGenerator.GenerateIf());
-            var caseExpressionType = Case.ExpressionCase.SemanticCheckResult.Type.Name;
-            var caseExpressions = new List<ASTCILExpressionNode>
-                { caseExpression, caseExpressionCheckVoid };
-            while (caseExpressionType != null)
-            {
-
-                foreach (var caseSubExpression in Case.Cases)
+            return new ASTCILCaseNode((ASTCILExpressionNode) Case.ExpressionCase.Accept(this),
+                Case.Cases.Select(x =>
                 {
-                    var idInfo=Case.SymbolTable.GetObject(caseSubExpression.Name.Text);
-                    caseExpressions.Add(new ASTCILIfNode(
-                        (ASTCILExpressionNode) new ASTEqualNode
-                        {
-                            Left = new ASTStringConstantNode { Value = caseExpressionType },
-                            Right = new ASTStringConstantNode { Value = caseSubExpression.Type.Text }
-                        }.Accept(this)
-                        , new ASTCILBlockNode
-                        (
-                            new[]
-                            {
-                                new ASTCILAssignmentNode(idInfo,
-                                    caseExpression),
-                                (ASTCILExpressionNode) caseSubExpression.Branch.Accept(this),
-                                new ASTCILGotoNode(caseLabels.endOfCase),
-                            }), new ASTCILBlockNode(Enumerable.Empty<ASTCILExpressionNode>()),
-                        labelIlGenerator.GenerateIf()));
-                }
-
-                compilationUnit.TypeEnvironment.GetTypeDefinition(caseExpressionType, Case.SymbolTable, out var type);
-                caseExpressionType = type.Parent?.Name;
-            }
-
-            caseExpressions.Add(new ASTCILRuntimeErrorNode(RuntimeErrors.CaseWithoutMatching));
-
-            return new ASTCILBlockNode(caseExpressions);
+                    compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var type);
+                    return (type, (ASTCILExpressionNode) x.Branch.Accept(this));
+                }));
         }
 
         public ASTCILNode VisitClass(ASTClassNode Class)
