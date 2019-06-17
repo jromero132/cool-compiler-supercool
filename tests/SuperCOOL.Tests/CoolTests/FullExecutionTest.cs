@@ -201,5 +201,40 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "lam.cl"), "lam");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void Life()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "life.cl"), "life",new List<string>
+            {
+                Path.Combine("Examples", "Cool", "life.in"),
+            });
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void List()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "list.cl"), "list");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void NewComplex()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "new_complex.cl"), "new_complex");
+            Assert.True(test_case.RunTest());
+        }
+
+        [Fact]
+        public void SortList()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "sort_list.cl"), "sort_list", new List<string>
+            {
+                Path.Combine("Examples", "Cool", "sort_list.in"),
+            });
+            Assert.True(test_case.RunTest());
+            Assert.True(test_case.RunTest());
+        }
     }
 }
