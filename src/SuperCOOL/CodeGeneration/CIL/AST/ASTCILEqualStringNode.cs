@@ -14,5 +14,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
 
         public ASTCILExpressionNode Left { get; }
         public ASTCILExpressionNode Right { get; }
+        public override Result Accept<Result>(ICILVisitor<Result> Visitor) => Visitor.VisitEqualString(this);
+
     }
 }
