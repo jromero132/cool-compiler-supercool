@@ -440,5 +440,33 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
             return this;
         }
+
+        public MipsGenerationHelper ThrowRuntimeErrorAdditionalMsg(int id, ILabelILGenerator labelGenerator, Register r)
+        {
+            switch (id)
+            {
+                case RuntimeErrors.ObjectAbort:
+                    this.PrintString(labelGenerator.GetException(id))
+                        .GetParam(MipsRegisterSet.a0, 0)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
+                        .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0)
+                        .PrintString(MipsRegisterSet.a0)
+                        .PrintString(labelGenerator.GetNewLine())
+                        .Exit();
+                    break;
+                case RuntimeErrors.CaseWithoutMatching:
+                    this.PrintString(labelGenerator.GetException(id))
+                        .PrintString(r)
+                        .PrintString(labelGenerator.GetNewLine())
+                        .Exit();
+                    break;
+                default:
+                    this.PrintString(labelGenerator.GetException(id)).Exit();
+                    break;
+            }
+
+            return this;
+        }
     }
 }
