@@ -180,5 +180,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase( Path.Combine( "Examples", "Cool", "substring.cl" ), "substring" );
             Assert.True( test_case.RunTest() );
         }
+
+        [Fact]
+        public void Factorial()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "factorial.cl"), "factorial");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
