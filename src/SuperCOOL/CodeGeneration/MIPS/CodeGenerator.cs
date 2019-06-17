@@ -112,7 +112,59 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         public MipsProgram VisitCase(ASTCILCaseNode caseNode)
         {
-            throw new NotImplementedException();
+            var result = new MipsProgram();
+            result += caseNode.ExpressionCase.Accept(this);
+            var (endLabel, elseLabel, _) = labelGenerator.GenerateIf();
+            var (endLabelRuntimeError, _, _) = labelGenerator.GenerateIf();
+            //check if case expression is null and throw runtime error
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
+                .IsVoid(labelGenerator.GenerateVoid(), elseLabel, endLabel)
+                .BranchOnEquals(MipsRegisterSet.a0, 0, endLabelRuntimeError)
+                .ThrowRuntimeError(RuntimeErrors.CaseVoidRuntimeError, labelGenerator)
+                .Tag(endLabelRuntimeError)
+                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest));
+
+            var (endWhileLabel, elseWhileLabel, initWhileLabel) = labelGenerator.GenerateIf();
+
+            //load type_name
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .Tag(initWhileLabel)
+                .Move(MipsRegisterSet.t2, MipsRegisterSet.a1)
+                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.a1, MipsGenerationHelper.TypeNameOffset));
+            foreach (var currentCase in caseNode.Cases)
+            {
+                var currentIfLabel = labelGenerator.GenerateIf();
+                result.SectionCode.Append(
+                    MipsGenerationHelper.NewScript()
+                        .LoadFromAddress(MipsRegisterSet.t0,
+                            labelGenerator.GenerateLabelTypeName(currentCase.type.Name).@object)
+                        .BranchOnEquals(MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else)
+                        .JumpToLabel(currentIfLabel.end)
+                        .Tag(currentIfLabel.@else));
+                result += currentCase.expression.Accept(this);
+                result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                    .JumpToLabel(endWhileLabel)
+                    .Tag(currentIfLabel.end));
+            }
+            var (endLabelNotMatch, elseLabelNotMatch, _) = labelGenerator.GenerateIf();
+            var (endLabelRuntimeErrorNotMatch, _, _) = labelGenerator.GenerateIf();
+            
+            //move to parent and throw runtime error if not parent is void
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                .LoadFromMemory(MipsRegisterSet.a1, MipsRegisterSet.t2, MipsGenerationHelper.TypeInfoOffsetParent)
+                .Move(MipsRegisterSet.a0, MipsRegisterSet.a1)
+                .IsVoid(labelGenerator.GenerateVoid(), elseLabelNotMatch, endLabelNotMatch)
+                .BranchOnEquals(MipsRegisterSet.a0, 0, endLabelRuntimeErrorNotMatch)
+                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a2, MipsGenerationHelper.TypeInfoOffest)
+                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeNameOffset)
+                .LoadFromMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)
+                .ThrowRuntimeErrorAdditionalMsg(RuntimeErrors.CaseWithoutMatching, labelGenerator,MipsRegisterSet.t0)
+                .Tag(endLabelRuntimeErrorNotMatch)
+                .JumpToLabel(initWhileLabel)
+                .Tag(endWhileLabel));
+
+            return result;
         }
 
         public MipsProgram VisitDivideTwoVariables( ASTCILDivideTwoVariablesNode DivideTwoVariables )
