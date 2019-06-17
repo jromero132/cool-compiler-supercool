@@ -31,6 +31,8 @@ namespace SuperCOOL.SemanticCheck
 
         public override SemanticCheckResult VisitAssignment(ASTAssingmentNode Assingment)
         {
+            Assingment.SemanticCheckResult.Ensure(!Types.IsSelf(Assingment.Id.Name),
+                   new Lazy<Error>(() => new Error($"Not allowed to assign {Assingment.Id.Name}.", ErrorKind.SemanticError, Assingment.Id.Token.Line, Assingment.Id.Token.Column)));
             var expresult = Assingment.Expresion.Accept(this);
             var idResult = Assingment.Id.Accept(this);
 
