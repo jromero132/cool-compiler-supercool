@@ -30,11 +30,19 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
             Assigment.SymbolTable.IsDefObject(Assigment.Id.Name, out var symbolInfo);
+            var exp = (ASTCILExpressionNode)Assigment.Expresion.Accept(this);
+
+            if (symbolInfo.Type==Types.Object &&
+                (Assigment.Expresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool || Assigment.Expresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int))
+                return symbolInfo.Kind == ObjectKind.Atribute
+                     ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,
+                         new ASTCILBoxingNode(exp, Assigment.Expresion.SemanticCheckResult.Type))
+                     : new ASTCILAssignmentNode(symbolInfo,
+                        new ASTCILBoxingNode(exp, Assigment.Expresion.SemanticCheckResult.Type));
 
             return symbolInfo.Kind == ObjectKind.Atribute
-                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,
-                    (ASTCILExpressionNode)Assigment.Expresion.Accept(this))
-                : new ASTCILAssignmentNode(symbolInfo, (ASTCILExpressionNode) Assigment.Expresion.Accept(this));
+                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,exp)
+                : new ASTCILAssignmentNode(symbolInfo,exp);
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
