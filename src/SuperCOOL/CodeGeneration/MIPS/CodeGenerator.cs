@@ -225,7 +225,12 @@ namespace SuperCOOL.CodeGeneration.MIPS
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript().Tag( Func.Tag ) );
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript().Sub( MipsRegisterSet.sp, off, MipsRegisterSet.sp ) );
             result.SectionFunctions.Append( body.SectionCode );
-            result.SectionFunctions.Append( MipsGenerationHelper.NewScript().Return() );
+            if (Func.Boxing)
+            {
+                var label = labelGenerator.GenerateLabelTypeInfo(Func.BoxingType.Name);
+                result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Boxing(label));
+            }
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript().Return() );
 
             result.SectionData.Append( body.SectionData );
             return result;
@@ -789,15 +794,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = Boxing.Expression.Accept(this);
             var label = labelGenerator.GenerateLabelTypeInfo(Boxing.Type.Name);
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
-                .LoadFromAddress(MipsRegisterSet.t0, label)
-                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset)
-                .Add(MipsRegisterSet.a0, 4)
-                .Allocate(MipsRegisterSet.a0, MipsRegisterSet.a0)
-                .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)
-                .Add(MipsRegisterSet.a0, 4)
-                .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0));
+            result.SectionCode.Append(MipsGenerationHelper.NewScript().Boxing(label));
 
             return result;
         }
