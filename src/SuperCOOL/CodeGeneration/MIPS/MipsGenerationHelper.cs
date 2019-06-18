@@ -500,5 +500,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                           .Move( MipsRegisterSet.a0, MipsRegisterSet.zero )
                                                           .Tag(StringEqualsLabelEnd)
                                                           .Return();
+
+        public MipsGenerationHelper Boxing(string labelTypeInfo) => this.Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
+                                                                    .LoadFromAddress(MipsRegisterSet.t0, labelTypeInfo)
+                                                                    .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset)
+                                                                    .Add(MipsRegisterSet.a0, 4)
+                                                                    .Allocate(MipsRegisterSet.a0, MipsRegisterSet.a0)
+                                                                    .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0)
+                                                                    .Add(MipsRegisterSet.a0, 4)
+                                                                    .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0);
     }
 }
