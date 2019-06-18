@@ -25,6 +25,13 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.Contains(new Error("", ErrorKind.SyntacticError,9,0), errors, new InespecificErrorComparer());
         }
 
+        [Fact]
+        public void MissingMain()
+        {
+            var errors = Compiler.Compile(new[] { Path.Combine("Examples", "NotSoCool", "atoi.cl") }, out string code, out var limits);
+            Assert.Contains(new Error("No Entry Point Detected", ErrorKind.SemanticError), errors, new MessageErrorComparer());
+        }
+
         class MessageErrorComparer : IEqualityComparer<Error>
         {
             public bool Equals(Error x, Error y)
