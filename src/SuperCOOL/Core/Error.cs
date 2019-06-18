@@ -27,6 +27,7 @@ namespace SuperCOOL.Core
         public string ToString( IEnumerable<(string file_name, int line_limit)> limits )
         {
             var lims = limits.ToList();
+            lims.Add(("", int.MaxValue));
             int p;
             for( p = 1 ; lims[ p ].line_limit <= this.Line ; ++p ) ;
             var line = this.Line - lims[ p - 1 ].line_limit;
