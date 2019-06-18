@@ -20,9 +20,16 @@
     <None Update="Examples\Cool\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Examples\NotSoCool\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="GoCompiler\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Examples\NotSoCool\" />
   </ItemGroup>
 
 </Project>
