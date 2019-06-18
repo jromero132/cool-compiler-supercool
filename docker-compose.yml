@@ -6,3 +6,10 @@ services:
     build:
       context: .
       dockerfile: src/SuperCOOL/Dockerfile
+
+  supercool.tests:
+    image: ${DOCKER_REGISTRY-}supercooltests
+    build:
+      context: .
+      dockerfile: tests/SuperCOOL.Tests/Dockerfile
+
