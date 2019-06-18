@@ -257,5 +257,15 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "inherited_atributes.cl"), "inherited_atributes");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void SubSequence()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "subSequence.cl"), "subSequence", new List<string>
+            {
+                Path.Combine("Examples", "Cool", "subSequence.in"),
+            });
+            Assert.True(test_case.RunTest());
+        }
     }
 }
