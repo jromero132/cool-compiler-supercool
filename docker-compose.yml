@@ -2,14 +2,14 @@ version: '3.4'
 
 services:
   supercool:
-    image: ${DOCKER_REGISTRY-}supercool
+    image: supercool
     build:
       context: .
-      dockerfile: src/SuperCOOL/Dockerfile
+      dockerfile: src/SuperCOOL/DockerfileOffline
 
   supercool.tests:
-    image: ${DOCKER_REGISTRY-}supercooltests
+    image: supercooltests
     build:
       context: .
-      dockerfile: tests/SuperCOOL.Tests/Dockerfile
+      dockerfile: tests/SuperCOOL.Tests/DockerfileOffline
 

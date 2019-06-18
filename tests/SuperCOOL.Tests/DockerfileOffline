@@ -1,4 +1,5 @@
-FROM microsoft/dotnet:2.1-sdk AS base # change to runtime
+# change to runtime
+FROM microsoft/dotnet:2.1-sdk AS base
 WORKDIR /app
 
 FROM microsoft/dotnet:2.1-sdk AS build
