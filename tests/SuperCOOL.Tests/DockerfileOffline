@@ -1,8 +1,8 @@
 # change to runtime
-FROM microsoft/dotnet:2.1-sdk AS base
+FROM mcr.microsoft.com/dotnet/core/runtime:2.1 AS base
 WORKDIR /app
 
-FROM microsoft/dotnet:2.1-sdk AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
 WORKDIR /src
 COPY tests/SuperCOOL.Tests/SuperCOOL.Tests.csproj tests/SuperCOOL.Tests/
 COPY ["packages", "packages/"]
