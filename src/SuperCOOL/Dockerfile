@@ -1,0 +1,18 @@
+FROM microsoft/dotnet:2.1-sdk AS base # change to runtime
+WORKDIR /app
+
+FROM microsoft/dotnet:2.1-sdk AS build
+WORKDIR /src
+COPY src/SuperCOOL/SuperCOOL.csproj src/SuperCOOL/
+RUN dotnet restore src/SuperCOOL/SuperCOOL.csproj
+COPY . .
+WORKDIR /src/src/SuperCOOL
+RUN dotnet build SuperCOOL.csproj -c Release -o /app
+
+FROM build AS publish
+RUN dotnet publish SuperCOOL.csproj -c Release -o /app --no-restore
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
+ENTRYPOINT ["bash"]

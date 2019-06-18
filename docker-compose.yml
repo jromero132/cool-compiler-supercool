@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  supercool:
+    image: ${DOCKER_REGISTRY-}supercool
+    build:
+      context: .
+      dockerfile: src/SuperCOOL/Dockerfile
