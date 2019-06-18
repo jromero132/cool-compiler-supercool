@@ -234,6 +234,13 @@ namespace SuperCOOL.Tests.CoolTests
                 Path.Combine("Examples", "Cool", "sort_list.in"),
             });
             Assert.True(test_case.RunTest());
+        }
+
+
+        [Fact]
+        public void Boxing()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "boxing.cl"), "boxing");
             Assert.True(test_case.RunTest());
         }
     }
