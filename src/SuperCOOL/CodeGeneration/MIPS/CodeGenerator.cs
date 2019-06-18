@@ -622,6 +622,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
         {
             var result = new MipsProgram();
+            var stringValue = Regex.Unescape(StringConstant.Value);
             if (!StringConstantGenerated.TryGetValue(StringConstant.Value, out var labelStringConstant))
             {
                 result.SectionData.Append(MipsGenerationHelper.NewScript()
@@ -631,7 +632,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                             MipsGenerationHelper.AddIntData(
                                 labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
                             MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
-                            MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
+                            MipsGenerationHelper.AddIntData(stringValue.Length)
                         })
                     .Comment(StringConstant.Value)
                     .AddData(StringConstant.ValueLabel, new[]
@@ -727,9 +728,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )//putting self.typeInfo in a0 typeinfo area
                                                                 .Add( MipsRegisterSet.a0, 4, MipsRegisterSet.t0 )//to copy in t0
                                                                 .Sub( MipsRegisterSet.t1, 4 )//Size Copy in t1
+                                                                .Move( MipsRegisterSet.a2, MipsRegisterSet.t1)
                                                                 .GetParam( MipsRegisterSet.a0, 0 )//From copy (self in a0)
                                                                 .Copy( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.t1, tags.end, tags.@else )//word to word copy
-                                                                .Move( MipsRegisterSet.a0, MipsRegisterSet.t0 )
+                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.a2, MipsRegisterSet.a0 )
                                                                 .Return() );
             return result;
         }
