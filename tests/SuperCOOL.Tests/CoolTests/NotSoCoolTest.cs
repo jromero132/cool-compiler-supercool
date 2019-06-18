@@ -49,6 +49,13 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.Contains(new Error("Not allowed to assign self.", ErrorKind.SemanticError), errors, new MessageErrorComparer());
         }
 
+        [Fact]
+        public void WrongSelfType()
+        {
+            var errors = Compiler.Compile(new[] { Path.Combine("Examples", "NotSoCool", "book_list.cl") }, out string code, out var limits);
+            Assert.Contains(new Error("Not Allowed SELF_TYPE", ErrorKind.SemanticError,24,0), errors, new MessageErrorComparer());
+        }
+
         class MessageErrorComparer : IEqualityComparer<Error>
         {
             public bool Equals(Error x, Error y)
@@ -67,6 +74,18 @@ namespace SuperCOOL.Tests.CoolTests
             public bool Equals(Error x, Error y)
             {
                 return x.Line == y.Line && x.ErrorKind == y.ErrorKind;
+            }
+            public int GetHashCode(Error obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
+        class SpecificErrorComparer : IEqualityComparer<Error>
+        {
+            public bool Equals(Error x, Error y)
+            {
+                return x.Line == y.Line && x.ErrorKind == y.ErrorKind && x.Message==y.Message;
             }
             public int GetHashCode(Error obj)
             {
