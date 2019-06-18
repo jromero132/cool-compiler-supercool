@@ -243,5 +243,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "boxing.cl"), "boxing");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void Assignment_Right_associative()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "assignment_right_assoiciative.cl"), "assignment_right_assoiciative");
+            Assert.True(test_case.RunTest());
+        }
     }
 }

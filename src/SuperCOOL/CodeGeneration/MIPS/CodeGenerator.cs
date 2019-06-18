@@ -69,7 +69,8 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                .GetParamAddress( symbolInfo.Offset ) );
 
             result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 ) );
+                                                           .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )
+                                                           .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0));
             return result;
         }
 
@@ -610,10 +611,11 @@ namespace SuperCOOL.CodeGeneration.MIPS
             var attr_offset = SetAttribute.Atribute.Offset;
 
             var result = SetAttribute.Expression.Accept( this );
-            result.SectionCode.Append( MipsGenerationHelper.NewScript()
-                                                           .Move( MipsRegisterSet.t0, MipsRegisterSet.a0 )
-                                                           .GetParam( MipsRegisterSet.a0, 0 )
-                                                           .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0, attr_offset ) );
+            result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                                                           .Move(MipsRegisterSet.t0, MipsRegisterSet.a0)
+                                                           .GetParam(MipsRegisterSet.a0, 0)
+                                                           .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0, attr_offset)
+                                                           .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, attr_offset));
             return result;
         }
 
