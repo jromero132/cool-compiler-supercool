@@ -280,6 +280,13 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "newDefinedType.cl"), "newDefinedType");
             Assert.True(test_case.RunTest());
         }
-        
+
+        [Fact]
+        public void BigExample()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "bigexample.cl"), "bigexample");
+            Assert.True(test_case.RunTest());
+        }
+
     }
 }
