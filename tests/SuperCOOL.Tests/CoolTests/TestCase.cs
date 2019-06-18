@@ -65,7 +65,7 @@ namespace SuperCOOL.Tests.CoolTests
                 writer.Write( p.StandardOutput.ReadToEnd() );
             p.WaitForExit();
 
-            var errors = Compiler.Compile( new[] { this.CoolFileNamePath }, out string code );
+            var errors = Compiler.Compile( new[] { this.CoolFileNamePath }, out string code,out var limits);
             using( StreamWriter writer = new StreamWriter( $"{ this.MipsFromUsFileNamePath }" ) )
                 writer.Write( code );
 
