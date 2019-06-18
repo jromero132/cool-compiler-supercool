@@ -21,6 +21,7 @@ namespace SuperCOOL.Core
             TypeEnvironment.AddType(Types.Object);
             TypeEnvironment.Object.SetAttributes();
             TypeEnvironment.AddType(Types.Int);
+            TypeEnvironment.Int.SymbolTable.DefObject(Attributes.IntValue, Types.Int, ObjectKind.Atribute);
             TypeEnvironment.Int.SetAttributes();
             TypeEnvironment.AddInheritance(Types.Int, Types.Object);
             TypeEnvironment.AddType(Types.String);
@@ -29,6 +30,7 @@ namespace SuperCOOL.Core
             TypeEnvironment.String.SetAttributes();
             TypeEnvironment.AddInheritance(Types.String,Types.Object);
             TypeEnvironment.AddType(Types.Bool);
+            TypeEnvironment.Bool.SymbolTable.DefObject(Attributes.BoolValue, Types.Bool, ObjectKind.Atribute);
             TypeEnvironment.Bool.SetAttributes();
             TypeEnvironment.AddInheritance(Types.Bool, Types.Object);
             TypeEnvironment.AddType(Types.IO);
