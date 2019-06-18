@@ -41,7 +41,7 @@ namespace SuperCOOL
                 Console.WriteLine( item.ToString( limits ) );
 
             if( Errors.Count() == 0 )
-                Console.WriteLine( "out.mips", Code );
+                Console.WriteLine( Code );
         }
 
         public static IEnumerable<Error> Compile( string[] args, out string Code, out IEnumerable<(string, int)> limits )

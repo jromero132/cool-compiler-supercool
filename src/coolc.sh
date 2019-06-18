@@ -10,3 +10,4 @@ echo "Copyright (c) 2019: Nombre1, Nombre2, Nombre3"    # líneas a los valores 
 # Llamar al compilador
 # echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
 
+cd SuperCOOL; dotnet run -- $INPUT_FILE > $OUTPUT_FILE
