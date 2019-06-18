@@ -21,6 +21,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public const string BufferLabel = "_____buffer";
         public const string StringLengthMethodLabel = "_____string_length";
         public const string StringLengthMethodWhile = "_____string_length_while";
+        public const string StringLengthMethodWhileEnd = "_____string_length_while_end";
         public const string StringEqualsLabel = "_____string_equals";
         public const string StringEqualsLabelWhile = "_____string_equals_while";
         public const string StringEqualsLabelFalse = "_____string_equals_false";
@@ -167,13 +168,14 @@ namespace SuperCOOL.CodeGeneration.MIPS
 
         // String length
         public MipsGenerationHelper StringLengthMethod() => this.Move( MipsRegisterSet.a1, MipsRegisterSet.a0 )
-                                                                .LoadConstant( MipsRegisterSet.t1, 10 )
                                                                 .Tag( StringLengthMethodWhile )
                                                                 .LoadByte( MipsRegisterSet.t0, MipsRegisterSet.a1 )
+                                                                .BranchOnEquals( MipsRegisterSet.t0, MipsRegisterSet.zero, StringLengthMethodWhileEnd )
+                                                                .BranchOnEquals( MipsRegisterSet.t0, 10, StringLengthMethodWhileEnd )
                                                                 .Add( MipsRegisterSet.a1, 1 )
-                                                                .BranchNotEquals( MipsRegisterSet.t0, MipsRegisterSet.t1, StringLengthMethodWhile )
-                                                                .Sub( MipsRegisterSet.a1, 1 )
-                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1)
+                                                                .JumpToLabel( StringLengthMethodWhile )
+                                                                .Tag( StringLengthMethodWhileEnd )
+                                                                .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.a1 )
                                                                 .Sub( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.a0 );
 
 

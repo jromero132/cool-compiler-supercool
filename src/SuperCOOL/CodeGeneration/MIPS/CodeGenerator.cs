@@ -735,9 +735,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .LoadFromMemory( MipsRegisterSet.a1, MipsRegisterSet.a1 )
                                                                 .LoadFromMemory( MipsRegisterSet.a2, MipsRegisterSet.a2 )
                                                                 .Copy( MipsRegisterSet.a1, MipsRegisterSet.a0, MipsRegisterSet.t1, tags1.end, tags1.@else )
-
                                                                 .Copy( MipsRegisterSet.a2, MipsRegisterSet.a0, MipsRegisterSet.t2, tags2.end, tags2.@else )
-                                                                .Sub( MipsRegisterSet.a0, MipsRegisterSet.t0 ) );
+                                                                .Sub( MipsRegisterSet.a0, MipsRegisterSet.t0 )
+                                                                .Sub( MipsRegisterSet.t0, 1 ) );
             result.SectionFunctions.Append( CreateString( MipsRegisterSet.a0, MipsRegisterSet.t0 ).SectionCode );
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Return() );
@@ -766,9 +766,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .Add(MipsRegisterSet.a1, MipsRegisterSet.a2)
                                                                 .Copy( MipsRegisterSet.a1, MipsRegisterSet.t0, MipsRegisterSet.a3, tag2.end, tag2.@else )
                                                                 .SaveByte( MipsRegisterSet.zero, MipsRegisterSet.t0 )
-                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.t1 )
-                                                                .Add( MipsRegisterSet.t0, 1 ) );
-            result.SectionFunctions.Append( CreateString( MipsRegisterSet.t0, MipsRegisterSet.a3 ).SectionCode );
+                                                                .Sub( MipsRegisterSet.t1, 1 )
+                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.t1 ) );
+            result.SectionFunctions.Append( CreateString( MipsRegisterSet.t0, MipsRegisterSet.t1 ).SectionCode );
             result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
                                                                 .Return()
                                                                 .Tag( tag1.@else )
