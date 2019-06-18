@@ -42,9 +42,11 @@ namespace SuperCOOL.Tests
 
         private static void RunFile(string command, string input_file = null, string output_file = null)
         {
-            var cmd = $"wsl { command } { (input_file is null ? "" : $" < \"\"{ input_file }\"\"") }{ (output_file is null ? "" : $" > \"\"{ output_file }\"\"") }";
-            var x = $"/c { cmd }".Replace('\\', '/');
-            Process.Start("cmd", x).WaitForExit();
+            bool inLinux = Environment.OSVersion.Platform == PlatformID.Unix;
+            var cmd =
+                $"{(!inLinux ? "/c wsl" : "-c")} {(inLinux ? "'" : "")}{command} {(input_file is null ? "" : $" < \"\"{input_file}\"\"")}{(output_file is null ? "" : $" > \"\"{output_file}\"\"")}{(inLinux ? "'" : "")}"
+                    .Replace('\\', '/');
+            Process.Start(!inLinux ? "cmd" : "bash", cmd).WaitForExit();
         }
 
         public static void DeleteFile(string file_name) => File.Delete(file_name);

@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  supercool:
+    image: supercool
+    build:
+      context: .
+      dockerfile: src/SuperCOOL/DockerfileOffline
+
+  supercool.tests:
+    image: supercooltests
+    build:
+      context: .
+      dockerfile: tests/SuperCOOL.Tests/DockerfileOffline
+

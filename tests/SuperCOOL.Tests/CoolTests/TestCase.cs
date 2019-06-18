@@ -101,7 +101,7 @@ namespace SuperCOOL.Tests.CoolTests
         public const string OutputExtension = "out";
         public const string BatExtension = "bat";
 
-        public const string GoCompiler = "codegen.exe";
+        public static string GoCompiler = Environment.OSVersion.Platform != PlatformID.Unix ? "codegen.exe" : "codegen";
         public static string GoCompilerPath => $"{ System.IO.Path.Combine( "GoCompiler", GoCompiler ) }";
         public const string GoCopilerTrapHandler = "trap.handler";
         public static string GoCompilerTrapHandlerPath => $"{ System.IO.Path.Combine( "GoCompiler", GoCopilerTrapHandler ) }";
