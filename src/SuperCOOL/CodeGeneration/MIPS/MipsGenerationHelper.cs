@@ -371,6 +371,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Add instruction
         public MipsGenerationHelper Add( Register r, object v, Register r_out ) // r_out <- r + v
         {
+            if( v.GetType() == typeof( int ) && (int)v == 0 )
+                return this.Move( r_out, r );
+
             this.body.Append( $"{ TAB + TAB }add { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
@@ -381,6 +384,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Sub instruction
         public MipsGenerationHelper Sub( Register r, object v, Register r_out ) // r_out <- r - v
         {
+            if( v.GetType() == typeof( int ) && (int)v == 0 )
+                return this.Move( r_out, r );
+
             this.body.Append( $"{ TAB + TAB }sub { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
@@ -391,6 +397,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Mul instruction
         public MipsGenerationHelper Mul( Register r, object v, Register r_out ) // r_out <- r * v
         {
+            if( v.GetType() == typeof( int ) && (int)v == 0 )
+                return this.Move( r_out, r );
+
             this.body.Append( $"{ TAB + TAB }mul { r_out }, { r }, { v }{ ENDL }" );
             return this;
         }
@@ -401,6 +410,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
         // Div instruction
         public MipsGenerationHelper Div( Register r, object v ) // a0 <- r / v
         {
+            if( v.GetType() == typeof( int ) && (int)v == 0 )
+                return this.Move( MipsRegisterSet.a0, r );
+
             this.body.Append( $"{TAB + TAB}div {r}, {v}{ENDL}" ).Append( $"{TAB + TAB}mflo $a0{ENDL}" );
             return this;
         }
