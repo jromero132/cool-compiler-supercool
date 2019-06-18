@@ -67,14 +67,18 @@ namespace SuperCOOL
 
             //TypeDef Check
             ast.Accept( new SuperCoolTypeDefsVisitor( compilationUnit ) );
-
+            Errors=ast.SemanticCheckResult.Errors;
+            if (Errors.Count > 0)
+                return Errors;
             //MethodDef Check
             ast.Accept( new SuperCoolMethodDefsVisitor( compilationUnit ) );
-
+            Errors = ast.SemanticCheckResult.Errors;
+            if (Errors.Count > 0)
+                return Errors;
             //Type Check
             ast.Accept( new SuperCoolTypeCheckVisitor( compilationUnit ) );
-            Errors.AddRange( ast.SemanticCheckResult.Errors );
-            if( Errors.Count > 0 )
+            Errors = ast.SemanticCheckResult.Errors;
+            if ( Errors.Count > 0 )
                 return Errors;
 
             //Code Generation 

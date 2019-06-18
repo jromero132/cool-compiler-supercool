@@ -14,6 +14,8 @@ namespace SuperCOOL.Core
         public CoolType Object => Types["Object"];
         public CoolType IO => Types["IO"];
 
+        public int Cant => Types.Count;
+
         public TypeEnvironment()
         {
             this.Types = new Dictionary<string, CoolType>();
@@ -190,5 +192,6 @@ namespace SuperCOOL.Core
         CoolType Object { get; }
         CoolType IO { get; }
         CoolType SelfType(ISymbolTable symbolTable);
+        int Cant { get; }
     }
 }

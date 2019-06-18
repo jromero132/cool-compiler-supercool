@@ -79,9 +79,11 @@ namespace SuperCOOL.Core
         {
             HashSet<CoolType> hs = new HashSet<CoolType>();
             Queue<CoolType> q = new Queue<CoolType>();
+            int cant = 0;
 
             for (hs.Add(TypeEnvironment.Object), q.Enqueue(TypeEnvironment.Object); q.Count > 0; q.Dequeue())
             {
+                cant++;
                 var cur = q.Peek();
                 foreach (var child in cur.Childs)
                 {
@@ -91,7 +93,7 @@ namespace SuperCOOL.Core
                     q.Enqueue(child);
                 }
             }
-            return true;
+            return cant==TypeEnvironment.Cant;
         }
 
     }
