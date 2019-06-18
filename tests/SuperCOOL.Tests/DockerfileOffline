@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/core/runtime:2.1 AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build
+RUN apt update && apt install -y spim
 WORKDIR /src
 COPY tests/SuperCOOL.Tests/SuperCOOL.Tests.csproj tests/SuperCOOL.Tests/
 COPY ["packages", "packages/"]
