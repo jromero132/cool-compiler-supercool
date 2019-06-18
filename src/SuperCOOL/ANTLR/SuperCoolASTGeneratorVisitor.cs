@@ -13,14 +13,10 @@ namespace SuperCOOL.ANTLR
     public class SuperCoolASTGeneratorVisitor : SuperCOOLBaseVisitor<ASTNode>
     {
         SymbolTable CurrentTable;
-        public List<(string type, string parent)> Types;
-        public List<(string type,string method, string[] asrgTypes, string returnType)> Functions;
 
         public SuperCoolASTGeneratorVisitor()
         {
             CurrentTable = new SymbolTable();
-            Types = new List<(string type, string parent)>();
-            Functions = new List<(string type, string method, string[] asrgTypes, string returnType)>();
         }
 
         public override ASTNode VisitAddminus([NotNull] SuperCOOLParser.AddminusContext context)
@@ -116,24 +112,35 @@ namespace SuperCOOL.ANTLR
             var atributes = new List<ASTAtributeNode>();
             CurrentTable.DefObject("self", "SELF_TYPE",ObjectKind.Self);
             CurrentTable.DefObject("_self", className,ObjectKind.ContextType);
-            foreach (var item in context.feature())
-                switch (item)
-                {
-                    case SuperCOOLParser.MethodContext m://method
-                        EnterScope();
-                        var method = (ASTMethodNode)m.Accept(this);
-                        methods.Add(method);
-                        AssignSymbolTable(method);
-                        DefFunc(className,method.Name, method.Formals.Select(x => x.type.Text).ToArray(), method.ReturnType);
-                        ExitScope();
-                        break;
-                    case SuperCOOLParser.PropertyContext p://property
-                        var atribute = (ASTAtributeNode)p.Accept(this);
-                        atributes.Add(atribute);
-                        AssignSymbolTable(atribute);
-                        CurrentTable.DefObject(atribute.AttributeName,atribute.TypeName,ObjectKind.Atribute);
-                        break;
-                }
+
+            foreach (var item in context.feature().OfType<SuperCOOLParser.PropertyContext>())
+                CurrentTable.DefObject(item.OBJECTID().Symbol.Text, item.TYPEID().Symbol.Text, ObjectKind.Atribute);
+
+            var _init = new ASTMethodNode();
+            methods.Add(_init);
+            _init.Method = new CommonToken(-1, Constants.Functions.Init);
+            _init.Return =new CommonToken(context.TYPEID(0).Symbol.Type,className);
+            _init.Formals=new List<(IToken name, IToken type)>();
+            _init.Body=new ASTBlockNode(){Expresions = new ASTExpressionNode[] { }};
+            EnterScope();//_init symbol table
+            foreach (var item in context.feature().OfType<SuperCOOLParser.PropertyContext>())
+            {
+                var atribute = (ASTAtributeNode)item.Accept(this);
+                atributes.Add(atribute);
+                AssignSymbolTable(atribute);
+            }
+            AssignSymbolTable(_init);
+            ExitScope();
+
+            foreach (var item in context.feature().OfType<SuperCOOLParser.MethodContext>())
+            {
+                EnterScope();
+                var method = (ASTMethodNode)item.Accept(this);
+                methods.Add(method);
+                AssignSymbolTable(method);
+                ExitScope();
+            }
+
             result.Type = context.TYPEID(0).Symbol;
             result.ParentType = context.TYPEID(1)?.Symbol??null;
             result.Methods = methods;
@@ -373,7 +380,6 @@ namespace SuperCOOL.ANTLR
             var ProgramTable = new SymbolTable();
             foreach (var item in clases)
             {
-                DefType(item.TYPEID(0).Symbol.Text, item.TYPEID(1)?.Symbol.Text);
                 EnterScope();
                 var classe = (ASTClassNode)item.Accept(this);
                 AssignSymbolTable(classe);
@@ -449,14 +455,5 @@ namespace SuperCOOL.ANTLR
             CurrentTable = (SymbolTable)CurrentTable.ExitScope();
         }
 
-        private void DefType(string name, string parent)
-        {
-            Types.Add((name, parent));
-        }
-
-        private void DefFunc(string type,string name, string[] argsTypes, string returnType)
-        {
-            Functions.Add((type,name, argsTypes, returnType));
-        }
     }
 }

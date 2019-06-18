@@ -42,7 +42,7 @@ namespace SuperCOOL.SemanticCheck
             if (!def)
             {
                 var defAncestor=CompilationUnit.MethodEnvironment.GetMethodIfDef(type, Method.Name, out var m2);
-                if (defAncestor)
+                if (defAncestor && Method.Name!=Functions.Init)
                 {
                     var samesignature = Method.Name == m2.Name && Method.ReturnType == m2.ReturnType.Name && m2.EnsureParametersCount(Method.Formals.Count);
                     if(samesignature)

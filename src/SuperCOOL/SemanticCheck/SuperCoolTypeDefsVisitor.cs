@@ -27,13 +27,7 @@ namespace SuperCOOL.SemanticCheck
                 Program.SemanticCheckResult.Ensure(!exist, 
                     new Lazy<Error>(()=>new Error($"Multiple Definitions for class {type.TypeName}", ErrorKind.TypeError,type.Type.Line,type.Type.Column)));
                 if (!exist && !Types.IsSelfType(type.TypeName))
-                {
                     CompilationUnit.TypeEnvironment.AddType(type.SymbolTable);
-                    CompilationUnit.TypeEnvironment.GetTypeDefinition(type.TypeName, Program.SymbolTable, out var coolType);
-                    CompilationUnit.MethodEnvironment.AddMethod(coolType,Functions.Init, new List<CoolType>(), coolType,new SymbolTable(coolType.SymbolTable));
-                    var init=CompilationUnit.MethodEnvironment.GetMethod(coolType, Functions.Init);
-                    init.AssignParametersAndLocals();
-                }
             }
 
             //Inheritance

@@ -79,7 +79,7 @@ namespace SuperCOOL.CodeGeneration
             
             compilationUnit.MethodEnvironment.GetMethodIfDef(type, Functions.Init,out var methodInit);
 
-            var methods = Class.Methods.Select(x => (ASTCILFuncNode) x.Accept(this))
+            var methods = Class.Methods.Where(x=>x.Name!=Functions.Init).Select(x => (ASTCILFuncNode) x.Accept(this))
                 .Append(new ASTCILFuncNode(labelIlGenerator.GenerateInit(Class.TypeName),methodInit,
                     attributesInit));
 
