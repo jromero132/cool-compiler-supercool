@@ -30,11 +30,19 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitAssignment(ASTAssingmentNode Assigment)
         {
             Assigment.SymbolTable.IsDefObject(Assigment.Id.Name, out var symbolInfo);
+            var exp = (ASTCILExpressionNode)Assigment.Expresion.Accept(this);
+
+            if (symbolInfo.Type==Types.Object &&
+                (Assigment.Expresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool || Assigment.Expresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int))
+                return symbolInfo.Kind == ObjectKind.Atribute
+                     ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,
+                         new ASTCILBoxingNode(exp, Assigment.Expresion.SemanticCheckResult.Type))
+                     : new ASTCILAssignmentNode(symbolInfo,
+                        new ASTCILBoxingNode(exp, Assigment.Expresion.SemanticCheckResult.Type));
 
             return symbolInfo.Kind == ObjectKind.Atribute
-                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,
-                    (ASTCILExpressionNode)Assigment.Expresion.Accept(this))
-                : new ASTCILAssignmentNode(symbolInfo, (ASTCILExpressionNode) Assigment.Expresion.Accept(this));
+                ? (ASTCILNode)new ASTCILSetAttributeNode(symbolInfo,exp)
+                : new ASTCILAssignmentNode(symbolInfo,exp);
         }
 
         public ASTCILNode VisitBlock(ASTBlockNode Block)
@@ -49,11 +57,18 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
-            return new ASTCILCaseNode((ASTCILExpressionNode) Case.ExpressionCase.Accept(this),
+            var exp = (ASTCILExpressionNode)Case.ExpressionCase.Accept(this);
+            if (Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                exp = new ASTCILBoxingNode(exp, Case.SemanticCheckResult.Type);
+            return new ASTCILCaseNode(exp,
                 Case.Cases.Select(x =>
                 {
+                    compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var branchType);
+                    var branch = (ASTCILExpressionNode)x.Branch.Accept(this);
+                    if (branchType == compilationUnit.TypeEnvironment.Int || branchType == compilationUnit.TypeEnvironment.Bool)
+                        branch = new ASTCILUnboxingNode(branch, branchType);
                     compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var type);
-                    return (type, (ASTCILExpressionNode) x.Branch.Accept(this), x.Branch.SymbolTable.GetObject(x.Name.Text));
+                    return (type,branch , x.Branch.SymbolTable.GetObject(x.Name.Text));
                 }));
         }
 
@@ -134,7 +149,10 @@ namespace SuperCOOL.CodeGeneration
 
         public ASTCILNode VisitIsvoid(ASTIsVoidNode IsVoid)
         {
-            return new ASTCILIsVoidNode((ASTCILExpressionNode) IsVoid.Expression.Accept(this));
+            var exp = (ASTCILExpressionNode)IsVoid.Expression.Accept(this);
+            if (IsVoid.Expression.SemanticCheckResult.Type==compilationUnit.TypeEnvironment.Int || IsVoid.Expression.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                return new ASTCILIsVoidNode(new ASTCILBoxingNode(exp, IsVoid.Expression.SemanticCheckResult.Type));
+            return new ASTCILIsVoidNode(exp);
         }
 
         public ASTCILNode VisitLessEqual(ASTLessEqualNode LessEqual)
@@ -187,17 +205,33 @@ namespace SuperCOOL.CodeGeneration
         {
             var type = compilationUnit.TypeEnvironment.GetContextType(Method.SymbolTable);
             compilationUnit.MethodEnvironment.GetMethodOnIt(type, Method.Name, out var coolMethod);
+
+            bool boxing = coolMethod.ReturnType == compilationUnit.TypeEnvironment.Object && (Method.Body.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Method.Body.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int);
+
             return new ASTCILFuncNode(labelIlGenerator.GenerateFunc(coolMethod.Type.Name, coolMethod.Name), coolMethod,
-                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) });
+                new[] { (ASTCILExpressionNode) Method.Body.Accept(this) },boxing, Method.Body.SemanticCheckResult.Type);
         }
 
         public ASTCILNode VisitStaticMethodCall(ASTStaticMethodCallNode MethodCall)
         {
+            var invoke = (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this);
+            ASTCILExpressionNode invokeOn=invoke;
+            if (MethodCall.InvokeOnExpresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int ||
+                MethodCall.InvokeOnExpresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                invokeOn = new ASTCILBoxingNode(invoke, MethodCall.InvokeOnExpresion.SemanticCheckResult.Type);
+
             compilationUnit.TypeEnvironment.GetTypeDefinition(MethodCall.TypeName, null, out var type);
             return new ASTCILFuncStaticCallNode(
                     MethodCall.MethodName, type,
-                    new[] { (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this) }
-                        .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode)a.Accept(this))));
+                    new[] { invokeOn}
+                        .Concat(MethodCall.Arguments.Select(param => 
+                        {
+                            var exp = (ASTCILExpressionNode)param.Accept(this);
+                            ASTCILExpressionNode arg = exp;
+                            if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                                arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
+                            return arg;
+                        })));
         }
 
         public ASTCILNode VisitDynamicMethodCall(ASTDynamicMethodCallNode MethodCall)
@@ -205,18 +239,39 @@ namespace SuperCOOL.CodeGeneration
             var type = MethodCall.InvokeOnExpresion.SemanticCheckResult.Type;
             if (type is SelfType self)
                 type = self.ContextType;
-            var args = new[] { (ASTCILExpressionNode) MethodCall.InvokeOnExpresion.Accept(this) }
-                .Concat(MethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this)));
+
+            var invoke = (ASTCILExpressionNode)MethodCall.InvokeOnExpresion.Accept(this);
+            ASTCILExpressionNode invokeOn = invoke;
+            if (MethodCall.InvokeOnExpresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int ||
+                MethodCall.InvokeOnExpresion.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                invokeOn = new ASTCILBoxingNode(invoke, MethodCall.InvokeOnExpresion.SemanticCheckResult.Type);
+
+            var args = new[] { invokeOn}
+                .Concat(MethodCall.Arguments.Select(param =>
+                {
+                    var exp = (ASTCILExpressionNode)param.Accept(this);
+                    ASTCILExpressionNode arg = exp;
+                    if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                         arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
+                    return arg;
+                }));
             return new ASTCILFuncVirtualCallNode(type, MethodCall.MethodName, args);
         }
 
         public ASTCILNode VisitOwnMethodCall(ASTOwnMethodCallNode OwnMethodCall)
         {
             var self=compilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable);
-            return new ASTCILFuncVirtualCallNode(compilationUnit.TypeEnvironment.GetContextType(OwnMethodCall.SymbolTable),
+            return new ASTCILFuncVirtualCallNode(self,
                     OwnMethodCall.Method.Text,
                     new[] { new ASTCILSelfNode() }
-                    .Concat(OwnMethodCall.Arguments.Select(a => (ASTCILExpressionNode) a.Accept(this))));
+                    .Concat(OwnMethodCall.Arguments.Select(param =>
+                    {
+                        var exp = (ASTCILExpressionNode)param.Accept(this);
+                        ASTCILExpressionNode arg = exp;
+                        if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                            arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
+                        return arg;
+                    })));
         }
 
         public ASTCILNode VisitMinus(ASTMinusNode Minus)

@@ -9,7 +9,14 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public string Tag { get; }
         public CoolMethod Method { get; }
         public IReadOnlyList<ASTCILExpressionNode> Body { get; }
-        
+        public bool Boxing { get; }
+        public CoolType BoxingType { get; }
+        public ASTCILFuncNode(string Tag, CoolMethod method, IEnumerable<ASTCILExpressionNode> body,bool boxing,CoolType boxingType) : this(Tag,method,body)
+        {
+            this.Boxing=boxing;
+            this.BoxingType = BoxingType;
+        }
+
         public ASTCILFuncNode(string Tag, CoolMethod method, IEnumerable<ASTCILExpressionNode> body) : base()
         {
             this.Tag = Tag;
