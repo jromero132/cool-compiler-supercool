@@ -727,9 +727,10 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )//putting self.typeInfo in a0 typeinfo area
                                                                 .Add( MipsRegisterSet.a0, 4, MipsRegisterSet.t0 )//to copy in t0
                                                                 .Sub( MipsRegisterSet.t1, 4 )//Size Copy in t1
+                                                                .Move( MipsRegisterSet.a2, MipsRegisterSet.t1)
                                                                 .GetParam( MipsRegisterSet.a0, 0 )//From copy (self in a0)
                                                                 .Copy( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.t1, tags.end, tags.@else )//word to word copy
-                                                                .Move( MipsRegisterSet.a0, MipsRegisterSet.t0 )
+                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.a2, MipsRegisterSet.a0 )
                                                                 .Return() );
             return result;
         }
