@@ -20,8 +20,12 @@ namespace SuperCOOL.SemanticCheck
             //Creating All Types
             foreach (var type in Program.Clases)
             {
+                var noSelftype = !Types.IsSelfType(type.TypeName);
+
                 Program.SemanticCheckResult.Ensure(!Types.IsSelfType(type.TypeName),
                     new Lazy<Error>(()=>new Error($"Not Allowed {type.TypeName}", ErrorKind.SemanticError,type.Type.Line,type.Type.Column)));
+                if (!noSelftype)
+                    return Program.SemanticCheckResult;
                 
                 var exist = CompilationUnit.TypeEnvironment.GetTypeDefinition(type.TypeName,Program.SymbolTable,out var _);
                 Program.SemanticCheckResult.Ensure(!exist, 
@@ -46,10 +50,16 @@ namespace SuperCOOL.SemanticCheck
             Class.SemanticCheckResult.Ensure(exist, new Lazy<Error>(()=>new Error($"Missing declaration for type {Class.ParentTypeName}.", ErrorKind.TypeError,Class.ParentType.Line,Class.ParentType.Column)));
             Class.SemanticCheckResult.Ensure(!Types.IsStringBoolOrInt(Class.TypeName), new Lazy<Error>(()=>new Error($"Not allowed to inerit from String Int or Bool.", ErrorKind.SemanticError,Class.ParentType.Line,Class.ParentType.Column)));
 
-            if (exist && !Types.IsStringBoolOrInt(Class.TypeName))
-                CompilationUnit.TypeEnvironment.AddInheritance(Class.TypeName, Class.ParentTypeName);
-            Class.SemanticCheckResult.Ensure(!Types.IsSelfType(Class.ParentTypeName),
+            var noinheritSelftype = !Types.IsSelfType(Class.ParentTypeName);
+            Class.SemanticCheckResult.Ensure(noinheritSelftype,
                     new Lazy<Error>(() => new Error($"Not Allowed {Class.ParentTypeName}", ErrorKind.SemanticError, Class.ParentType.Line, Class.ParentType.Column)));
+
+            if (!noinheritSelftype)
+                return Class.SemanticCheckResult;
+
+            if (exist && !Types.IsStringBoolOrInt(Class.TypeName) && CompilationUnit.TypeEnvironment.GetTypeDefinition(Class.TypeName, Class.SymbolTable, out var _))
+                CompilationUnit.TypeEnvironment.AddInheritance(Class.TypeName, Class.ParentTypeName);
+            
             return Class.SemanticCheckResult;
         }
 
