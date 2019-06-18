@@ -14,7 +14,7 @@ namespace SuperCOOL.CodeGeneration.CIL.AST
         public ASTCILFuncNode(string Tag, CoolMethod method, IEnumerable<ASTCILExpressionNode> body,bool boxing,CoolType boxingType) : this(Tag,method,body)
         {
             this.Boxing=boxing;
-            this.BoxingType = BoxingType;
+            this.BoxingType = boxingType;
         }
 
         public ASTCILFuncNode(string Tag, CoolMethod method, IEnumerable<ASTCILExpressionNode> body) : base()
