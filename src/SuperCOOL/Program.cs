@@ -24,11 +24,16 @@ namespace SuperCOOL
 
         public static void Main( string[] args )
         {
-            //ConsoleExtended.WriteLineWithDelay( "SuperCool Compiler Platform" );
-            //ConsoleExtended.WriteLineWithDelay( "Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved." );
-            //Console.WriteLine();
+            ConsoleExtended.WriteLineWithDelay("SuperCool Compiler Platform");
+            ConsoleExtended.WriteLineWithDelay("Copyright (C) Jose Ariel Romero & Jorge Yero Salazar & Jose Diego Menendez del Cueto. All rights reserved.");
+            Console.WriteLine();
 
-            args = new[] { "..\\..\\..\\..\\..\\tests\\SuperCOOL.Tests\\Examples\\Cool\\hello_world.cl" };
+            //args = new[] { "..\\..\\..\\..\\..\\tests\\SuperCOOL.Tests\\Examples\\Cool\\hello_world.cl" };
+            if (args.Length == 0)
+            {
+                Console.WriteLine("I need something to compile...");
+                return;
+            }
 
             var Errors = Compile( args, out var Code, out var limits );
             //PrintErrors
