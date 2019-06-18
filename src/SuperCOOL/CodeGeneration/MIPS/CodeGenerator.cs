@@ -208,7 +208,9 @@ namespace SuperCOOL.CodeGeneration.MIPS
             right.SectionCode.Append( MipsGenerationHelper.NewScript()
                                                           .Push( MipsRegisterSet.a0 )
                                                           .LoadFromAddress( MipsRegisterSet.a0, MipsGenerationHelper.StringEqualsLabel )
-                                                          .Call( MipsRegisterSet.a0 ) );
+                                                          .Call( MipsRegisterSet.a0 )
+                                                          .Pop( MipsRegisterSet.a1 )
+                                                          .Pop( MipsRegisterSet.a1 ) );
 
             return left + right;
         }
