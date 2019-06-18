@@ -267,5 +267,11 @@ namespace SuperCOOL.Tests.CoolTests
             });
             Assert.True(test_case.RunTest());
         }
+        [Fact]
+        public void Copy()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "copy.cl"), "copy");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
