@@ -718,21 +718,46 @@ namespace SuperCOOL.CodeGeneration.MIPS
         {
             var result = new MipsProgram();
             var tags = labelGenerator.GenerateIf();
-            result.SectionFunctions.Append( MipsGenerationHelper.NewScript()
-                                                                .Tag( objectCopy.Tag )
-                                                                .GetParam( MipsRegisterSet.a0, 0 ) // a0<- self
-                                                                .LoadFromMemory( MipsRegisterSet.t0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest )//t0 <- self.type_info
-                                                                .LoadFromMemory( MipsRegisterSet.t1, MipsRegisterSet.t0, MipsGenerationHelper.SizeOfOffset )//t1 <- self.size
-                                                                .Add( MipsRegisterSet.t1, 4 )
-                                                                .Allocate( MipsRegisterSet.t1, MipsRegisterSet.a0 )//a0<- new (allocate does not use t0 or t1)
-                                                                .SaveToMemory( MipsRegisterSet.t0, MipsRegisterSet.a0 )//putting self.typeInfo in a0 typeinfo area
-                                                                .Add( MipsRegisterSet.a0, 4, MipsRegisterSet.t0 )//to copy in t0
-                                                                .Sub( MipsRegisterSet.t1, 4 )//Size Copy in t1
-                                                                .Move( MipsRegisterSet.a2, MipsRegisterSet.t1)
-                                                                .GetParam( MipsRegisterSet.a0, 0 )//From copy (self in a0)
-                                                                .Copy( MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.t1, tags.end, tags.@else )//word to word copy
-                                                                .Sub( MipsRegisterSet.t0, MipsRegisterSet.a2, MipsRegisterSet.a0 )
-                                                                .Return() );
+            var boolTypeInfo = labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.Bool.Name);
+            var IntTypeInfo = labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.Int.Name);
+            var intLabel = labelGenerator.GenerateIf();
+            var boolLabel = labelGenerator.GenerateIf();
+            result.SectionFunctions.Append(MipsGenerationHelper.NewScript()
+                                                                .Tag(objectCopy.Tag)
+                                                                .GetParam(MipsRegisterSet.a0, 0) // a0<- self
+                                                                .LoadFromMemory(MipsRegisterSet.t0, MipsRegisterSet.a0,
+                                                                    MipsGenerationHelper.TypeInfoOffest) //t0 <- self.type_info
+                                                                .LoadFromMemory(MipsRegisterSet.t1, MipsRegisterSet.t0,
+                                                                    MipsGenerationHelper.SizeOfOffset) //t1 <- self.size
+                                                                .Add(MipsRegisterSet.t1, 4)
+                                                                .Allocate(MipsRegisterSet.t1, MipsRegisterSet.a0) //a0<- new (allocate does not use t0 or t1)
+                                                                .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0) //putting self.typeInfo in a0 typeinfo area
+                                                                .Add(MipsRegisterSet.a0, 4, MipsRegisterSet.t0) //to copy in t0
+                                                                .Sub(MipsRegisterSet.t1, 4) //Size Copy in t1
+                                                                .Move(MipsRegisterSet.a2, MipsRegisterSet.t1)
+                                                                .GetParam(MipsRegisterSet.a0, 0) //From copy (self in a0)
+                                                                .Copy(MipsRegisterSet.a0, MipsRegisterSet.t0, MipsRegisterSet.t1, tags.end,
+                                                                    tags.@else) //word to word copy
+                                                                .Sub(MipsRegisterSet.t0, MipsRegisterSet.a2, MipsRegisterSet.a0)
+                                                                .Move(MipsRegisterSet.a2, MipsRegisterSet.a0)
+                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
+                                                                .LoadFromAddress(MipsRegisterSet.t0, IntTypeInfo)
+                                                                .BranchOnEquals(MipsRegisterSet.a0, MipsRegisterSet.t0, intLabel.@else)
+                                                                .JumpToLabel(intLabel.end)
+                                                                .Tag(intLabel.@else)
+                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a2)
+                                                                .Return()
+                                                                .Tag(intLabel.end)
+                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0, MipsGenerationHelper.TypeInfoOffest)
+                                                                .LoadFromAddress(MipsRegisterSet.t0, boolTypeInfo)
+                                                                .BranchOnEquals(MipsRegisterSet.a0, MipsRegisterSet.t0, boolLabel.@else)
+                                                                .JumpToLabel(boolLabel.end)
+                                                                .Tag(boolLabel.@else)
+                                                                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a2)
+                                                                .Return()
+                                                                .Tag(boolLabel.end)
+                                                                .Move(MipsRegisterSet.a0, MipsRegisterSet.a2)
+                                                                .Return());
             return result;
         }
 
