@@ -622,6 +622,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
         public MipsProgram VisitStringConstant(ASTCILStringConstantNode StringConstant)
         {
             var result = new MipsProgram();
+            var stringValue = Regex.Unescape(StringConstant.Value);
             if (!StringConstantGenerated.TryGetValue(StringConstant.Value, out var labelStringConstant))
             {
                 result.SectionData.Append(MipsGenerationHelper.NewScript()
@@ -631,7 +632,7 @@ namespace SuperCOOL.CodeGeneration.MIPS
                             MipsGenerationHelper.AddIntData(
                                 labelGenerator.GenerateLabelTypeInfo(CompilationUnit.TypeEnvironment.String.Name)),
                             MipsGenerationHelper.AddIntData(StringConstant.ValueLabel),
-                            MipsGenerationHelper.AddIntData(StringConstant.Value.Length)
+                            MipsGenerationHelper.AddIntData(stringValue.Length)
                         })
                     .Comment(StringConstant.Value)
                     .AddData(StringConstant.ValueLabel, new[]
