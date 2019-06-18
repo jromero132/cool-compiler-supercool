@@ -32,6 +32,16 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.Contains(new Error("No Entry Point Detected", ErrorKind.SemanticError), errors, new MessageErrorComparer());
         }
 
+        [Fact]
+        public void StrangeTokens()
+        {
+            var errors = Compiler.Compile(new[] { Path.Combine("Examples", "NotSoCool", "attributes.cl") }, out string code, out var limits);
+            Assert.Contains(new Error("", ErrorKind.LexicographicError, 1, 0), errors, new InespecificErrorComparer());
+            Assert.Contains(new Error("", ErrorKind.LexicographicError, 7, 0), errors, new InespecificErrorComparer());
+            Assert.Contains(new Error("", ErrorKind.LexicographicError, 21, 0), errors, new InespecificErrorComparer());
+        }
+
+
         class MessageErrorComparer : IEqualityComparer<Error>
         {
             public bool Equals(Error x, Error y)
