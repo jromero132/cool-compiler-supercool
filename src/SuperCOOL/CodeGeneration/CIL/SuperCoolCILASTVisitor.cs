@@ -224,11 +224,12 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILFuncStaticCallNode(
                     MethodCall.MethodName, type,
                     new[] { invokeOn}
-                        .Concat(MethodCall.Arguments.Select(param => 
+                        .Concat(MethodCall.Arguments.Select((param,i) => 
                         {
                             var exp = (ASTCILExpressionNode)param.Accept(this);
                             ASTCILExpressionNode arg = exp;
-                            if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                            var coolMethod = compilationUnit.MethodEnvironment.GetMethod(type, MethodCall.MethodName);
+                            if (coolMethod.GetParam(i) == compilationUnit.TypeEnvironment.Object && (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool))
                                 arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
                             return arg;
                         })));
@@ -247,12 +248,13 @@ namespace SuperCOOL.CodeGeneration
                 invokeOn = new ASTCILBoxingNode(invoke, MethodCall.InvokeOnExpresion.SemanticCheckResult.Type);
 
             var args = new[] { invokeOn}
-                .Concat(MethodCall.Arguments.Select(param =>
+                .Concat(MethodCall.Arguments.Select((param,i) =>
                 {
                     var exp = (ASTCILExpressionNode)param.Accept(this);
                     ASTCILExpressionNode arg = exp;
-                    if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
-                         arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
+                    var coolMethod = compilationUnit.MethodEnvironment.GetMethod(type, MethodCall.MethodName);
+                    if (coolMethod.GetParam(i) == compilationUnit.TypeEnvironment.Object && (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool))
+                        arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
                     return arg;
                 }));
             return new ASTCILFuncVirtualCallNode(type, MethodCall.MethodName, args);
@@ -264,11 +266,12 @@ namespace SuperCOOL.CodeGeneration
             return new ASTCILFuncVirtualCallNode(self,
                     OwnMethodCall.Method.Text,
                     new[] { new ASTCILSelfNode() }
-                    .Concat(OwnMethodCall.Arguments.Select(param =>
+                    .Concat(OwnMethodCall.Arguments.Select((param,i) =>
                     {
                         var exp = (ASTCILExpressionNode)param.Accept(this);
                         ASTCILExpressionNode arg = exp;
-                        if (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                        var coolMethod=compilationUnit.MethodEnvironment.GetMethod(self,OwnMethodCall.MethodName);
+                        if (coolMethod.GetParam(i)==compilationUnit.TypeEnvironment.Object && (param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || param.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool))
                             arg = new ASTCILBoxingNode(exp, param.SemanticCheckResult.Type);
                         return arg;
                     })));
