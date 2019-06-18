@@ -296,6 +296,12 @@ namespace SuperCOOL.CodeGeneration
             var type = context.SemanticCheckResult.Type;
             if (context.SemanticCheckResult.Type is SelfType selftype)
                 type = selftype.ContextType;
+            if (type == compilationUnit.TypeEnvironment.Int)
+                return new ASTCILIntConstantNode(0);
+            if (type == compilationUnit.TypeEnvironment.Bool)
+                return new ASTCILBoolConstantNode(false);
+            if (type == compilationUnit.TypeEnvironment.String)
+                return new ASTCILStringConstantNode("", labelIlGenerator.GenerateEmptyStringData());
 
             return new ASTCILFuncVirtualCallNode(type, Functions.Init, new[] { new ASTCILAllocateNode(type)});
         }
