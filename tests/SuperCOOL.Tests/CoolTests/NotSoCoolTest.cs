@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -41,17 +42,23 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.Contains(new Error("", ErrorKind.LexicographicError, 21, 0), errors, new InespecificErrorComparer());
         }
 
+        [Fact]
+        public void AssignSelf()
+        {
+            var errors = Compiler.Compile(new[] { Path.Combine("Examples", "NotSoCool", "assigment.cl") }, out string code, out var limits);
+            Assert.Contains(new Error("Not allowed to assign self.", ErrorKind.SemanticError), errors, new MessageErrorComparer());
+        }
 
         class MessageErrorComparer : IEqualityComparer<Error>
         {
             public bool Equals(Error x, Error y)
             {
-                return x.Message == y.Message;
+                return x.Message == y.Message && x.ErrorKind==y.ErrorKind;
             }
 
             public int GetHashCode(Error obj)
             {
-                return obj.Message.GetHashCode();
+                return obj.GetHashCode();
             }
         }
 
