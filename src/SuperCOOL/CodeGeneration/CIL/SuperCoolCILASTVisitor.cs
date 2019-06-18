@@ -58,17 +58,13 @@ namespace SuperCOOL.CodeGeneration
         public ASTCILNode VisitCase(ASTCaseNode Case)
         {
             var exp = (ASTCILExpressionNode)Case.ExpressionCase.Accept(this);
-            if (Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Case.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
-                exp = new ASTCILBoxingNode(exp, Case.SemanticCheckResult.Type);
+            if (Case.ExpressionCase.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Int || Case.ExpressionCase.SemanticCheckResult.Type == compilationUnit.TypeEnvironment.Bool)
+                exp = new ASTCILBoxingNode(exp, Case.ExpressionCase.SemanticCheckResult.Type);
             return new ASTCILCaseNode(exp,
                 Case.Cases.Select(x =>
                 {
-                    compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var branchType);
-                    var branch = (ASTCILExpressionNode)x.Branch.Accept(this);
-                    if (branchType == compilationUnit.TypeEnvironment.Int || branchType == compilationUnit.TypeEnvironment.Bool)
-                        branch = new ASTCILUnboxingNode(branch, branchType);
                     compilationUnit.TypeEnvironment.GetTypeDefinition(x.Type.Text, Case.SymbolTable, out var type);
-                    return (type,branch , x.Branch.SymbolTable.GetObject(x.Name.Text));
+                    return (type, (ASTCILExpressionNode)x.Branch.Accept(this), x.Branch.SymbolTable.GetObject(x.Name.Text));
                 }));
         }
 

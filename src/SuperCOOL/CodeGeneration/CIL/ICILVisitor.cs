@@ -10,7 +10,6 @@ namespace SuperCOOL.CodeGeneration.CIL
         Result VisitAssignment( ASTCILAssignmentNode Assignment );
         Result VisitBlock( ASTCILBlockNode Block );
         Result VisitBoolConstant( ASTCILBoolConstantNode BoolConstant );
-        Result VisitUnboxing(ASTCILUnboxingNode Unboxing);
         Result VisitBoxing(ASTCILBoxingNode Boxing);
         Result VisitBoolNot( ASTCILBoolNotNode BoolNot );
         Result VisitBoolOrTwoVariables( ASTCILBoolOrTwoVariablesNode BoolOrTwoVariables );

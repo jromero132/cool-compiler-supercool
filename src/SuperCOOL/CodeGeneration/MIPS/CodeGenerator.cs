@@ -140,13 +140,22 @@ namespace SuperCOOL.CodeGeneration.MIPS
                 var currentIfLabel = labelGenerator.GenerateIf();
                 result.SectionCode.Append(
                     MipsGenerationHelper.NewScript()
-                        .LoadFromAddress( MipsRegisterSet.t0,
-                            labelGenerator.GenerateLabelTypeName( currentCase.type.Name ).@object )
-                        .BranchOnEquals( MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else )
-                        .JumpToLabel( currentIfLabel.end )
-                        .Tag( currentIfLabel.@else )
-                        .GetLocalAddress( currentCase.symbolInfo.Offset )
-                        .SaveToMemory( MipsRegisterSet.a2, MipsRegisterSet.a0 ) );
+                        .LoadFromAddress(MipsRegisterSet.t0,
+                            labelGenerator.GenerateLabelTypeName(currentCase.type.Name).@object)
+                        .BranchOnEquals(MipsRegisterSet.a1, MipsRegisterSet.t0, currentIfLabel.@else)
+                        .JumpToLabel(currentIfLabel.end)
+                        .Tag(currentIfLabel.@else)
+                        .GetLocalAddress(currentCase.symbolInfo.Offset));
+                if (currentCase.type == CompilationUnit.TypeEnvironment.Int ||
+                    currentCase.type == CompilationUnit.TypeEnvironment.Bool)
+                {
+                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                        .LoadFromMemory(MipsRegisterSet.t0, MipsRegisterSet.a2)
+                        .SaveToMemory(MipsRegisterSet.t0, MipsRegisterSet.a0));
+                }
+                else
+                    result.SectionCode.Append(MipsGenerationHelper.NewScript()
+                        .SaveToMemory(MipsRegisterSet.a2, MipsRegisterSet.a0));
                 result += currentCase.expression.Accept( this );
                 result.SectionCode.Append( MipsGenerationHelper.NewScript()
                     .JumpToLabel( endWhileLabel )
@@ -773,15 +782,6 @@ namespace SuperCOOL.CodeGeneration.MIPS
                                                                 .Return()
                                                                 .Tag( tag1.@else )
                                                                 .ThrowRuntimeError( RuntimeErrors.SubStringOutOfRange, labelGenerator ) );
-            return result;
-        }
-
-        public MipsProgram VisitUnboxing(ASTCILUnboxingNode Unboxing)
-        {
-            var result = Unboxing.Expression.Accept(this);
-            result.SectionCode.Append(MipsGenerationHelper.NewScript()
-                .LoadFromMemory(MipsRegisterSet.a0, MipsRegisterSet.a0));
-
             return result;
         }
 
