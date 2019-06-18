@@ -16,6 +16,15 @@ namespace SuperCOOL.Tests.CoolTests
             Assert.Contains(new Error("Detected Cyclical Inheritance", ErrorKind.SemanticError), errors,new MessageErrorComparer());
         }
 
+        [Fact]
+        public void PuntoyComa()
+        {
+            var errors = Compiler.Compile(new[] { Path.Combine("Examples", "NotSoCool", "punto_y_coma.cl") }, out string code, out var limits);
+            Assert.Contains(new Error("", ErrorKind.SyntacticError,4,0), errors, new InespecificErrorComparer());
+            Assert.Contains(new Error("", ErrorKind.SyntacticError,9,0), errors, new InespecificErrorComparer());
+            Assert.Contains(new Error("", ErrorKind.SyntacticError,9,0), errors, new InespecificErrorComparer());
+        }
+
         class MessageErrorComparer : IEqualityComparer<Error>
         {
             public bool Equals(Error x, Error y)
@@ -29,6 +38,17 @@ namespace SuperCOOL.Tests.CoolTests
             }
         }
 
-      
+        class InespecificErrorComparer : IEqualityComparer<Error>
+        {
+            public bool Equals(Error x, Error y)
+            {
+                return x.Line == y.Line && x.ErrorKind == y.ErrorKind;
+            }
+            public int GetHashCode(Error obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
     }
 }
