@@ -250,5 +250,12 @@ namespace SuperCOOL.Tests.CoolTests
             TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "assignment_right_assoiciative.cl"), "assignment_right_assoiciative");
             Assert.True(test_case.RunTest());
         }
+
+        [Fact]
+        public void InheritedAtributes()
+        {
+            TestCase test_case = new TestCase(Path.Combine("Examples", "Cool", "inherited_atributes.cl"), "inherited_atributes");
+            Assert.True(test_case.RunTest());
+        }
     }
 }
