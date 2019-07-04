@@ -4,32 +4,24 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Nombre1 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre2 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C4xx | [@github_user](https://github.com/<user>)
+Jorge Yero Salazar | C412 | [@jyeros](https://github.com/jyeros)
+Jose Diego Menendez Del Cueto | C412 | [@Jose10go](https://github.com/Jose10go)
+Jose Ariel Romero Acosta | C412 | [@JoseA132](https://github.com/JoseA132)
 
 ## Readme
 
-Modifique el contenido documento para documentar de forma clara y concisa los siguientes aspectos:
+La implementación del presente compilador de COOL fue hecha en C# sobre [.NetCore](https://dotnet.microsoft.com/) Para compilar el código COOL contenido en un fichero de entrada `.cl` y obtener su código MIPS en un archivo de salida con el mismo nombre pero extensión `.mips` se debe ejecutar el script `coolc.sh` que se encuentra en el directorio `src` pasando como parámetro el path del fichero de entrada, por ejemplo
 
-- Cómo ejecutar (y compilar si es necesario) su compilador.
-- Requisitos adicionales, dependencias, configuración, etc.
-- Opciones adicionales que tenga su compilador.
+```bash
+    ./coolc.sh <path-to-cool-file>
+```
 
-## Reporte escrito
+En el ejemplo anterior se supone que la terminal se está ejecutando en el directorio `src` del proyecto, se debe sustituir `<path-to-cool-file>` por el path del código COOL `.cl`.
 
-En esta carpeta ponga además su reporte escrito. Ya sea hecho en LaTeX, Markdown o Word, **además** genere un PDF y póngale nombre `report.pdf`.
+Para lograr ejecutar el proyecto es necesario tener instalado `.NetCore`, el proyecto fue hecho utilizando la versión [LTS 2.1](https://dotnet.microsoft.com/download/dotnet-core/2.1), se recomienda utilizar la misma, aunque una posterior podría funcionar, luego es necesario hacer `make`, lo cual instalará todos los paquetes **(nuget)** necesarios para la ejecución del proyecto.
 
-El reporte debe resumir de manera organizada y comprensible la arquitectura e implementación de su compilador.
-El documento **NO** debe exceder las 5 cuartillas.
-En él explicará en más detalle su solución a los problemas que, durante la implementación de cada una de las fases del proceso de compilación, hayan requerido de Ud. especial atención.
+Si desea ver el compilador en acción dentro de la carpeta test se ha incluido un proyecto `xunit` de `.Net Core` el cual puede correr ejecutando `make tests` en la carpeta raíz del proyecto, entre los test se encuentran desde test básicos probando las funcionalidades del compilador hasta test mucho más complejos utilizando algoritmos de ordenación, sub cadenas y aspectos de la `POO`. Para correr los test es necesario tener instalado `spim` y si se está ejecutando en Windows es necesario tener instalado `wsl` por lo que se necesita Windows 10 version 1703 o posterior y `spim` dentro del `wsl`. Estos se corrieron utilizando Ubuntu 18.04 como SO y dentro del `wsl`.
 
-El informe debe incluir además una dirección a un repositorio git público con el código fuente de su compilador. Para la evaluación del proyecto, se clonará el repositorio y se procederá a su revisión. El proyecto debe contener un fichero `README.md` con las indicaciones para ejecutar su compilador, y los mecanismos pertinentes para garantizar su correcto funcionamiento en la máquina del revisor (instalación de dependencias, etc.).
+## Más Información
 
-### Estructura del reporte
-
-Usted es libre de estructurar su reporte escrito como más conveniente le parezca. A continuación le sugerimos algunas secciones que no deberían faltar, aunque puede mezclar, renombrar y organizarlas de la manera que mejor le parezca:
-
-- **Uso del compilador**: detalles sobre las opciones de líneas de comando, si tiene opciones adicionales (e.j., `--ast` genera un AST en JSON, etc.). Básicamente lo mismo que pondrá en este Readme.
-- **Arquitectura del compilador**: una explicación general de la arquitectura, en cuántos módulos se divide el proyecto, cuantas fases tiene, qué tipo de gramática se utiliza, y en general, como se organiza el proyecto. Una buena imagen siempre ayuda.
-- **Problemas técnicos**: detalles sobre cualquier problema teórico o técnico interesante que haya necesitado resolver de forma particular.
+Para más información acerca de la implementación del compilador puede consultar el fichero `/doc/report.pdf`.
